@@ -15,4 +15,4 @@
 
 - [ ] No secrets, tokens or third-party scripts in the diff
 - [ ] New or changed texts updated in `i18n/pt-BR.json`, `en.json` and `es.json`; code and docs in English
-- [ ] Model changes update `engine.js`, `llms.txt` and the tests together
+- [ ] Model changes update `engine.js`, the guide texts and the tests together

@@ -91,7 +91,7 @@ This project is written with AI coding assistants and encourages contributors to
   - Run `npm run check`.
   - Test the change in the browser with `npm start`.
   - Mention in the description which assistant you used. This is for transparency, not a judgement.
-- **When you change the model or any text:** update `engine.js`, `llms.txt` and all three `i18n/*.json` files together. The test suite enforces this.
+- **When you change the model or any text:** update `engine.js` and all three `i18n/*.json` files together. The test suite enforces this.
 
 ## Deployment
 

@@ -1,6 +1,5 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import * as E from '../assets/js/engine.js';
 import { normalizeProject, normalizeModel, exampleProject, withModels, blankProject } from '../assets/js/store.js';
 
@@ -92,10 +91,4 @@ test('custom models validate and travel with the project', () => {
   const p = blankProject();
   p.floors[0].nodes.push({ x: 1, y: 1, model: 'c1', main: true });
   assert.deepEqual(withModels(p, models).models.map(x => x.id), ['c1']);
-});
-
-test('llms.txt quotes the same material values', () => {
-  const txt = readFileSync(new URL('../llms.txt', import.meta.url), 'utf8');
-  for (const m of Object.values(E.MATERIALS)) assert.ok(txt.includes(m.db.join('/')), `missing ${m.db}`);
-  assert.ok(txt.includes(E.SLAB.join('/')), 'missing slab');
 });

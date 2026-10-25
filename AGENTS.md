@@ -41,7 +41,7 @@ The site ships in three languages: **pt-BR** (default, served at `/`), **en** (`
 ## Conventions
 
 - **Language of the code:** code, comments, commit messages, documentation and issues are in English. Site text follows the Languages section above.
-- **Model changes:** the guide's attenuation table is generated from `assets/js/engine.js`. If you change the model, update `llms.txt`, the guide texts in the three language files when they quote numbers, and the tests in the same change.
+- **Model changes:** the guide's attenuation table is generated from `assets/js/engine.js`. If you change the model, update the guide texts in the three language files when they quote numbers, and the tests, in the same change.
 - **Module boundaries:** `engine.js` holds pure functions only, with no DOM or storage access. Storage goes through `store.js`, and every `localStorage` access is wrapped in try/catch.
 - **Colors:** every color is a CSS token in `assets/css/style.css`, defined for light and dark themes.
 - **Accessibility:** controls have labels, keyboard focus stays visible, and layouts work at 375 px wide with no horizontal scroll.

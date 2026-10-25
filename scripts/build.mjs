@@ -31,7 +31,7 @@ export const LANGS = ['pt-BR', 'en', 'es'];
 const DEFAULT_LANG = 'pt-BR';
 const PAGES = { index: 'src/index.html', privacy: 'src/privacy.html', notFound: 'src/404.html' };
 const INDEXED = ['index', 'privacy'];
-const STATIC = ['assets', 'robots.txt', 'llms.txt', 'site.webmanifest'];
+const STATIC = ['assets', 'site.webmanifest'];
 const MATERIAL_ORDER = ['tijolo', 'concreto', 'slab', 'gesso', 'madeira', 'vidro', 'metal'];
 
 export function applyBlocks(html, flags) {

@@ -19,7 +19,7 @@ index.html, politica-de-privacidade.html, 404.html   Portuguese (default)
 en/index.html, en/privacy.html, en/404.html            English
 es/index.html, es/privacidad.html, es/404.html         Spanish
 assets/                                                CSS, JavaScript, images
-sitemap.xml, robots.txt, llms.txt, site.webmanifest
+sitemap.xml, site.webmanifest
 ```
 
 ## Settings
@@ -54,6 +54,10 @@ location /en/ { error_page 404 /en/404.html; try_files $uri $uri.html $uri/ =404
 location /es/ { error_page 404 /es/404.html; try_files $uri $uri.html $uri/ =404; }
 error_page 404 /404.html;
 ```
+
+## Crawler files
+
+The build does not create `robots.txt` or other crawler instructions: they depend on how and where you host the site. Add them on your server or write them from a build extension (`writeFiles`). The generated `sitemap.xml` is at the site root.
 
 ## Caching
 
