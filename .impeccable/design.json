@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-25T21:27:50+00:00",
+  "generatedAt": "2026-10-25T23:00:00+00:00",
   "title": "Design System: Planejador WiFi",
   "extensions": {
     "colorMeta": {
@@ -504,7 +504,7 @@
     "typographyMeta": {
       "display": {
         "displayName": "Display",
-        "purpose": "Page title above the planner."
+        "purpose": "Short page title above the workspace (17px on phones); document pages use 32px."
       },
       "headline": {
         "displayName": "Headline",
@@ -512,7 +512,7 @@
       },
       "title": {
         "displayName": "Title",
-        "purpose": "Card, dialog and tour headings (20px in dialogs)."
+        "purpose": "Card, drawer, popover (16px) and dialog headings (20px in dialogs and the tour card)."
       },
       "metric": {
         "displayName": "Metric",
@@ -524,22 +524,27 @@
       },
       "reading": {
         "displayName": "Reading",
-        "purpose": "Guide text in a 760px column; 16px on phones."
+        "purpose": "Guide text in a 720px column; 16px on phones; 18px lead paragraph."
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Uppercase eyebrows; table headers at 13px / 0.05em."
+        "purpose": "Uppercase table headers in the guide."
       },
       "data": {
         "displayName": "Data",
-        "purpose": "Every measured value: readout, band segments, pills, table numbers, canvas annotations."
+        "purpose": "Every measured value: readout coordinates and dBm, band segments, pills, link tags, table numbers, shortcut letters, canvas annotations."
       }
     },
     "shadows": [
       {
+        "name": "floating-instrument",
+        "value": "0 2px 10px rgba(20, 28, 40, .12)",
+        "purpose": "Instruments floating on the plan: top strip, tool rail, tool options, readout, history and view clusters, summary chip. Dark theme: 0 2px 12px rgba(0, 0, 0, .45)."
+      },
+      {
         "name": "floating-layer",
         "value": "0 10px 30px rgba(20, 28, 40, .16)",
-        "purpose": "Menus, dialogs, toast and tour card only. Dark theme: rgba(0, 0, 0, .5)."
+        "purpose": "Overlays: popover, bottom sheet, File menu, dialogs, toast, tour card. Dark theme: rgba(0, 0, 0, .5)."
       },
       {
         "name": "tour-spotlight",
@@ -557,18 +562,18 @@
     "breakpoints": [
       {
         "name": "phone",
-        "value": "720px",
-        "purpose": "Toolbar becomes a row above the plan; menu gets its own row."
+        "value": "719px",
+        "purpose": "Edge-to-edge workspace; tool rail becomes a bottom bar; popover and tool options dock above it; menu gets its own row."
       },
       {
-        "name": "tablet",
-        "value": "1100px",
-        "purpose": "Single column; results cards in an auto-fit grid below the plan."
+        "name": "sheet",
+        "value": "1099px",
+        "purpose": "Results drawer becomes a bottom sheet over the plan with an always-visible head."
       },
       {
         "name": "wide",
-        "value": "1101px",
-        "purpose": "Sticky stage with toolbar beside the plan; plan fits viewport height."
+        "value": "1100px",
+        "purpose": "Plan map plus a 340px drawer beside it, collapsible to a summary chip."
       }
     ]
   },
@@ -598,20 +603,68 @@
       "css": ".ds-field { font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--muted, #5A6473); } .ds-input { font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; font-size: 15px; color: var(--ink, #1B222C); background: var(--sheet, #FBFCFD); border: 1px solid var(--line, #C8CFD8); border-radius: 6px; padding: 6px 8px; } .ds-input:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: 2px; }"
     },
     {
-      "name": "Tool Column",
+      "name": "Tool Rail",
       "kind": "custom",
-      "refersTo": "tool",
-      "description": "Vertical toolbar glued to the plan; active tool gets paper fill and ink border.",
-      "html": "<div class=\"ds-tools\"><button class=\"ds-tool\">Selecionar<kbd>V</kbd></button><button class=\"ds-tool\" aria-pressed=\"true\">Parede<kbd>W</kbd></button><button class=\"ds-tool\">Nó mesh<kbd>N</kbd></button></div>",
-      "css": ".ds-tools { display: flex; flex-direction: column; gap: 4px; width: 128px; } .ds-tool { font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 500; color: var(--ink, #1B222C); background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 7px 11px; text-align: left; cursor: pointer; } .ds-tool:hover { border-color: var(--line, #C8CFD8); } .ds-tool[aria-pressed=\"true\"] { background: var(--sheet, #FBFCFD); border-color: var(--ink, #1B222C); font-weight: 600; } .ds-tool:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: 2px; } .ds-tool kbd { font-family: \"IBM Plex Mono\", ui-monospace, Menlo, monospace; margin-left: auto; font-size: 11px; color: var(--muted, #5A6473); border: 1px solid var(--line, #C8CFD8); border-radius: 4px; padding: 0 4px; }"
+      "refersTo": "tool-rail",
+      "description": "Floating rail on the plan: icon over label with a shortcut letter; pressed tool fills with ink.",
+      "html": "<div class=\"ds-rail\" role=\"group\"><button class=\"ds-tool\" aria-pressed=\"false\"><svg class=\"ds-ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5.5 3.5 18 11l-5.6 1.5L10 18z\"/><path d=\"m12.4 12.5 4.6 6\"/></svg><span>Select</span><kbd>V</kbd></button><button class=\"ds-tool\" aria-pressed=\"true\"><svg class=\"ds-ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4.5 18.5 19.5 5.5\" stroke-width=\"3.2\"/><path d=\"M3 15.5l3 4.5M18 3l3 4.5\"/></svg><span>Wall</span><kbd>W</kbd></button><button class=\"ds-tool\" aria-pressed=\"false\"><svg class=\"ds-ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"16\" r=\"3\"/><path d=\"M6.3 10.3a8 8 0 0 1 11.4 0M9 13a4.2 4.2 0 0 1 6 0\"/></svg><span>Mesh node</span><kbd>N</kbd></button></div>",
+      "css": ".ds-rail { display: flex; flex-direction: column; gap: 2px; width: 84px; padding: 4px; background: var(--sheet, #FBFCFD); border: 1px solid var(--line, #C8CFD8); border-radius: 10px; box-shadow: var(--shadow-float, 0 2px 10px rgba(20,28,40,.12)); } .ds-tool { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 2px 6px; font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; font-size: 12px; font-weight: 500; line-height: 1.15; color: var(--ink, #1B222C); background: transparent; border: 1px solid transparent; border-radius: 6px; cursor: pointer; } .ds-tool:hover { background: var(--accent-soft, rgba(47,67,196,.12)); } .ds-tool[aria-pressed=\"true\"] { background: var(--ink, #1B222C); color: var(--sheet, #FBFCFD); font-weight: 600; } .ds-tool:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: 2px; } .ds-tool kbd { position: absolute; top: 3px; right: 4px; font-family: \"IBM Plex Mono\", ui-monospace, Menlo, monospace; font-size: 10px; line-height: 1; color: var(--muted, #5A6473); } .ds-tool[aria-pressed=\"true\"] kbd { color: inherit; opacity: .7; } .ds-ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Top Strip",
+      "kind": "custom",
+      "refersTo": "floor-tab-active",
+      "description": "Floating instruments along the top of the plan: floor tabs, band segment, heat-map chip.",
+      "html": "<div class=\"ds-strip\"><div class=\"ds-floors\"><button aria-pressed=\"true\">Ground floor</button><button aria-pressed=\"false\">Upper floor</button><button aria-pressed=\"false\">+</button></div><label class=\"ds-chip\"><input type=\"checkbox\" checked> Heat map</label></div>",
+      "css": ".ds-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; font-size: 15px; color: var(--ink, #1B222C); } .ds-floors { display: flex; gap: 4px; padding: 3px; background: var(--sheet, #FBFCFD); border: 1px solid var(--line, #C8CFD8); border-radius: 8px; box-shadow: var(--shadow-float, 0 2px 10px rgba(20,28,40,.12)); } .ds-floors button { font: inherit; font-size: 14px; font-weight: 500; color: inherit; padding: 4px 10px; background: transparent; border: 1px solid transparent; border-radius: 6px; cursor: pointer; } .ds-floors button:hover { border-color: var(--muted, #5A6473); } .ds-floors button[aria-pressed=\"true\"] { background: var(--ink, #1B222C); color: var(--sheet, #FBFCFD); } .ds-floors button:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: 2px; } .ds-chip { display: flex; align-items: center; gap: 7px; font-size: 14px; background: var(--sheet, #FBFCFD); border: 1px solid var(--line, #C8CFD8); border-radius: 6px; padding: 6px 10px; box-shadow: var(--shadow-float, 0 2px 10px rgba(20,28,40,.12)); } .ds-chip input { accent-color: var(--accent, #2F43C4); }"
     },
     {
       "name": "Band Selector",
       "kind": "chip",
       "refersTo": "band-segment",
-      "description": "Segmented control for 2.4 / 5 / 6 GHz; selected segment inverts to ink.",
-      "html": "<div class=\"ds-seg\" role=\"radiogroup\"><button role=\"radio\" aria-checked=\"false\">2,4 GHz</button><button role=\"radio\" aria-checked=\"true\">5 GHz</button><button role=\"radio\" aria-checked=\"false\">6 GHz</button></div>",
-      "css": ".ds-seg { display: inline-flex; border: 1px solid var(--line, #C8CFD8); border-radius: 7px; overflow: hidden; background: var(--sheet, #FBFCFD); } .ds-seg button { font-family: \"IBM Plex Mono\", ui-monospace, Menlo, monospace; font-size: 13px; color: var(--ink, #1B222C); background: transparent; border: 0; padding: 6px 14px; cursor: pointer; } .ds-seg button + button { border-left: 1px solid var(--line, #C8CFD8); } .ds-seg button[aria-checked=\"true\"] { background: var(--ink, #1B222C); color: var(--sheet, #FBFCFD); } .ds-seg button:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: 2px; outline-offset: -2px; }"
+      "description": "Segmented control for 2.4 / 5 / 6 GHz on the top strip; pressed band inverts to ink; a band no device supports is struck through.",
+      "html": "<div class=\"ds-seg\" role=\"group\"><button aria-pressed=\"false\">2,4 GHz</button><button aria-pressed=\"true\">5 GHz</button><button aria-pressed=\"false\" class=\"nodev\">6 GHz</button></div>",
+      "css": ".ds-seg { display: inline-flex; border: 1px solid var(--line, #C8CFD8); border-radius: 6px; overflow: hidden; background: var(--sheet, #FBFCFD); box-shadow: var(--shadow-float, 0 2px 10px rgba(20,28,40,.12)); } .ds-seg button { font-family: \"IBM Plex Mono\", ui-monospace, Menlo, monospace; font-size: 13px; color: var(--ink, #1B222C); background: transparent; border: 0; padding: 7px 13px; cursor: pointer; } .ds-seg button + button { border-left: 1px solid var(--line, #C8CFD8); } .ds-seg button[aria-pressed=\"true\"] { background: var(--ink, #1B222C); color: var(--sheet, #FBFCFD); } .ds-seg button.nodev:not([aria-pressed=\"true\"]) { color: var(--muted, #5A6473); text-decoration: line-through; text-decoration-thickness: 1px; } .ds-seg button:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: -3px; }"
+    },
+    {
+      "name": "View Cluster",
+      "kind": "custom",
+      "refersTo": "floating-instrument",
+      "description": "Icon-only button group floating at the bottom right of the plan (zoom out, fit, zoom in).",
+      "html": "<div class=\"ds-group\" role=\"group\"><button aria-label=\"Zoom out\"><svg class=\"ds-ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12h14\"/></svg></button><button aria-label=\"Fit to screen\"><svg class=\"ds-ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5\"/><rect x=\"8.5\" y=\"8.5\" width=\"7\" height=\"7\" rx=\"1\"/></svg></button><button aria-label=\"Zoom in\"><svg class=\"ds-ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12h14M12 5v14\"/></svg></button></div>",
+      "css": ".ds-group { display: inline-flex; background: var(--sheet, #FBFCFD); border: 1px solid var(--line, #C8CFD8); border-radius: 8px; box-shadow: var(--shadow-float, 0 2px 10px rgba(20,28,40,.12)); overflow: hidden; color: var(--ink, #1B222C); } .ds-group button { display: grid; place-items: center; padding: 7px 9px; color: inherit; background: transparent; border: 0; cursor: pointer; } .ds-group button + button { border-left: 1px solid var(--line, #C8CFD8); } .ds-group button:hover { background: var(--accent-soft, rgba(47,67,196,.12)); } .ds-group button:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: -3px; } .ds-ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Properties Popover",
+      "kind": "custom",
+      "refersTo": "popover",
+      "description": "Settings of the selected object, anchored beside it on the plan; docked above the rail on phones.",
+      "html": "<div class=\"ds-pop\" role=\"dialog\" aria-labelledby=\"dsPopT\"><div class=\"ds-pop-head\"><h2 id=\"dsPopT\">Wall · 4.20 m</h2><button class=\"ds-pop-x\" aria-label=\"Close\"><svg class=\"ds-ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M6 6l12 12M18 6 6 18\"/></svg></button></div><label class=\"ds-pop-l\" for=\"dsMat\">Material</label><select id=\"dsMat\"><option>Brick · −8/−14/−18 dB</option></select><div><button class=\"ds-pop-del\">Delete wall</button></div></div>",
+      "css": ".ds-pop { width: 270px; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 12px; font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; font-size: 15px; color: var(--ink, #1B222C); background: var(--sheet, #FBFCFD); border: 1px solid var(--line, #C8CFD8); border-radius: 10px; box-shadow: var(--shadow, 0 10px 30px rgba(20,28,40,.16)); } .ds-pop-head { display: flex; align-items: center; gap: 8px; } .ds-pop-head h2 { font-family: \"Barlow Semi Condensed\", \"Arial Narrow\", Arial, sans-serif; font-size: 16px; font-weight: 700; margin: 0 auto 0 0; } .ds-pop-x { display: grid; place-items: center; padding: 4px; color: inherit; background: transparent; border: 0; border-radius: 6px; cursor: pointer; } .ds-pop-x:focus-visible, .ds-pop-del:focus-visible, .ds-pop select:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: 2px; } .ds-pop-x .ds-ic { width: 18px; height: 18px; } .ds-pop-l { font-size: 13px; color: var(--muted, #5A6473); } .ds-pop select { font: inherit; color: inherit; background: var(--sheet, #FBFCFD); border: 1px solid var(--line, #C8CFD8); border-radius: 6px; padding: 6px 8px; } .ds-pop-del { font: inherit; font-weight: 500; color: var(--danger, #B42335); background: transparent; border: 1px solid var(--line, #C8CFD8); border-radius: 6px; padding: 7px 11px; cursor: pointer; } .ds-pop-del:hover { border-color: var(--muted, #5A6473); } .ds-ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Results Drawer Head",
+      "kind": "custom",
+      "refersTo": "drawer",
+      "description": "Panel-mist drawer beside the map (bottom sheet below 1100px); its head toggles it and shows the summary.",
+      "html": "<aside class=\"ds-drawer\"><button class=\"ds-dh\" aria-expanded=\"true\"><span class=\"ds-dh-t\">Results</span><span class=\"ds-dh-s\"><i style=\"background:#1A9850\"></i><b>96%</b> · 5 GHz</span><svg class=\"ds-ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m9 6 6 6-6 6\"/></svg></button></aside>",
+      "css": ".ds-drawer { width: 340px; background: var(--panel, #F3F5F8); border: 1px solid var(--line, #C8CFD8); border-radius: 8px; overflow: hidden; color: var(--ink, #1B222C); } .ds-dh { width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px 10px 14px; font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; color: inherit; text-align: left; background: transparent; border: 0; cursor: pointer; } .ds-dh:hover { background: var(--accent-soft, rgba(47,67,196,.12)); } .ds-dh:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: -3px; } .ds-dh-t { font-family: \"Barlow Semi Condensed\", \"Arial Narrow\", Arial, sans-serif; font-size: 17px; font-weight: 700; } .ds-dh-s { margin-left: auto; font-size: 13.5px; color: var(--muted, #5A6473); white-space: nowrap; } .ds-dh-s i { display: inline-block; width: 9px; height: 9px; border-radius: 999px; margin-right: 7px; vertical-align: 1px; } .ds-dh-s b { font-family: \"IBM Plex Mono\", ui-monospace, Menlo, monospace; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--ink, #1B222C); } .ds-ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Summary Chip",
+      "kind": "chip",
+      "refersTo": "summary-chip",
+      "description": "Pill on the map's top-right corner when the drawer is collapsed; reopens it.",
+      "html": "<button class=\"ds-hud\" aria-expanded=\"false\"><span><i style=\"background:#EFC23F\"></i><b>93%</b> · 5 GHz · 1 weak link</span><svg class=\"ds-ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m9 6 6 6-6 6\"/></svg></button>",
+      "css": ".ds-hud { display: inline-flex; align-items: center; gap: 8px; padding: 6px 8px 6px 12px; font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; font-size: 14px; font-weight: 500; color: var(--ink, #1B222C); background: var(--sheet, #FBFCFD); border: 1px solid var(--line, #C8CFD8); border-radius: 999px; box-shadow: var(--shadow-float, 0 2px 10px rgba(20,28,40,.12)); cursor: pointer; } .ds-hud:hover { border-color: var(--muted, #5A6473); } .ds-hud:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: 2px; } .ds-hud i { display: inline-block; width: 9px; height: 9px; border-radius: 999px; margin-right: 7px; vertical-align: 1px; } .ds-hud b { font-family: \"IBM Plex Mono\", ui-monospace, Menlo, monospace; font-weight: 500; font-variant-numeric: tabular-nums; } .ds-hud .ds-ic { width: 18px; height: 18px; transform: rotate(180deg); } .ds-ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Verdict Card",
+      "kind": "card",
+      "refersTo": "verdict-card",
+      "description": "First drawer card: status with dot, devices to buy, whole-house tiles per band (buttons).",
+      "html": "<section class=\"ds-verdict\"><h2>Verdict</h2><p class=\"ds-vs\"><i style=\"background:#1A9850\"></i>Covers the house</p><dl><dt>Devices</dt><dd>2 × Deco X20</dd></dl><div class=\"ds-b3\"><button aria-pressed=\"false\"><b>71%</b><span>2.4 GHz</span></button><button aria-pressed=\"true\"><b>96%</b><span>5 GHz</span></button><button aria-pressed=\"false\"><b>—</b><span>6 GHz</span></button></div><p class=\"ds-hint\">Estimate, typical error ±8 dB.</p></section>",
+      "css": ".ds-verdict { max-width: 340px; display: flex; flex-direction: column; gap: 10px; padding: 14px; font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; font-size: 15px; color: var(--ink, #1B222C); background: var(--panel, #F3F5F8); border: 1px solid var(--line, #C8CFD8); border-radius: 8px; } .ds-verdict h2 { font-family: \"Barlow Semi Condensed\", \"Arial Narrow\", Arial, sans-serif; font-size: 17px; font-weight: 700; margin: 0; } .ds-vs { display: flex; align-items: center; margin: 0; font-family: \"Barlow Semi Condensed\", \"Arial Narrow\", Arial, sans-serif; font-size: 22px; font-weight: 700; line-height: 1.15; } .ds-vs i { width: 9px; height: 9px; border-radius: 999px; margin-right: 7px; flex: none; } .ds-verdict dl { margin: 0; } .ds-verdict dt { font-size: 13px; color: var(--muted, #5A6473); } .ds-verdict dd { margin: 0; font-weight: 600; } .ds-b3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; } .ds-b3 button { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 4px; font: inherit; color: inherit; background: var(--sheet, #FBFCFD); border: 1px solid var(--line, #C8CFD8); border-radius: 6px; cursor: pointer; } .ds-b3 button:hover { border-color: var(--muted, #5A6473); } .ds-b3 button[aria-pressed=\"true\"] { border-color: var(--ink, #1B222C); box-shadow: inset 0 0 0 1px var(--ink, #1B222C); } .ds-b3 button:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: 2px; } .ds-b3 b { font-family: \"IBM Plex Mono\", ui-monospace, Menlo, monospace; font-size: 15px; font-weight: 400; font-variant-numeric: tabular-nums; } .ds-b3 span { font-size: 11.5px; color: var(--muted, #5A6473); } .ds-hint { margin: 0; font-size: 13px; color: var(--muted, #5A6473); }"
     },
     {
       "name": "Coverage Card",
@@ -619,15 +672,15 @@
       "refersTo": "card",
       "description": "Result card: panel tone, hairline border, big condensed metric, signal bar paired with names.",
       "html": "<section class=\"ds-card\"><h2>Cobertura · 5 GHz</h2><div class=\"ds-big\">97%<small>da casa com ≥ −67 dBm</small></div><div class=\"ds-bar\"><span style=\"width:94%;background:#1A9850\"></span><span style=\"width:3%;background:#86C65A\"></span><span style=\"width:3%;background:#EE8547\"></span></div><div class=\"ds-row\"><i style=\"background:#1A9850\"></i><span>Excelente</span><b>94%</b></div></section>",
-      "css": ".ds-card { font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; background: var(--panel, #F3F5F8); color: var(--ink, #1B222C); border: 1px solid var(--line, #C8CFD8); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px; max-width: 320px; } .ds-card h2 { font-family: \"Barlow Semi Condensed\", \"Arial Narrow\", Arial, sans-serif; font-size: 17px; font-weight: 700; margin: 0; } .ds-big { font-family: \"Barlow Semi Condensed\", \"Arial Narrow\", Arial, sans-serif; font-size: 40px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; } .ds-big small { font-size: 15px; font-weight: 600; color: var(--muted, #5A6473); margin-left: 6px; } .ds-bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--grid, #E1E6EC); } .ds-row { display: grid; grid-template-columns: 12px 1fr auto; gap: 8px; align-items: center; font-size: 13.5px; } .ds-row i { width: 12px; height: 12px; border-radius: 3px; } .ds-row b { font-family: \"IBM Plex Mono\", ui-monospace, Menlo, monospace; font-weight: 400; font-variant-numeric: tabular-nums; }"
+      "css": ".ds-card { font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; background: var(--panel, #F3F5F8); color: var(--ink, #1B222C); border: 1px solid var(--line, #C8CFD8); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px; max-width: 340px; } .ds-card h2 { font-family: \"Barlow Semi Condensed\", \"Arial Narrow\", Arial, sans-serif; font-size: 17px; font-weight: 700; margin: 0; } .ds-big { font-family: \"Barlow Semi Condensed\", \"Arial Narrow\", Arial, sans-serif; font-size: 40px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; } .ds-big small { font-size: 15px; font-weight: 600; color: var(--muted, #5A6473); margin-left: 6px; } .ds-bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--grid, #E1E6EC); } .ds-row { display: grid; grid-template-columns: 12px 1fr auto; gap: 8px; align-items: center; font-size: 13.5px; } .ds-row i { width: 12px; height: 12px; border-radius: 3px; } .ds-row b { font-family: \"IBM Plex Mono\", ui-monospace, Menlo, monospace; font-weight: 400; font-variant-numeric: tabular-nums; }"
     },
     {
       "name": "dBm Pill",
       "kind": "chip",
       "refersTo": "pill",
-      "description": "Link quality pill: signal color fill, dark monospace text.",
-      "html": "<span class=\"ds-pill\">−64 dBm · 5 GHz</span>",
-      "css": ".ds-pill { font-family: \"IBM Plex Mono\", ui-monospace, Menlo, monospace; font-size: 12px; color: #111; background: #EFC23F; border-radius: 999px; padding: 1px 8px; white-space: nowrap; }"
+      "description": "Link quality pill: neutral paper pill, ink monospace text, signal-color dot.",
+      "html": "<span class=\"ds-pill\"><i style=\"background:#EFC23F\"></i>−69 dBm · 5 GHz</span>",
+      "css": ".ds-pill { font-family: \"IBM Plex Mono\", ui-monospace, Menlo, monospace; font-size: 12px; color: var(--ink, #1B222C); background: var(--sheet, #FBFCFD); border: 1px solid var(--line, #C8CFD8); border-radius: 999px; padding: 1px 8px; white-space: nowrap; } .ds-pill i { display: inline-block; width: 8px; height: 8px; border-radius: 999px; margin-right: 6px; vertical-align: 1px; }"
     },
     {
       "name": "Site Navigation",
@@ -640,18 +693,18 @@
   ],
   "narrative": {
     "northStar": "The Living Floor Plan",
-    "overview": "The floor plan is the protagonist. Everything a visitor needs to decide where the router goes happens on one sheet of plan paper: walls drawn in the colors of their materials, nodes as solid ink dots, and the Wi-Fi heat map laid over the drawing like a living layer that changes as soon as a wall or a node moves. The interface around the sheet stays neutral, cool and quiet, so the plan is always the most colorful and most important thing on screen.\n\nThe system is technical and precise, but never intimidating. Measurements are exact and set in a monospaced face, categories carry plain-language names next to every dBm value, and the controls look like ordinary, familiar buttons and fields with thin hairline borders. A layperson finishes the job without feeling they opened engineering software; an expert finds every number where they expect it.\n\nDensity is moderate: a tool on one side, readings on the other, the plan in the middle and a long reading guide below. Both light and dark themes are first-class and share the same structure.",
+    "overview": "The floor plan is the protagonist. Everything a visitor needs to decide where the router goes happens on one sheet of plan paper: walls drawn in the colors of their materials, nodes as solid ink dots, and the Wi-Fi heat map laid over the drawing like a living layer that changes as soon as a wall or a node moves. The interface around the sheet stays neutral, cool and quiet, so the plan is always the most colorful and most important thing on screen.\n\nThe system is technical and precise, but never intimidating. Measurements are exact and set in a monospaced face, categories carry plain-language names next to every dBm value, and the controls look like ordinary, familiar buttons and fields with thin hairline borders. A layperson finishes the job without feeling they opened engineering software; an expert finds every number where they expect it.\n\nThe planner is a one-screen workspace: a short title and the project bar on top, then the plan map filling the rest of the viewport, with its instruments floating on it (floors and bands, the tool rail, the readout, history and zoom) and the results in a drawer at its side. The reading guide follows below the workspace. Both light and dark themes are first-class and share the same structure.",
     "keyCharacteristics": [
       "The plan sheet holds the only saturated color on screen: signal colors and wall materials.",
       "Cool, slightly blue neutrals; one ink accent, Drafting Blue.",
       "Condensed display type for headings and numbers, humanist sans for reading, monospace for measurements.",
-      "Thin 1px hairlines and gently rounded corners; flat surfaces, shadows only on floating layers.",
+      "Thin 1px hairlines and gently rounded corners; flat surfaces, a faint shadow on the instruments floating on the plan and a deeper one on overlays.",
       "Every color that carries meaning is repeated in text."
     ],
     "rules": [
       {
         "name": "The Plan Leads Rule",
-        "body": "Saturated color lives on the plan sheet. Interface chrome stays in neutrals plus Drafting Blue; if a control is more colorful than the heat map, it is wrong.",
+        "body": "The plan map takes the workspace and holds the saturated color; the instruments float on it in paper and ink, and the results sit beside it. Interface chrome stays in neutrals plus Drafting Blue; if a control is more colorful than the heat map, it is wrong.",
         "section": "colors"
       },
       {
@@ -666,7 +719,7 @@
       },
       {
         "name": "The Numbers In Mono Rule",
-        "body": "Every measured value (dBm, meters, coordinates, percentages in tables) is set in IBM Plex Mono with tabular figures, so numbers line up and read as measurements.",
+        "body": "Every measured value (dBm, meters, coordinates, percentages in tables) is set in IBM Plex Mono with tabular figures, so numbers line up and read as measurements. Only the values go mono: the sentences around them stay in Barlow.",
         "section": "typography"
       },
       {
@@ -676,7 +729,7 @@
       },
       {
         "name": "The Flat Sheet Rule",
-        "body": "Nothing that sits in the page flow casts a shadow. If an element needs to stand out, change its tone or border, not its elevation.",
+        "body": "Nothing that sits in the page flow casts a shadow. If an element needs to stand out, change its tone or border, not its elevation. Only what floats over the plan is lifted: instruments with the faint shadow, overlays with the deep one.",
         "section": "elevation"
       }
     ],
@@ -685,13 +738,17 @@
       "**Do** pair every signal color with its category name or dBm value.",
       "**Do** set every measurement in IBM Plex Mono with tabular figures.",
       "**Do** use 1px Hairline borders and tonal steps (desk, paper, panel) to separate areas.",
-      "**Do** keep the shadow for floating layers only: menus, dialogs, toast and the tour card.",
+      "**Do** keep shadows for what floats over the plan: the faint instrument shadow for the floating instruments, the floating-layer shadow for the popover, bottom sheet, menus, dialogs, toast and tour card.",
       "**Do** give every interactive element the 2px Drafting Blue focus outline.",
-      "**Do** keep the plan and its toolbar visible together while the results scroll on wide screens."
+      "**Do** keep the plan filling the workspace with its tools floating on it; results scroll inside the drawer, never the plan off screen.",
+      "**Do** show pressed floors, bands and tools as a Graphite Ink fill with Plan Paper text.",
+      "**Do** draw new icons in the authored set's grammar: 24px grid, 1.75 stroke, round caps and joins, current color."
     ],
     "donts": [
       "**Don't** use the signal colors (green, yellow, orange, red) for buttons, badges or decoration.",
-      "**Don't** add shadows to cards or anything in the page flow.",
+      "**Don't** add shadows to cards, the drawer beside the map or anything else in the page flow.",
+      "**Don't** put text on a signal-color fill; use a neutral pill or tag with a signal-color dot or border.",
+      "**Don't** use typographic glyphs (such as ▾) in place of icons.",
       "**Don't** set paragraphs in Barlow Semi Condensed.",
       "**Don't** introduce a second accent color.",
       "**Don't** load fonts or any other resource from a third-party host; fonts are self-hosted."
