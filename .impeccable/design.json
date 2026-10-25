@@ -1,0 +1,700 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-25T21:27:50+00:00",
+  "title": "Design System: Planejador WiFi",
+  "extensions": {
+    "colorMeta": {
+      "drafting-blue": {
+        "role": "primary",
+        "displayName": "Drafting Blue",
+        "canonical": "#2F43C4",
+        "oklch": "oklch(45.7% 0.200 269.4)",
+        "tonalRamp": [
+          "#03032D",
+          "#121C5F",
+          "#263896",
+          "#3D57D0",
+          "#5F7FF3",
+          "#8AA8FF",
+          "#B4CEFF",
+          "#D8EDFF"
+        ]
+      },
+      "on-drafting-blue": {
+        "role": "neutral",
+        "displayName": "On Drafting Blue",
+        "canonical": "#FFFFFF",
+        "oklch": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#262626",
+          "#454545",
+          "#666666",
+          "#898989",
+          "#AEAEAE",
+          "#D1D1D1",
+          "#EEEEEE"
+        ]
+      },
+      "desk-gray": {
+        "role": "neutral",
+        "displayName": "Desk Gray",
+        "canonical": "#E7EAEE",
+        "oklch": "oklch(93.6% 0.006 255.5)",
+        "tonalRamp": [
+          "#0A0B0C",
+          "#252628",
+          "#434548",
+          "#646669",
+          "#87898C",
+          "#ACAEB1",
+          "#CFD1D3",
+          "#EDEEF0"
+        ]
+      },
+      "plan-paper": {
+        "role": "neutral",
+        "displayName": "Plan Paper",
+        "canonical": "#FBFCFD",
+        "oklch": "oklch(99.1% 0.002 247.8)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#262627",
+          "#444546",
+          "#656667",
+          "#88898A",
+          "#ADAEAF",
+          "#D0D1D1",
+          "#EEEEEF"
+        ]
+      },
+      "panel-mist": {
+        "role": "neutral",
+        "displayName": "Panel Mist",
+        "canonical": "#F3F5F8",
+        "oklch": "oklch(96.9% 0.005 258.3)",
+        "tonalRamp": [
+          "#0B0B0C",
+          "#262628",
+          "#444547",
+          "#646669",
+          "#88898C",
+          "#ADAEB0",
+          "#D0D1D2",
+          "#EEEEF0"
+        ]
+      },
+      "graphite-ink": {
+        "role": "neutral",
+        "displayName": "Graphite Ink",
+        "canonical": "#1B222C",
+        "oklch": "oklch(25.0% 0.022 257.3)",
+        "tonalRamp": [
+          "#090B0F",
+          "#23272D",
+          "#3F454E",
+          "#5F6772",
+          "#828A95",
+          "#A8AEB8",
+          "#CCD1D9",
+          "#EBEFF5"
+        ]
+      },
+      "pencil-gray": {
+        "role": "neutral",
+        "displayName": "Pencil Gray",
+        "canonical": "#5A6473",
+        "oklch": "oklch(50.0% 0.027 258.4)",
+        "tonalRamp": [
+          "#080B10",
+          "#22272E",
+          "#3E4650",
+          "#5D6775",
+          "#808A98",
+          "#A7AFBA",
+          "#CBD1DB",
+          "#EAEFF6"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#C8CFD8",
+        "oklch": "oklch(85.2% 0.015 254.6)",
+        "tonalRamp": [
+          "#090B0E",
+          "#24272B",
+          "#41454B",
+          "#61676E",
+          "#848A91",
+          "#AAAEB5",
+          "#CDD1D6",
+          "#ECEFF3"
+        ]
+      },
+      "grid-faint": {
+        "role": "neutral",
+        "displayName": "Grid Faint",
+        "canonical": "#E1E6EC",
+        "oklch": "oklch(92.3% 0.010 252.8)",
+        "tonalRamp": [
+          "#0A0B0D",
+          "#242729",
+          "#424549",
+          "#62666B",
+          "#868A8E",
+          "#ABAEB2",
+          "#CED1D4",
+          "#ECEFF1"
+        ]
+      },
+      "grid-major": {
+        "role": "neutral",
+        "displayName": "Grid Major",
+        "canonical": "#C9D1DA",
+        "oklch": "oklch(85.7% 0.015 251.2)",
+        "tonalRamp": [
+          "#090B0E",
+          "#23272B",
+          "#41464B",
+          "#60676E",
+          "#838A91",
+          "#A9AFB5",
+          "#CDD1D6",
+          "#EBEFF3"
+        ]
+      },
+      "alert-red": {
+        "role": "error",
+        "displayName": "Alert Red",
+        "canonical": "#B42335",
+        "oklch": "oklch(50.4% 0.179 20.7)",
+        "tonalRamp": [
+          "#220001",
+          "#4E020E",
+          "#7E1723",
+          "#B22D3A",
+          "#D85A5F",
+          "#F48C8B",
+          "#FFB7B6",
+          "#FFDBD9"
+        ]
+      },
+      "signal-excellent": {
+        "role": "signal",
+        "displayName": "Signal Excellent",
+        "canonical": "#1A9850",
+        "oklch": "oklch(59.8% 0.150 151.9)",
+        "tonalRamp": [
+          "#001200",
+          "#00320D",
+          "#005523",
+          "#007C3A",
+          "#3E9F60",
+          "#78C18C",
+          "#A9E1B7",
+          "#D0FBDA"
+        ]
+      },
+      "signal-good": {
+        "role": "signal",
+        "displayName": "Signal Good",
+        "canonical": "#86C65A",
+        "oklch": "oklch(76.0% 0.156 134.2)",
+        "tonalRamp": [
+          "#011000",
+          "#102F00",
+          "#275200",
+          "#3F7701",
+          "#659B3E",
+          "#91BD75",
+          "#BADEA5",
+          "#DDF9CD"
+        ]
+      },
+      "signal-fair": {
+        "role": "signal",
+        "displayName": "Signal Fair",
+        "canonical": "#EFC23F",
+        "oklch": "oklch(83.2% 0.150 89.1)",
+        "tonalRamp": [
+          "#160800",
+          "#382200",
+          "#5E3F00",
+          "#865F00",
+          "#A98400",
+          "#C9AB5A",
+          "#E7CF92",
+          "#FFEDBF"
+        ]
+      },
+      "signal-weak": {
+        "role": "signal",
+        "displayName": "Signal Weak",
+        "canonical": "#EE8547",
+        "oklch": "oklch(72.1% 0.149 49.1)",
+        "tonalRamp": [
+          "#1E0100",
+          "#461400",
+          "#732C00",
+          "#A34700",
+          "#C86E39",
+          "#E59971",
+          "#FEC2A2",
+          "#FFE3CA"
+        ]
+      },
+      "signal-none": {
+        "role": "signal",
+        "displayName": "Signal None",
+        "canonical": "#D33343",
+        "oklch": "oklch(57.4% 0.195 20.9)",
+        "tonalRamp": [
+          "#240000",
+          "#51000B",
+          "#830A1F",
+          "#B82235",
+          "#DE545A",
+          "#F98888",
+          "#FFB5B3",
+          "#FFD9D7"
+        ]
+      },
+      "wall-brick": {
+        "role": "material",
+        "displayName": "Brick Terracotta",
+        "canonical": "#9C4A2C",
+        "oklch": "oklch(50.7% 0.118 40.1)",
+        "tonalRamp": [
+          "#1B0300",
+          "#421808",
+          "#6C311C",
+          "#9A4D31",
+          "#BE7257",
+          "#DC9C86",
+          "#F7C3B1",
+          "#FFE4D6"
+        ]
+      },
+      "wall-concrete": {
+        "role": "material",
+        "displayName": "Concrete Slate",
+        "canonical": "#555D69",
+        "oklch": "oklch(47.6% 0.022 258.4)",
+        "tonalRamp": [
+          "#090B0F",
+          "#23272D",
+          "#40454E",
+          "#5F6772",
+          "#828A95",
+          "#A8AEB8",
+          "#CCD1D9",
+          "#EBEFF5"
+        ]
+      },
+      "wall-drywall": {
+        "role": "material",
+        "displayName": "Drywall Ash",
+        "canonical": "#97A0AC",
+        "oklch": "oklch(70.2% 0.020 255.6)",
+        "tonalRamp": [
+          "#090B0F",
+          "#23272C",
+          "#40464D",
+          "#5F6771",
+          "#828A94",
+          "#A8AFB7",
+          "#CCD1D8",
+          "#EBEFF4"
+        ]
+      },
+      "wall-wood": {
+        "role": "material",
+        "displayName": "Door Oak",
+        "canonical": "#A26B22",
+        "oklch": "oklch(57.4% 0.110 69.2)",
+        "tonalRamp": [
+          "#170700",
+          "#3A1F00",
+          "#623B00",
+          "#8C5912",
+          "#AF7E43",
+          "#CFA577",
+          "#ECCBA7",
+          "#FFEACE"
+        ]
+      },
+      "wall-glass": {
+        "role": "material",
+        "displayName": "Glass Teal",
+        "canonical": "#2A8FBA",
+        "oklch": "oklch(61.3% 0.110 231.3)",
+        "tonalRamp": [
+          "#000E1B",
+          "#002B40",
+          "#004C6A",
+          "#007096",
+          "#4293B9",
+          "#7AB7D7",
+          "#A9D9F2",
+          "#D1F5FF"
+        ]
+      },
+      "wall-metal": {
+        "role": "material",
+        "displayName": "Metal Black",
+        "canonical": "#1F242B",
+        "oklch": "oklch(25.8% 0.015 256.8)",
+        "tonalRamp": [
+          "#090B0E",
+          "#24272B",
+          "#41454B",
+          "#61676E",
+          "#848A91",
+          "#AAAEB5",
+          "#CED1D6",
+          "#ECEFF3"
+        ]
+      },
+      "drafting-blue-dark": {
+        "role": "primary",
+        "displayName": "Drafting Blue (dark theme)",
+        "canonical": "#8D9BFF",
+        "oklch": "oklch(72.1% 0.146 276.1)",
+        "tonalRamp": [
+          "#060624",
+          "#1C204F",
+          "#363C80",
+          "#535BB3",
+          "#7581D6",
+          "#9CA8EF",
+          "#C2CDFF",
+          "#E3ECFF"
+        ]
+      },
+      "on-drafting-blue-dark": {
+        "role": "neutral",
+        "displayName": "On Drafting Blue (dark theme)",
+        "canonical": "#10131A",
+        "oklch": "oklch(18.7% 0.015 266.8)",
+        "tonalRamp": [
+          "#0A0B0E",
+          "#24262B",
+          "#42454B",
+          "#62666F",
+          "#858992",
+          "#ABAEB5",
+          "#CED1D7",
+          "#ECEEF3"
+        ]
+      },
+      "desk-gray-dark": {
+        "role": "neutral",
+        "displayName": "Desk Gray (dark theme)",
+        "canonical": "#101419",
+        "oklch": "oklch(18.9% 0.012 254.1)",
+        "tonalRamp": [
+          "#0A0B0D",
+          "#24272A",
+          "#42454A",
+          "#62676D",
+          "#858A90",
+          "#AAAEB3",
+          "#CED1D5",
+          "#ECEFF2"
+        ]
+      },
+      "plan-paper-dark": {
+        "role": "neutral",
+        "displayName": "Plan Paper (dark theme)",
+        "canonical": "#171C23",
+        "oklch": "oklch(22.5% 0.016 256.8)",
+        "tonalRamp": [
+          "#090B0E",
+          "#24272B",
+          "#41454C",
+          "#61676F",
+          "#848A92",
+          "#A9AEB5",
+          "#CDD1D7",
+          "#ECEFF3"
+        ]
+      },
+      "panel-mist-dark": {
+        "role": "neutral",
+        "displayName": "Panel Mist (dark theme)",
+        "canonical": "#141920",
+        "oklch": "oklch(21.2% 0.016 256.8)",
+        "tonalRamp": [
+          "#090B0E",
+          "#24272B",
+          "#41454C",
+          "#61676F",
+          "#848A92",
+          "#A9AEB5",
+          "#CDD1D7",
+          "#ECEFF3"
+        ]
+      },
+      "graphite-ink-dark": {
+        "role": "neutral",
+        "displayName": "Graphite Ink (dark theme)",
+        "canonical": "#E5E9EF",
+        "oklch": "oklch(93.3% 0.009 258.3)",
+        "tonalRamp": [
+          "#0A0B0D",
+          "#252729",
+          "#434549",
+          "#63666B",
+          "#86898E",
+          "#ABAEB2",
+          "#CFD1D4",
+          "#EDEEF1"
+        ]
+      },
+      "pencil-gray-dark": {
+        "role": "neutral",
+        "displayName": "Pencil Gray (dark theme)",
+        "canonical": "#98A2B1",
+        "oklch": "oklch(70.9% 0.025 258.4)",
+        "tonalRamp": [
+          "#090B10",
+          "#22272E",
+          "#3F454F",
+          "#5E6774",
+          "#818A97",
+          "#A7AEB9",
+          "#CCD1DA",
+          "#EAEFF6"
+        ]
+      },
+      "hairline-dark": {
+        "role": "neutral",
+        "displayName": "Hairline (dark theme)",
+        "canonical": "#2C3440",
+        "oklch": "oklch(32.3% 0.024 258.4)",
+        "tonalRamp": [
+          "#090B0F",
+          "#22272E",
+          "#3F454F",
+          "#5E6773",
+          "#818A96",
+          "#A7AEB9",
+          "#CCD1DA",
+          "#EAEFF5"
+        ]
+      },
+      "alert-red-dark": {
+        "role": "error",
+        "displayName": "Alert Red (dark theme)",
+        "canonical": "#FF7A88",
+        "oklch": "oklch(73.8% 0.162 15.4)",
+        "tonalRamp": [
+          "#200003",
+          "#4B0816",
+          "#791F2E",
+          "#AC3648",
+          "#D1606C",
+          "#ED8F96",
+          "#FFBABE",
+          "#FFDDE0"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Page title above the planner."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings in the reading guide."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card, dialog and tour headings (20px in dialogs)."
+      },
+      "metric": {
+        "displayName": "Metric",
+        "purpose": "Coverage percentage in the results card."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Interface text, buttons, menus."
+      },
+      "reading": {
+        "displayName": "Reading",
+        "purpose": "Guide text in a 760px column; 16px on phones."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Uppercase eyebrows; table headers at 13px / 0.05em."
+      },
+      "data": {
+        "displayName": "Data",
+        "purpose": "Every measured value: readout, band segments, pills, table numbers, canvas annotations."
+      }
+    },
+    "shadows": [
+      {
+        "name": "floating-layer",
+        "value": "0 10px 30px rgba(20, 28, 40, .16)",
+        "purpose": "Menus, dialogs, toast and tour card only. Dark theme: rgba(0, 0, 0, .5)."
+      },
+      {
+        "name": "tour-spotlight",
+        "value": "0 0 0 9999px rgba(8, 12, 18, .62)",
+        "purpose": "Cut-out around the element a tour step points to."
+      }
+    ],
+    "motion": [
+      {
+        "name": "tour-spotlight-move",
+        "value": "all .25s ease",
+        "purpose": "Spotlight glides between tour targets; disabled under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone",
+        "value": "720px",
+        "purpose": "Toolbar becomes a row above the plan; menu gets its own row."
+      },
+      {
+        "name": "tablet",
+        "value": "1100px",
+        "purpose": "Single column; results cards in an auto-fit grid below the plan."
+      },
+      {
+        "name": "wide",
+        "value": "1101px",
+        "purpose": "Sticky stage with toolbar beside the plan; plan fits viewport height."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "Default action: paper fill, hairline border.",
+      "html": "<button class=\"ds-btn\">Novo projeto</button>",
+      "css": ".ds-btn { font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; font-size: 15px; font-weight: 500; color: var(--ink, #1B222C); background: var(--sheet, #FBFCFD); border: 1px solid var(--line, #C8CFD8); border-radius: 6px; padding: 7px 11px; cursor: pointer; } .ds-btn:hover { border-color: var(--muted, #5A6473); } .ds-btn:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: 2px; }"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one main action in a group.",
+      "html": "<button class=\"ds-btn-primary\">Adicionar nó aqui</button>",
+      "css": ".ds-btn-primary { font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; font-size: 15px; font-weight: 500; color: var(--on-accent, #FFFFFF); background: var(--accent, #2F43C4); border: 1px solid var(--accent, #2F43C4); border-radius: 6px; padding: 7px 11px; cursor: pointer; } .ds-btn-primary:hover { filter: brightness(1.08); } .ds-btn-primary:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Paper field with hairline border.",
+      "html": "<label class=\"ds-field\">Largura (m)<input class=\"ds-input\" type=\"number\" value=\"16\"></label>",
+      "css": ".ds-field { font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--muted, #5A6473); } .ds-input { font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; font-size: 15px; color: var(--ink, #1B222C); background: var(--sheet, #FBFCFD); border: 1px solid var(--line, #C8CFD8); border-radius: 6px; padding: 6px 8px; } .ds-input:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: 2px; }"
+    },
+    {
+      "name": "Tool Column",
+      "kind": "custom",
+      "refersTo": "tool",
+      "description": "Vertical toolbar glued to the plan; active tool gets paper fill and ink border.",
+      "html": "<div class=\"ds-tools\"><button class=\"ds-tool\">Selecionar<kbd>V</kbd></button><button class=\"ds-tool\" aria-pressed=\"true\">Parede<kbd>W</kbd></button><button class=\"ds-tool\">Nó mesh<kbd>N</kbd></button></div>",
+      "css": ".ds-tools { display: flex; flex-direction: column; gap: 4px; width: 128px; } .ds-tool { font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 500; color: var(--ink, #1B222C); background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 7px 11px; text-align: left; cursor: pointer; } .ds-tool:hover { border-color: var(--line, #C8CFD8); } .ds-tool[aria-pressed=\"true\"] { background: var(--sheet, #FBFCFD); border-color: var(--ink, #1B222C); font-weight: 600; } .ds-tool:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: 2px; } .ds-tool kbd { font-family: \"IBM Plex Mono\", ui-monospace, Menlo, monospace; margin-left: auto; font-size: 11px; color: var(--muted, #5A6473); border: 1px solid var(--line, #C8CFD8); border-radius: 4px; padding: 0 4px; }"
+    },
+    {
+      "name": "Band Selector",
+      "kind": "chip",
+      "refersTo": "band-segment",
+      "description": "Segmented control for 2.4 / 5 / 6 GHz; selected segment inverts to ink.",
+      "html": "<div class=\"ds-seg\" role=\"radiogroup\"><button role=\"radio\" aria-checked=\"false\">2,4 GHz</button><button role=\"radio\" aria-checked=\"true\">5 GHz</button><button role=\"radio\" aria-checked=\"false\">6 GHz</button></div>",
+      "css": ".ds-seg { display: inline-flex; border: 1px solid var(--line, #C8CFD8); border-radius: 7px; overflow: hidden; background: var(--sheet, #FBFCFD); } .ds-seg button { font-family: \"IBM Plex Mono\", ui-monospace, Menlo, monospace; font-size: 13px; color: var(--ink, #1B222C); background: transparent; border: 0; padding: 6px 14px; cursor: pointer; } .ds-seg button + button { border-left: 1px solid var(--line, #C8CFD8); } .ds-seg button[aria-checked=\"true\"] { background: var(--ink, #1B222C); color: var(--sheet, #FBFCFD); } .ds-seg button:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: 2px; outline-offset: -2px; }"
+    },
+    {
+      "name": "Coverage Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Result card: panel tone, hairline border, big condensed metric, signal bar paired with names.",
+      "html": "<section class=\"ds-card\"><h2>Cobertura · 5 GHz</h2><div class=\"ds-big\">97%<small>da casa com ≥ −67 dBm</small></div><div class=\"ds-bar\"><span style=\"width:94%;background:#1A9850\"></span><span style=\"width:3%;background:#86C65A\"></span><span style=\"width:3%;background:#EE8547\"></span></div><div class=\"ds-row\"><i style=\"background:#1A9850\"></i><span>Excelente</span><b>94%</b></div></section>",
+      "css": ".ds-card { font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; background: var(--panel, #F3F5F8); color: var(--ink, #1B222C); border: 1px solid var(--line, #C8CFD8); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px; max-width: 320px; } .ds-card h2 { font-family: \"Barlow Semi Condensed\", \"Arial Narrow\", Arial, sans-serif; font-size: 17px; font-weight: 700; margin: 0; } .ds-big { font-family: \"Barlow Semi Condensed\", \"Arial Narrow\", Arial, sans-serif; font-size: 40px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; } .ds-big small { font-size: 15px; font-weight: 600; color: var(--muted, #5A6473); margin-left: 6px; } .ds-bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--grid, #E1E6EC); } .ds-row { display: grid; grid-template-columns: 12px 1fr auto; gap: 8px; align-items: center; font-size: 13.5px; } .ds-row i { width: 12px; height: 12px; border-radius: 3px; } .ds-row b { font-family: \"IBM Plex Mono\", ui-monospace, Menlo, monospace; font-weight: 400; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "dBm Pill",
+      "kind": "chip",
+      "refersTo": "pill",
+      "description": "Link quality pill: signal color fill, dark monospace text.",
+      "html": "<span class=\"ds-pill\">−64 dBm · 5 GHz</span>",
+      "css": ".ds-pill { font-family: \"IBM Plex Mono\", ui-monospace, Menlo, monospace; font-size: 12px; color: #111; background: #EFC23F; border-radius: 999px; padding: 1px 8px; white-space: nowrap; }"
+    },
+    {
+      "name": "Site Navigation",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "Header menu: ink text links, soft blue tint on hover.",
+      "html": "<nav class=\"ds-nav\"><a href=\"#\">Simulador</a><a href=\"#\">Como usar</a><a href=\"#\">Perguntas frequentes</a></nav>",
+      "css": ".ds-nav { display: flex; gap: 4px; } .ds-nav a { font-family: \"Barlow\", \"Helvetica Neue\", Arial, sans-serif; font-size: 15px; font-weight: 500; color: var(--ink, #1B222C); text-decoration: none; padding: 6px 10px; border-radius: 6px; } .ds-nav a:hover { background: var(--accent-soft, rgba(47,67,196,.12)); } .ds-nav a:focus-visible { outline: 2px solid var(--accent, #2F43C4); outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Living Floor Plan",
+    "overview": "The floor plan is the protagonist. Everything a visitor needs to decide where the router goes happens on one sheet of plan paper: walls drawn in the colors of their materials, nodes as solid ink dots, and the Wi-Fi heat map laid over the drawing like a living layer that changes as soon as a wall or a node moves. The interface around the sheet stays neutral, cool and quiet, so the plan is always the most colorful and most important thing on screen.\n\nThe system is technical and precise, but never intimidating. Measurements are exact and set in a monospaced face, categories carry plain-language names next to every dBm value, and the controls look like ordinary, familiar buttons and fields with thin hairline borders. A layperson finishes the job without feeling they opened engineering software; an expert finds every number where they expect it.\n\nDensity is moderate: a tool on one side, readings on the other, the plan in the middle and a long reading guide below. Both light and dark themes are first-class and share the same structure.",
+    "keyCharacteristics": [
+      "The plan sheet holds the only saturated color on screen: signal colors and wall materials.",
+      "Cool, slightly blue neutrals; one ink accent, Drafting Blue.",
+      "Condensed display type for headings and numbers, humanist sans for reading, monospace for measurements.",
+      "Thin 1px hairlines and gently rounded corners; flat surfaces, shadows only on floating layers.",
+      "Every color that carries meaning is repeated in text."
+    ],
+    "rules": [
+      {
+        "name": "The Plan Leads Rule",
+        "body": "Saturated color lives on the plan sheet. Interface chrome stays in neutrals plus Drafting Blue; if a control is more colorful than the heat map, it is wrong.",
+        "section": "colors"
+      },
+      {
+        "name": "The Signal Is Sacred Rule",
+        "body": "The five signal colors mean signal quality and nothing else. Never use them for buttons, badges or decoration, and never show one without its category name or dBm value next to it.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Ink Rule",
+        "body": "Drafting Blue marks the main node, the primary action, links and focus. Nothing decorative is blue.",
+        "section": "colors"
+      },
+      {
+        "name": "The Numbers In Mono Rule",
+        "body": "Every measured value (dBm, meters, coordinates, percentages in tables) is set in IBM Plex Mono with tabular figures, so numbers line up and read as measurements.",
+        "section": "typography"
+      },
+      {
+        "name": "The Condensed Is For Headings Rule",
+        "body": "Barlow Semi Condensed is for headings, labels and big numbers. Paragraphs are always Barlow.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Sheet Rule",
+        "body": "Nothing that sits in the page flow casts a shadow. If an element needs to stand out, change its tone or border, not its elevation.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep all saturated color on the plan sheet; the chrome stays neutral plus Drafting Blue.",
+      "**Do** pair every signal color with its category name or dBm value.",
+      "**Do** set every measurement in IBM Plex Mono with tabular figures.",
+      "**Do** use 1px Hairline borders and tonal steps (desk, paper, panel) to separate areas.",
+      "**Do** keep the shadow for floating layers only: menus, dialogs, toast and the tour card.",
+      "**Do** give every interactive element the 2px Drafting Blue focus outline.",
+      "**Do** keep the plan and its toolbar visible together while the results scroll on wide screens."
+    ],
+    "donts": [
+      "**Don't** use the signal colors (green, yellow, orange, red) for buttons, badges or decoration.",
+      "**Don't** add shadows to cards or anything in the page flow.",
+      "**Don't** set paragraphs in Barlow Semi Condensed.",
+      "**Don't** introduce a second accent color.",
+      "**Don't** load fonts or any other resource from a third-party host; fonts are self-hosted."
+    ]
+  }
+}
