@@ -24,7 +24,7 @@
 
 ## Quick start
 
-You need Node.js 20 or newer. The project has no dependencies to install.
+You need Node.js 22 or newer. The project has no dependencies to install.
 
 ```bash
 npm start          # build, serve at http://localhost:8080 and rebuild on changes

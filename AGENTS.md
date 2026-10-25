@@ -15,7 +15,7 @@ npm run build       # production build into dist/
 npm run check       # secret scan + tests + build; must pass before every commit
 ```
 
-The project uses Node.js 20 or newer and has no npm dependencies.
+The project uses Node.js 22 or newer and has no npm dependencies.
 
 ## Hard rules
 

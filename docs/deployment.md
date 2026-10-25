@@ -4,7 +4,7 @@ Planejador WiFi builds to plain static files. Any web server or static host can 
 
 ## Build
 
-You need Node.js 20 or newer. There are no dependencies to install.
+You need Node.js 22 or newer. There are no dependencies to install.
 
 ```bash
 npm run check      # secret scan, tests and build
