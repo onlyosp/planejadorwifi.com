@@ -442,6 +442,7 @@ function renderLegend() {
 }
 
 /* ---------- side panel ---------- */
+const wireBtn = (gi, cls) => `<button type="button" class="${cls}" data-wire="${gi}">${esc(t('panel.wireIt', { node: nodeName(gi) }))}</button>`;
 function renderPanel() {
   const st = stats(P.floor, P.band), bl = bandLabel(P.band), f = cur(), all = nodesAll();
   let h = `<h2>${esc(t('panel.coverage', { band: bl }))}${P.floors.length > 1 ? ' · ' + esc(f.name) : ''}</h2>`;
@@ -463,13 +464,14 @@ function renderPanel() {
   else {
     lh += topo.map(l => `<div class="link"><span>${esc(nodeName(l.child))} → ${esc(nodeName(l.parent))}${all[l.child].fi !== all[l.parent].fi ? ` <span class="muted">${esc(t('panel.otherFloor'))}</span>` : ''}</span>`
       + (l.wired ? `<span class="pill pill-wire">${esc(t('panel.cable'))}</span>` : `<span class="pill"><i class="dot" style="background:var(--q${E.linkCat(l.v)})"></i>${dbm(l.v)} dBm · ${bandLabel(l.band)}</span>`)
-      + (l.wired ? '' : `<span class="small muted full">${esc(t('panel.linkQuality', { q: t('panel.linkWords.' + E.linkCat(l.v)) }))}</span>`) + '</div>').join('');
+      + (l.wired ? '' : `<span class="small muted full">${esc(t('panel.linkQuality', { q: t('panel.linkWords.' + E.linkCat(l.v)) }))}</span>`)
+      + (!l.wired && E.linkCat(l.v) === 4 ? wireBtn(l.child, 'full') : '') + '</div>').join('');
     lh += `<p class="small muted">${esc(t('panel.linksHint'))}</p>`;
   }
   $('#pLinks').innerHTML = lh;
 
   let sh = `<h2>${esc(t('panel.suggestTitle'))}</h2>`;
-  if (suggestion && suggestion.none) sh += `<p class="small">${esc(t('panel.none.' + suggestion.none, suggestion.child != null ? { child: nodeName(suggestion.child), parent: nodeName(suggestion.parent) } : undefined))}</p><button type="button" data-sug="clear" class="ghost">${esc(t('panel.ok'))}</button>`;
+  if (suggestion && suggestion.none) sh += `<p class="small">${esc(t('panel.none.' + suggestion.none, suggestion.child != null ? { child: nodeName(suggestion.child), parent: nodeName(suggestion.parent) } : undefined))}</p>${suggestion.none === 'weakLink' ? `<div class="btnrow">${wireBtn(suggestion.child, 'primary')}<button type="button" data-sug="clear" class="ghost">${esc(t('panel.ok'))}</button></div>` : `<button type="button" data-sug="clear" class="ghost">${esc(t('panel.ok'))}</button>`}`;
   else if (suggestion) {
     const extra = suggestion.relaxed ? esc(t('panel.suggestRelaxed'))
       : suggestion.link != null ? esc(t('panel.suggestLink', { v: dbm(suggestion.link) })) : '';
@@ -489,6 +491,16 @@ function renderPanel() {
   $('#delFloor').hidden = P.floors.length < 2;
   $('#delFloor').textContent = t('floors.remove', { name: f.name });
 }
+// Wiring a satellite from the Links or Suggest card, where the weak link is reported.
+['#pLinks', '#pSuggest'].forEach(id => $(id).addEventListener('click', e => {
+  const gi = e.target.closest('[data-wire]')?.dataset.wire;
+  const a = gi != null && nodesAll()[+gi];
+  if (!a) return;
+  pushHist();
+  a.n.wired = true;
+  track('wire_node');
+  dirty();
+}));
 $('#pSuggest').addEventListener('click', e => {
   const act = e.target.closest('[data-sug]')?.dataset.sug;
   if (act === 'run') {

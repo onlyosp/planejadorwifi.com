@@ -263,6 +263,7 @@
       "noBand": "Nenhum aparelho do projeto transmite em {band}.",
       "goodShare": "da casa com ≥ −67 dBm",
       "area": "Área considerada: {area} m², o retângulo em volta das paredes.",
+      "wireIt": "Ligar {node} por cabo",
       "weakNote": "Este número supõe que {node} funciona, mas o link dele com a rede mesh está fraco. Ligue-o por cabo ou aproxime-o de outro nó.",
       "linksTitle": "Ligação entre nós",
       "linksEmpty": "Com dois ou mais nós, aqui aparece a qualidade do backhaul, a ligação entre eles.",

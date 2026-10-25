@@ -263,6 +263,7 @@
       "noBand": "No device in this project transmits on {band}.",
       "goodShare": "of the house at ≥ −67 dBm",
       "area": "Area counted: {area} m², the rectangle around the walls.",
+      "wireIt": "Connect {node} by cable",
       "weakNote": "This number assumes {node} works, but its link to the mesh is weak. Connect it with a cable or move it closer to another node.",
       "linksTitle": "Links between nodes",
       "linksEmpty": "With two or more nodes, the backhaul quality between them shows up here.",
