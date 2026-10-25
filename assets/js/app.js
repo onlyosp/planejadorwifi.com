@@ -449,6 +449,8 @@ function renderPanel() {
   else if (!st.hasBand) h += `<p class="small muted">${esc(t('panel.noBand', { band: bl }))}</p>`;
   else {
     h += `<div><div class="big">${pct(st.good)}<small>${esc(t('panel.goodShare'))}</small></div><p class="small muted">${esc(t('panel.area', { area: fmt(st.area, 0) }))}</p></div>`;
+    const weak = E.weakLinks(P, MODELS)[0];
+    if (weak) h += `<p class="small warn">${esc(t('panel.weakNote', { node: nodeName(weak.child) }))}</p>`;
     h += `<div class="bar" aria-hidden="true">${st.counts.map((c, i) => (c ? `<span style="width:${c / st.n * 100}%;background:var(--q${i})"></span>` : '')).join('')}</div>`;
     h += `<div class="rows">${[0, 1, 2, 3, 4].map(i => `<div class="r"><i class="sw" style="background:var(--q${i})"></i><span>${esc(cat(i).name)} <em>${esc(cat(i).use)}</em></span><span class="n">${pct(st.n ? st.counts[i] / st.n : 0)}</span></div>`).join('')}</div>`;
   }
@@ -460,14 +462,14 @@ function renderPanel() {
   if (all.length < 2) lh += `<p class="small muted">${esc(t('panel.linksEmpty'))}</p>`;
   else {
     lh += topo.map(l => `<div class="link"><span>${esc(nodeName(l.child))} → ${esc(nodeName(l.parent))}${all[l.child].fi !== all[l.parent].fi ? ` <span class="muted">${esc(t('panel.otherFloor'))}</span>` : ''}</span>`
-      + (l.wired ? `<span class="pill pill-wire">${esc(t('panel.cable'))}</span>` : `<span class="pill" style="background:var(--q${E.linkCat(l.v)})">${dbm(l.v)} dBm · ${bandLabel(l.band)}</span>`)
+      + (l.wired ? `<span class="pill pill-wire">${esc(t('panel.cable'))}</span>` : `<span class="pill"><i class="dot" style="background:var(--q${E.linkCat(l.v)})"></i>${dbm(l.v)} dBm · ${bandLabel(l.band)}</span>`)
       + (l.wired ? '' : `<span class="small muted full">${esc(t('panel.linkQuality', { q: t('panel.linkWords.' + E.linkCat(l.v)) }))}</span>`) + '</div>').join('');
     lh += `<p class="small muted">${esc(t('panel.linksHint'))}</p>`;
   }
   $('#pLinks').innerHTML = lh;
 
   let sh = `<h2>${esc(t('panel.suggestTitle'))}</h2>`;
-  if (suggestion && suggestion.none) sh += `<p class="small">${esc(t('panel.none.' + suggestion.none))}</p><button type="button" data-sug="clear" class="ghost">${esc(t('panel.ok'))}</button>`;
+  if (suggestion && suggestion.none) sh += `<p class="small">${esc(t('panel.none.' + suggestion.none, suggestion.child != null ? { child: nodeName(suggestion.child), parent: nodeName(suggestion.parent) } : undefined))}</p><button type="button" data-sug="clear" class="ghost">${esc(t('panel.ok'))}</button>`;
   else if (suggestion) {
     const extra = suggestion.relaxed ? esc(t('panel.suggestRelaxed'))
       : suggestion.link != null ? esc(t('panel.suggestLink', { v: dbm(suggestion.link) })) : '';

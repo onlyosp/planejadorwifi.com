@@ -40,8 +40,9 @@ export const BUILTIN_MODELS = [
 
 // Signal categories 0..4: excellent, good, fair, weak, unusable (names in i18n ui.cats).
 export const catOf = v => (v >= -60 ? 0 : v >= -67 ? 1 : v >= -72 ? 2 : v >= -80 ? 3 : 4);
-// Backhaul link quality: 0 great, 2 ok, 4 weak (color index and i18n key).
-export const linkCat = v => (v >= -60 ? 0 : v >= -70 ? 2 : 4);
+// Backhaul link quality: 0 great, 2 ok, 4 weak (color index and i18n key). Rounded like the
+// label, so a link shown as -70 dBm is never called weak.
+export const linkCat = v => { const r = Math.round(v); return r >= -60 ? 0 : r >= -70 ? 2 : 4; };
 
 // Segment AB crosses segment CD. u < 1 avoids counting a shared corner twice.
 export function hit(ax, ay, bx, by, cx, cy, dx, dy) {
@@ -109,22 +110,34 @@ export function link(p, models, a, b) {
   return v6 > v5 ? { v: v6, band: '6' } : { v: v5, band: '5' };
 }
 
-// Each satellite attaches to its strongest neighbour, or to the main node when wired.
+// Builds a tree rooted at the main node, so every satellite reaches it. Wired nodes hang
+// from the main node; the others join one at a time through the strongest link to a node
+// already in the tree (widest path), which never forms a cycle. Sorted by child index.
 export function topology(p, models) {
   const all = nodesAll(p);
+  if (all.length < 2) return [];
   const mainI = Math.max(0, all.findIndex(a => a.n.main));
-  return all.map((a, i) => {
-    if (i === mainI) return null;
-    if (a.n.wired) return { child: i, parent: mainI, wired: true };
+  const out = [], inTree = new Set([mainI]);
+  all.forEach((a, i) => {
+    if (i !== mainI && a.n.wired) { out.push({ child: i, parent: mainI, wired: true }); inTree.add(i); }
+  });
+  while (inTree.size < all.length) {
     let best = null;
-    all.forEach((b, j) => {
-      if (j === i) return;
-      const l = link(p, models, a, b);
-      if (!best || l.v > best.v) best = { ...l, parent: j };
+    all.forEach((a, i) => {
+      if (inTree.has(i)) return;
+      inTree.forEach(j => {
+        const l = link(p, models, a, all[j]);
+        if (!best || l.v > best.v) best = { child: i, parent: j, v: l.v, band: l.band, wired: false };
+      });
     });
-    return best ? { child: i, parent: best.parent, v: best.v, band: best.band, wired: false } : null;
-  }).filter(Boolean);
+    out.push(best);
+    inTree.add(best.child);
+  }
+  return out.sort((a, b) => a.child - b.child);
 }
+
+// Wireless links too weak to carry the mesh (the ones the panel says need a cable).
+export const weakLinks = (p, models) => topology(p, models).filter(l => !l.wired && linkCat(l.v) === 4);
 
 export function computeGrid(p, models, fi, bk, cs) {
   const cols = Math.ceil(p.w / cs), rows = Math.ceil(p.h / cs), v = new Float32Array(cols * rows);
@@ -163,7 +176,8 @@ export function stats(p, models, fi, bk, g = computeGrid(p, models, fi, bk, 0.25
 
 // Tries every free point of the floor (0.5 m grid) and keeps the one that adds the most
 // area at or above GOOD, requiring a wireless link of at least -70 dBm when possible.
-// Failures return { none: code } with code noWalls | noSpot | alreadyGood | noGain.
+// Failures return { none: code } with code noWalls | noSpot | alreadyGood | noGain, or
+// { none: 'weakLink', child, parent } when no spot helps but a backhaul link is too weak.
 export function suggest(p, models, fi, bk, modelId) {
   const nodes = nodesAll(p), bb = bbox(p, fi), cs = 0.5;
   let mk = modelId;
@@ -201,6 +215,9 @@ export function suggest(p, models, fi, bk, modelId) {
   if (!best) return { none: 'noSpot' };
   const to = best.cov / cells.length;
   if (to - base < 0.01) {
+    // Good-looking coverage still fails if a node cannot reach the mesh: say that first.
+    const weak = weakLinks(p, models)[0];
+    if (weak) return { none: 'weakLink', child: weak.child, parent: weak.parent };
     return { none: base >= 0.98 ? 'alreadyGood' : 'noGain' };
   }
   return {

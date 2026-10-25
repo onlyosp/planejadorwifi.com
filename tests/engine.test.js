@@ -72,6 +72,34 @@ test('topology marks wired nodes and links the rest to a neighbour', () => {
   assert.equal(t[1].parent, 1, 'third node links to the nearest one');
 });
 
+test('topology reaches the main node even when two satellites prefer each other', () => {
+  const concrete = [{ x1: 8, y1: 0, x2: 8, y2: 10, m: 'concreto' }, { x1: 11, y1: 0, x2: 11, y2: 10, m: 'concreto' }];
+  const p = room(concrete, [node(2, 5), { x: 15, y: 5, model: 'be25' }, { x: 16, y: 5, model: 'be25' }]);
+  const t = E.topology(p, MODELS);
+  assert.equal(t.length, 2);
+  const parent = Object.fromEntries(t.map(l => [l.child, l.parent]));
+  for (const start of [1, 2]) {
+    let i = start, hops = 0;
+    while (i !== 0 && hops < 5) { i = parent[i]; hops++; }
+    assert.equal(i, 0, `node ${start} reaches the main node`);
+  }
+  assert.ok(E.weakLinks(p, MODELS).length >= 1, 'the link through two concrete walls is weak');
+});
+
+test('suggest reports a weak backhaul link when no spot helps', () => {
+  const box = [[0, 0, 20, 0], [20, 0, 20, 10], [20, 10, 0, 10], [0, 10, 0, 0]].map(([x1, y1, x2, y2]) => ({ x1, y1, x2, y2, m: 'gesso' }));
+  const p = room([...box, { x1: 9, y1: 0, x2: 9, y2: 10, m: 'concreto' }, { x1: 10, y1: 0, x2: 10, y2: 10, m: 'concreto' }],
+    [node(4, 5), { x: 15, y: 5, model: 'be25' }]);
+  const s = E.suggest(p, MODELS, 0, '5', 'be25');
+  assert.equal(s.none, 'weakLink');
+  assert.deepEqual([s.child, s.parent], [1, 0]);
+});
+
+test('link quality follows the rounded dBm shown to the user', () => {
+  assert.equal(E.linkCat(-70.3), 2);
+  assert.equal(E.linkCat(-70.6), 4);
+});
+
 test('normalizeProject repairs bad input', () => {
   const p = normalizeProject({ w: 999, band: 'x', floors: [{ walls: [{ x1: 0, y1: 0, x2: 1, y2: 1, m: 'lava' }], nodes: [{ x: 1, y: 1, model: 'nope' }, { x: 2, y: 2, model: 'be65', main: true }, { x: 3, y: 3, model: 'be65', main: true }] }] }, IDS);
   assert.equal(p.w, 80);

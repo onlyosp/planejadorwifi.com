@@ -263,6 +263,7 @@
       "noBand": "Nenhum aparelho do projeto transmite em {band}.",
       "goodShare": "da casa com ≥ −67 dBm",
       "area": "Área considerada: {area} m², o retângulo em volta das paredes.",
+      "weakNote": "Este número supõe que {node} funciona, mas o link dele com a rede mesh está fraco. Ligue-o por cabo ou aproxime-o de outro nó.",
       "linksTitle": "Ligação entre nós",
       "linksEmpty": "Com dois ou mais nós, aqui aparece a qualidade do backhaul, a ligação entre eles.",
       "otherFloor": "(outro andar)",
@@ -288,7 +289,8 @@
         "noWalls": "Desenhe as paredes da casa primeiro.",
         "noSpot": "Não achei um ponto livre longe das paredes. Aumente a área ou ajuste o desenho.",
         "alreadyGood": "A cobertura já está boa em quase toda a casa. Outro nó não muda muito.",
-        "noGain": "Nenhuma posição melhora a cobertura de forma relevante."
+        "noGain": "Nenhuma posição melhora a cobertura de forma relevante.",
+        "weakLink": "Nenhum ponto melhora muito a cobertura, mas o link entre {child} e {parent} está fraco. Ligue {child} por cabo ou aproxime os dois."
       }
     },
     "sel": {
