@@ -4,3 +4,7 @@ dist/
 .env
 .env.*
 .dev.vars
+
+# Impeccable live mode runtime state (the config.json next to it is shared)
+.impeccable/live/*
+!.impeccable/live/config.json
