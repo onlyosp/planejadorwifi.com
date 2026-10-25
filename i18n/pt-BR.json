@@ -31,9 +31,8 @@
     "p": "O Planejador WiFi mostra onde o sinal chega bem antes de você comprar o roteador: desenhe as paredes, posicione o roteador e os nós mesh e veja a cobertura em 2,4, 5 e 6 GHz. Grátis, sem cadastro, e seus projetos ficam no seu navegador."
   },
   "example": {
-    "text": "<strong>Casa de exemplo.</strong> Edite à vontade ou crie um projeto em branco para desenhar a sua.",
     "blank": "Projeto em branco",
-    "keep": "Editar o exemplo"
+    "chip": "Você está vendo a casa de exemplo."
   },
   "project": {
     "label": "Projeto",
@@ -60,7 +59,14 @@
     "roomPlaceholder": "Ex.: Quarto",
     "roomName": "Nome do cômodo",
     "foot": "Estimativa: perda log-distância (n = 2,5) mais a atenuação de cada parede cruzada e da laje entre andares. Erro típico de ±8 dB. Serve para comparar posições, não substitui a medição com o celular.",
-    "noscript": "O simulador precisa de JavaScript ativado no navegador."
+    "noscript": "O simulador precisa de JavaScript ativado no navegador.",
+    "zoomIn": "Aproximar",
+    "zoomOut": "Afastar",
+    "fit": "Ajustar à tela",
+    "view": "Visualização",
+    "history": "Histórico",
+    "canvasKeys": "Com a planta em foco, use [ e ] para escolher paredes, nós e nomes, as setas para mover, Delete para apagar e Esc para soltar.",
+    "heatShort": "Calor"
   },
   "tools": {
     "select": "Selecionar",
@@ -70,7 +76,9 @@
     "measure": "Medir",
     "erase": "Apagar",
     "undo": "Desfazer",
-    "undoTitle": "Desfazer (Ctrl+Z)"
+    "undoTitle": "Desfazer (Ctrl+Z)",
+    "redo": "Refazer",
+    "redoTitle": "Refazer (Ctrl+Shift+Z)"
   },
   "panel": {
     "label": "Resultados"
@@ -82,10 +90,7 @@
     "image": "Foto ou imagem da planta",
     "imageOpacity": "Opacidade da imagem",
     "scaleHint": "Para acertar a escala, use <b>Medir</b>, arraste sobre uma medida conhecida da imagem e informe o tamanho real.",
-    "removeImage": "Remover imagem",
-    "measured": "Linha medida:",
-    "realLength": "Tamanho real dessa linha (m)",
-    "apply": "Ajustar imagem"
+    "removeImage": "Remover imagem"
   },
   "share": {
     "title": "Compartilhar",
@@ -187,8 +192,8 @@
   },
   "ui": {
     "hints": {
-      "select": "Clique numa parede ou nó para editar. Arraste nós e nomes para mover. Clique num ponto vazio para ler o sinal.",
-      "wall": "Clique e arraste para desenhar uma parede. As pontas grudam na grade de 25 cm e nas paredes existentes. Portas e janelas são paredes do material certo.",
+      "select": "Clique numa parede, nó ou link para editar. Arraste nós e nomes para mover, ou o fundo para mover a planta. Ctrl + roda do mouse dá zoom.",
+      "wall": "Clique e arraste para desenhar uma parede. As pontas grudam na grade de 25 cm e nas paredes existentes. Segure Shift para desenhar na diagonal (ou desmarque “Só 90°”).",
       "node": "Clique onde vai ficar cada roteador ou nó mesh. O primeiro é o principal, ligado ao modem.",
       "label": "Clique na planta e digite o nome do cômodo. Enter confirma.",
       "measure": "Arraste para medir uma distância. Com imagem de fundo, use isso para acertar a escala.",
@@ -239,7 +244,8 @@
       "idle": "Passe o cursor sobre a planta para ler o sinal.",
       "noNodes": "nenhum roteador posicionado",
       "noBand": "nenhum aparelho transmite em {band}",
-      "via": "via"
+      "via": "via",
+      "idleTouch": "Toque na planta para ler o sinal."
     },
     "node": {
       "main": "Principal",
@@ -264,7 +270,6 @@
       "goodShare": "da casa com ≥ −67 dBm",
       "area": "Área considerada: {area} m², o retângulo em volta das paredes.",
       "wireIt": "Ligar {node} por cabo",
-      "weakNote": "Este número supõe que {node} funciona, mas o link dele com a rede mesh está fraco. Ligue-o por cabo ou aproxime-o de outro nó.",
       "linksTitle": "Ligação entre nós",
       "linksEmpty": "Com dois ou mais nós, aqui aparece a qualidade do backhaul, a ligação entre eles.",
       "otherFloor": "(outro andar)",
@@ -305,7 +310,16 @@
       "delNode": "Apagar nó",
       "room": "Nome do cômodo",
       "text": "Texto",
-      "delRoom": "Apagar nome"
+      "delRoom": "Apagar nome",
+      "close": "Fechar",
+      "unwire": "Usar sem fio",
+      "measureTitle": "Medida",
+      "measured": "Linha medida: {len} m",
+      "realLength": "Tamanho real dessa linha (m)",
+      "apply": "Ajustar imagem",
+      "measureNoImage": "Para usar a medida como escala, carregue uma foto da planta em Planta e escala.",
+      "length": "Comprimento (m)",
+      "lengthHint": "Ou arraste os quadradinhos nas pontas da parede."
     },
     "models": {
       "isp": "Roteador da operadora",
@@ -397,12 +411,12 @@
         {
           "target": "[data-tool=wall]",
           "title": "Desenhe as paredes",
-          "body": "Clique e arraste no mapa. Escolha o material na barra de cima: alvenaria, concreto, vidro… Portas e janelas também são paredes."
+          "body": "Arraste no mapa para desenhar. O material aparece nas opções da ferramenta: alvenaria, concreto, vidro… Portas e janelas também são paredes."
         },
         {
           "target": "[data-tool=node]",
           "title": "Posicione o roteador",
-          "body": "Clique onde fica o modem: esse é o nó principal. Depois adicione os demais nós mesh e veja a ligação entre eles."
+          "body": "Marque onde fica o modem: esse é o nó principal. Depois adicione os demais nós mesh e veja a ligação entre eles."
         },
         {
           "target": "#bands",
@@ -410,9 +424,9 @@
           "body": "Troque entre 2,4, 5 e 6 GHz. Verde é sinal excelente; vermelho é sem sinal útil."
         },
         {
-          "target": "#pCoverage",
+          "target": "#drawerHead",
           "title": "Veja o resultado",
-          "body": "A porcentagem da casa com sinal bom aparece aqui, por faixa. Passe o cursor no mapa para ler o sinal em cada ponto."
+          "body": "Aqui fica o resumo do plano: quantos aparelhos, se algum precisa de cabo e a cobertura de cada faixa."
         },
         {
           "target": "#pSuggest",
@@ -420,6 +434,53 @@
           "body": "<b>Sugerir posição</b> testa todos os pontos livres e mostra onde mais um nó traria o maior ganho."
         }
       ]
+    },
+    "hintsTouch": {
+      "select": "Toque numa parede, nó ou link para editar. Arraste nós e nomes para mover, ou o fundo para mover a planta. Use dois dedos para zoom.",
+      "wall": "Arraste para desenhar uma parede. Para diagonais, desmarque “Só 90°” nas opções da ferramenta.",
+      "node": "Toque onde vai ficar cada roteador ou nó mesh. O primeiro é o principal, ligado ao modem.",
+      "label": "Toque na planta e digite o nome do cômodo.",
+      "measure": "Arraste para medir uma distância. Com imagem de fundo, use isso para acertar a escala.",
+      "erase": "Toque numa parede, nó ou nome para apagar."
+    },
+    "bandNoDevice": "{band}: nenhum aparelho transmite nessa faixa",
+    "verdict": {
+      "title": "Seu plano",
+      "empty": "Coloque o roteador na planta para ver o resultado.",
+      "placeNode": "Colocar o roteador",
+      "ok": "Cobre a casa",
+      "okCable": "Cobre a casa, com cabo",
+      "short": "Ainda falta sinal",
+      "okLine": "Em {band}, {pct} da casa tem sinal bom.",
+      "shortLine": "Em {band}, só {pct} da casa tem sinal bom. Veja onde mais um nó ajuda.",
+      "cableLine": "O link de {node} está fraco: ligue-o por cabo ou aproxime-o de outro nó.",
+      "devices": "Aparelhos",
+      "sixGood": "6 GHz também cobre a casa: dá para usar a faixa mais rápida.",
+      "sixNear": "6 GHz chega a {pct} da casa: é a mais rápida perto dos nós.",
+      "sixNone": "Nenhum aparelho tem 6 GHz. Para usar essa faixa, escolha um modelo com 6 GHz (Wi-Fi 6E ou 7).",
+      "byBand": "Casa toda, por faixa",
+      "showBand": "Ver o mapa em {band}",
+      "note": "Estimativa com erro típico de ±8 dB."
+    },
+    "hud": {
+      "weak1": "1 link fraco",
+      "weakN": "{n} links fracos",
+      "noNodes": "Sem roteador",
+      "open": "Mostrar resultado",
+      "close": "Recolher resultado"
+    },
+    "live": {
+      "wall": "Parede criada, {len} m.",
+      "node": "{node} adicionado.",
+      "deleted": "Item apagado.",
+      "wired": "{node} ligado por cabo.",
+      "unwired": "{node} agora sem fio.",
+      "selected": "Selecionado: {item}."
     }
+  },
+  "drawer": {
+    "title": "Resultado",
+    "hide": "Recolher resultado",
+    "about": "Sobre a estimativa"
   }
 }

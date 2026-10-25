@@ -20,6 +20,7 @@ const demo = () => ({
     head: '<meta name="demo-head" content="{{lang}}">',
     bodyEnd: '<div id="demo-end"><!-- build:demo -->{{demo.hello}}<!-- /build:demo --></div>',
     afterTool: '<div id="demo-after"></div>',
+    inResults: '<div id="demo-results"></div>',
     inGuide: '<div id="demo-guide"></div>',
     afterGuide: '<div id="demo-after-guide"></div>',
     footer: '<a id="demo-footer" href="{{@privacy}}">x</a>',
@@ -47,7 +48,7 @@ test('extensions fill every slot, merge texts, set flags and add files', async (
     const en = b.read('en/index.html'), privacy = b.read('es/privacidad.html');
     assert.ok(en.includes('<meta name="demo-head" content="en">'));
     assert.ok(en.includes('<div id="demo-end">Hello</div>'));
-    for (const id of ['demo-after', 'demo-guide', 'demo-after-guide', 'demo-footer']) assert.ok(en.includes(`id="${id}"`), id);
+    for (const id of ['demo-after', 'demo-results', 'demo-guide', 'demo-after-guide', 'demo-footer']) assert.ok(en.includes(`id="${id}"`), id);
     assert.ok(privacy.includes('<h2 id="demo-privacy">Hola</h2>'));
     assert.ok(!b.read('politica-de-privacidade.html').includes('não usa cookies'), 'third-party flag hides the no-tracking statement');
     assert.match(b.read('assets/js/demo.js'), /from '.\/i18n\.js\?v=|import '.\/i18n\.js'/);
@@ -58,7 +59,7 @@ test('unknown extension slots and block flags stop the build', async () => {
   await assert.rejects(run({ extensions: [() => ({ slots: { nowhere: 'x' } })] }), /Unknown extension slot/);
   assert.throws(() => applyBlocks('<!-- build:nope -->x<!-- /build:nope -->', {}), /Unknown/);
   assert.throws(() => applyBlocks('<!-- build:home -->x', { home: true }), /Unbalanced/);
-  assert.deepEqual(SLOTS, ['head', 'bodyEnd', 'afterTool', 'inGuide', 'afterGuide', 'footer', 'privacy']);
+  assert.deepEqual(SLOTS, ['head', 'bodyEnd', 'afterTool', 'inResults', 'inGuide', 'afterGuide', 'footer', 'privacy']);
 });
 
 test('negated blocks keep content only when the flag is off', () => {

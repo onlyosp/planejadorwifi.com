@@ -25,128 +25,166 @@
 <script type="module" src="/assets/js/app.js"></script>
 {{{@jsonLd}}}
 </head>
-<body>
+<body class="has-ws">
 <a class="skip" href="#how-to">{{nav.skip}}</a>
+<svg class="icons" aria-hidden="true" focusable="false">
+  <symbol id="i-select" viewBox="0 0 24 24"><path d="M5.5 3.5 18 11l-5.6 1.5L10 18z"/><path d="m12.4 12.5 4.6 6"/></symbol>
+  <symbol id="i-wall" viewBox="0 0 24 24"><path d="M4.5 18.5 19.5 5.5" stroke-width="3.2"/><path d="M3 15.5l3 4.5M18 3l3 4.5"/></symbol>
+  <symbol id="i-node" viewBox="0 0 24 24"><circle cx="12" cy="16" r="3"/><path d="M6.3 10.3a8 8 0 0 1 11.4 0M9 13a4.2 4.2 0 0 1 6 0"/></symbol>
+  <symbol id="i-label" viewBox="0 0 24 24"><path d="M5 6.5V5h14v1.5M12 5v14M9 19h6"/></symbol>
+  <symbol id="i-measure" viewBox="0 0 24 24"><path d="m3.5 16 12.5-12.5 4.5 4.5L8 20.5z"/><path d="m7.5 12 2 2M10.5 9l2 2M13.5 6l2 2"/></symbol>
+  <symbol id="i-erase" viewBox="0 0 24 24"><path d="M9 20h11"/><path d="m4.8 14.8 8.6-8.6a2 2 0 0 1 2.8 0l2.4 2.4a2 2 0 0 1 0 2.8L11 19H8.9z"/><path d="m9.5 10.1 4.4 4.4"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 5 4.5 9.5 9 14"/><path d="M4.5 9.5H15a4.75 4.75 0 0 1 0 9.5h-4"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24"><path d="m15 5 4.5 4.5L15 14"/><path d="M19.5 9.5H9a4.75 4.75 0 0 0 0 9.5h4"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-fit" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><rect x="8.5" y="8.5" width="7" height="7" rx="1"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+</svg>
 <div class="wrap">
   {{{@header}}}
 
   <main>
-    <div class="intro" id="simulator">
-      <h1>{{intro.h1}}</h1>
-      <p>{{intro.p}}</p>
-    </div>
-
-    <div class="note-bar" id="exampleBar" hidden>
-      <span class="sp">{{{example.text}}}</span>
-      <button type="button" id="startBlank" class="primary">{{example.blank}}</button>
-      <button type="button" id="keepExample" class="ghost">{{example.keep}}</button>
-    </div>
-
-    <div class="projbar" id="projectBar">
-      <label class="opt-label" for="projectSel">{{project.label}}</label>
-      <select id="projectSel"></select>
-      <button type="button" id="newProject">{{project.new}}</button>
-      <details class="menu" id="projMenu">
-        <summary>{{project.file}}</summary>
-        <div class="menu-list">
-          <button type="button" data-act="rename">{{project.rename}}</button>
-          <button type="button" data-act="duplicate">{{project.duplicate}}</button>
-          <hr>
-          <button type="button" data-act="export">{{project.export}}</button>
-          <button type="button" data-act="import">{{project.import}}</button>
-          <hr>
-          <button type="button" data-act="delete" class="danger">{{project.delete}}</button>
-        </div>
-      </details>
-      <input type="file" id="importFile" accept=".json,application/json" hidden>
-    </div>
-
-    <section class="app" aria-label="{{stage.label}}">
-      <div class="stage">
-        <div class="stagebar">
-          <div class="floors" id="floors" role="tablist" aria-label="{{stage.floors}}"></div>
-          <div class="seg" id="bands" role="radiogroup" aria-label="{{stage.bands}}"></div>
-          <div class="opts" id="matGroup">
-            <label class="opt-label" for="matSel">{{stage.material}}</label>
-            <select id="matSel"></select>
-            <label class="check"><input type="checkbox" id="ortho" checked> {{stage.ortho}}</label>
-          </div>
-          <div class="opts" id="modelGroup" hidden>
-            <label class="opt-label" for="modelSel">{{stage.model}}</label>
-            <select id="modelSel"></select>
-            <button type="button" class="linkbtn" id="manageModels">{{stage.otherModel}}</button>
-          </div>
-          <div class="opts opts-heat">
-            <label class="check"><input type="checkbox" id="heatOn" checked> {{stage.heatmap}}</label>
-            <label class="sr" for="alpha">{{stage.heatOpacity}}</label>
-            <input type="range" id="alpha" min="15" max="85" step="5">
-          </div>
-        </div>
-        <div class="board">
-          <div class="toolbar" id="toolset" role="toolbar" aria-label="{{stage.tools}}" aria-orientation="vertical">
-            <button type="button" data-tool="select" aria-pressed="false">{{tools.select}}<kbd>V</kbd></button>
-            <button type="button" data-tool="wall" aria-pressed="false">{{tools.wall}}<kbd>W</kbd></button>
-            <button type="button" data-tool="node" aria-pressed="false">{{tools.node}}<kbd>N</kbd></button>
-            <button type="button" data-tool="label" aria-pressed="false">{{tools.label}}<kbd>T</kbd></button>
-            <button type="button" data-tool="measure" aria-pressed="false">{{tools.measure}}<kbd>M</kbd></button>
-            <button type="button" data-tool="erase" aria-pressed="false">{{tools.erase}}<kbd>E</kbd></button>
-            <button type="button" id="undoBtn" class="undo" title="{{tools.undoTitle}}">{{tools.undo}}</button>
-          </div>
-          <div class="canvas-area" id="canvasArea">
-            <div class="sheet" id="wrap">
-              <canvas id="cv" aria-label="{{stage.canvas}}"></canvas>
-              <input type="text" id="labelInput" placeholder="{{stage.roomPlaceholder}}" aria-label="{{stage.roomName}}" hidden>
+    <section class="ws" id="simulator" aria-labelledby="wsTitle">
+      <div class="ws-top">
+        <h1 id="wsTitle">{{intro.h1}}</h1>
+        <p class="example-chip" id="exampleBar" hidden>
+          <span>{{example.chip}}</span>
+          <button type="button" id="startBlank" class="primary">{{example.blank}}</button>
+        </p>
+        <div class="projbar" id="projectBar">
+          <label class="sr" for="projectSel">{{project.label}}</label>
+          <select id="projectSel"></select>
+          <button type="button" id="newProject">{{project.new}}</button>
+          <details class="menu" id="projMenu">
+            <summary>{{project.file}} <svg class="ic ic-sm" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+            <div class="menu-list">
+              <button type="button" data-act="new" class="menu-new">{{project.new}}</button>
+              <button type="button" data-act="rename">{{project.rename}}</button>
+              <button type="button" data-act="duplicate">{{project.duplicate}}</button>
+              <hr>
+              <button type="button" data-act="export">{{project.export}}</button>
+              <button type="button" data-act="import">{{project.import}}</button>
+              <hr>
+              <button type="button" data-act="delete" class="danger">{{project.delete}}</button>
             </div>
-          </div>
+          </details>
+          <input type="file" id="importFile" accept=".json,application/json" hidden>
         </div>
-        <div class="readout" id="readout"></div>
-        <p class="hint" id="toolHint"></p>
-        <div class="legend" id="legend"></div>
-        <p class="foot">{{stage.foot}}</p>
-        <noscript><p>{{stage.noscript}}</p></noscript>
       </div>
 
-      <aside class="panel" aria-label="{{panel.label}}">
-        <section class="card" id="pCoverage"></section>
-        <section class="card" id="pLinks"></section>
-        <section class="card" id="pSuggest"></section>
-        <section class="card" id="pSel" hidden></section>
-        <section class="card">
-          <h2>{{plan.title}}</h2>
-          <div class="fields">
-            <label for="areaW">{{plan.width}}<input type="number" id="areaW" min="4" max="80" step="0.5"></label>
-            <label for="areaH">{{plan.depth}}<input type="number" id="areaH" min="4" max="80" step="0.5"></label>
+      <div class="ws-body" id="wsBody">
+        <div class="ws-map" id="canvasArea" aria-label="{{stage.label}}" role="region">
+          <div class="sheet" id="wrap">
+            <canvas id="cv" tabindex="0" aria-label="{{stage.canvas}}" aria-describedby="cvKeys" aria-keyshortcuts="[ ]"></canvas>
+            <p class="sr" id="cvKeys">{{stage.canvasKeys}}</p>
+            <input type="text" id="labelInput" placeholder="{{stage.roomPlaceholder}}" aria-label="{{stage.roomName}}" hidden>
           </div>
-          <label class="eyebrow" for="bgFile">{{plan.image}}</label>
-          <input type="file" id="bgFile" accept="image/*">
-          <div id="bgCtl" class="group" hidden>
-            <label class="small muted" for="bgAlpha">{{plan.imageOpacity}}</label>
-            <input type="range" id="bgAlpha" min="10" max="100" step="5">
-            <p class="hint">{{{plan.scaleHint}}}</p>
-            <button type="button" id="bgRemove" class="ghost">{{plan.removeImage}}</button>
+
+          <div class="fl fl-top" id="stageBar">
+            <div class="floors" id="floors" role="group" aria-label="{{stage.floors}}"></div>
+            <div class="seg" id="bands" role="group" aria-label="{{stage.bands}}"></div>
+            <label class="check fl-chip"><input type="checkbox" id="heatOn" checked> <span class="lbl-long">{{stage.heatmap}}</span><span class="lbl-short" aria-hidden="true">{{stage.heatShort}}</span></label>
           </div>
-          <div id="calib" class="group" hidden>
-            <span class="small">{{plan.measured}} <b id="calLenNow">—</b></span>
-            <div id="calForm" class="group">
-              <label class="small muted" for="calLen">{{plan.realLength}}</label>
-              <div class="btnrow"><input type="number" id="calLen" min="0.1" step="0.05" style="flex:1 1 90px;width:auto"><button type="button" id="calApply" class="primary">{{plan.apply}}</button></div>
+
+          <div class="fl toolbar" id="toolset" role="group" aria-label="{{stage.tools}}">
+            <button type="button" data-tool="select" aria-pressed="false" aria-keyshortcuts="V" title="{{tools.select}} (V)"><svg class="ic" aria-hidden="true"><use href="#i-select"/></svg><span>{{tools.select}}</span><kbd aria-hidden="true">V</kbd></button>
+            <button type="button" data-tool="wall" aria-pressed="false" aria-keyshortcuts="W" title="{{tools.wall}} (W)"><svg class="ic" aria-hidden="true"><use href="#i-wall"/></svg><span>{{tools.wall}}</span><kbd aria-hidden="true">W</kbd></button>
+            <button type="button" data-tool="node" aria-pressed="false" aria-keyshortcuts="N" title="{{tools.node}} (N)"><svg class="ic" aria-hidden="true"><use href="#i-node"/></svg><span>{{tools.node}}</span><kbd aria-hidden="true">N</kbd></button>
+            <button type="button" data-tool="label" aria-pressed="false" aria-keyshortcuts="T" title="{{tools.label}} (T)"><svg class="ic" aria-hidden="true"><use href="#i-label"/></svg><span>{{tools.label}}</span><kbd aria-hidden="true">T</kbd></button>
+            <button type="button" data-tool="measure" aria-pressed="false" aria-keyshortcuts="M" title="{{tools.measure}} (M)"><svg class="ic" aria-hidden="true"><use href="#i-measure"/></svg><span>{{tools.measure}}</span><kbd aria-hidden="true">M</kbd></button>
+            <button type="button" data-tool="erase" aria-pressed="false" aria-keyshortcuts="E" title="{{tools.erase}} (E)"><svg class="ic" aria-hidden="true"><use href="#i-erase"/></svg><span>{{tools.erase}}</span><kbd aria-hidden="true">E</kbd></button>
+          </div>
+
+          <div class="fl tool-opts" id="toolOpts" hidden>
+            <div class="opts" id="matGroup" hidden>
+              <label class="opt-label" for="matSel">{{stage.material}}</label>
+              <select id="matSel"></select>
+              <label class="check"><input type="checkbox" id="ortho" checked> {{stage.ortho}}</label>
+            </div>
+            <div class="opts" id="modelGroup" hidden>
+              <label class="opt-label" for="modelSel">{{stage.model}}</label>
+              <select id="modelSel"></select>
+              <button type="button" class="linkbtn" id="manageModels">{{stage.otherModel}}</button>
             </div>
           </div>
-          <button type="button" id="delFloor" class="ghost danger" hidden></button>
-        </section>
-        <section class="card">
-          <h2>{{share.title}}</h2>
-          <p class="small muted">{{share.text}}</p>
-          <div class="btnrow"><button type="button" id="copySummary">{{share.copy}}</button></div>
-          <label class="sr" for="copyFallback">{{share.fallback}}</label>
-          <textarea id="copyFallback" readonly hidden></textarea>
-        </section>
-      </aside>
+
+          <div class="fl fl-read">
+            <div class="readout" id="readout"></div>
+            <p class="hint" id="toolHint"></p>
+          </div>
+
+          <div class="fl fl-view">
+            <div class="btngroup" role="group" aria-label="{{stage.history}}">
+              <button type="button" id="undoBtn" title="{{tools.undoTitle}}" aria-label="{{tools.undo}}" aria-keyshortcuts="Control+Z"><svg class="ic" aria-hidden="true"><use href="#i-undo"/></svg></button>
+              <button type="button" id="redoBtn" title="{{tools.redoTitle}}" aria-label="{{tools.redo}}" aria-keyshortcuts="Control+Shift+Z"><svg class="ic" aria-hidden="true"><use href="#i-redo"/></svg></button>
+            </div>
+            <div class="btngroup" role="group" aria-label="{{stage.view}}">
+              <button type="button" id="zoomOut" title="{{stage.zoomOut}} (−)" aria-label="{{stage.zoomOut}}"><svg class="ic" aria-hidden="true"><use href="#i-minus"/></svg></button>
+              <button type="button" id="zoomFit" title="{{stage.fit}} (0)" aria-label="{{stage.fit}}"><svg class="ic" aria-hidden="true"><use href="#i-fit"/></svg></button>
+              <button type="button" id="zoomIn" title="{{stage.zoomIn}} (+)" aria-label="{{stage.zoomIn}}"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></button>
+            </div>
+          </div>
+
+          <button type="button" class="fl hud" id="hud" aria-controls="drawer" aria-expanded="false" hidden></button>
+          <div class="pop" id="pop" role="dialog" aria-labelledby="popTitle" hidden></div>
+        </div>
+
+        <aside class="drawer" id="drawer" aria-labelledby="drawerTitle">
+          <div class="drawer-head" id="drawerHead">
+            <button type="button" class="drawer-toggle" id="drawerToggle" aria-controls="drawerBody" aria-expanded="true" title="{{drawer.hide}}">
+              <span class="dh-title" id="drawerTitle">{{drawer.title}}</span>
+              <span class="dh-sum" id="drawerSum"></span>
+              <svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg>
+            </button>
+          </div>
+          <div class="drawer-body" id="drawerBody">
+            <section class="card verdict" id="pVerdict"></section>
+            <section class="card" id="pCoverage"></section>
+            <section class="card" id="pLinks"></section>
+            <section class="card" id="pSuggest"></section>
+            <section class="card" id="pPlan">
+              <h2>{{plan.title}}</h2>
+              <div class="fields">
+                <label for="areaW">{{plan.width}}<input type="number" id="areaW" min="4" max="80" step="0.5"></label>
+                <label for="areaH">{{plan.depth}}<input type="number" id="areaH" min="4" max="80" step="0.5"></label>
+              </div>
+              <label class="field-row" for="alpha"><span>{{stage.heatOpacity}}</span><input type="range" id="alpha" min="15" max="85" step="5"></label>
+              <label class="field-label" for="bgFile">{{plan.image}}</label>
+              <input type="file" id="bgFile" accept="image/*">
+              <div id="bgCtl" class="group" hidden>
+                <label class="field-row" for="bgAlpha"><span>{{plan.imageOpacity}}</span><input type="range" id="bgAlpha" min="10" max="100" step="5"></label>
+                <p class="hint">{{{plan.scaleHint}}}</p>
+                <button type="button" id="bgRemove" class="ghost">{{plan.removeImage}}</button>
+              </div>
+              <button type="button" id="delFloor" class="ghost danger" hidden></button>
+            </section>
+            <section class="card">
+              <h2>{{share.title}}</h2>
+              <p class="small muted">{{share.text}}</p>
+              <div class="btnrow"><button type="button" id="copySummary">{{share.copy}}</button></div>
+              <label class="sr" for="copyFallback">{{share.fallback}}</label>
+              <textarea id="copyFallback" readonly hidden></textarea>
+            </section>
+            <section class="card about">
+              <h2>{{drawer.about}}</h2>
+              <div class="legend" id="legend"></div>
+              <p class="foot">{{stage.foot}}</p>
+            </section>
+            {{{@slot.inResults}}}
+          </div>
+        </aside>
+      </div>
+      <noscript><p class="noscript">{{stage.noscript}}</p></noscript>
+      <p class="sr" id="live" role="status" aria-live="polite"></p>
     </section>
 
     {{{@slot.afterTool}}}
 
     <article class="guide">
+      <p class="lead">{{intro.p}}</p>
+
       <h2 id="how-to">{{guide.howToTitle}}</h2>
       <ol>{{{guide.howToSteps}}}</ol>
 

@@ -7,12 +7,12 @@
 @font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 400; font-display: swap; src: url(/assets/fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 500; font-display: swap; src: url(/assets/fonts/ibm-plex-mono-latin-500-normal.woff2) format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 
-/* Layout: drafting table. Tool rail on the left, plan sheet in the middle, readings on the right;
-   the guide below reads as a single column. */
+/* Layout: drafting table. The plan fills the workspace with its instruments floating on it and the
+   results in a drawer beside it (a bottom sheet on smaller screens); the guide reads below. */
 :root {
   --bg: #E7EAEE; --sheet: #FBFCFD; --panel: #F3F5F8; --ink: #1B222C; --muted: #5A6473; --line: #C8CFD8;
   --grid: #E1E6EC; --grid-strong: #C9D1DA; --accent: #2F43C4; --accent-soft: rgba(47, 67, 196, .12); --on-accent: #FFFFFF;
-  --danger: #B42335; --shadow: 0 10px 30px rgba(20, 28, 40, .16);
+  --danger: #B42335; --shadow: 0 10px 30px rgba(20, 28, 40, .16); --shadow-float: 0 2px 10px rgba(20, 28, 40, .12);
   --m-tijolo: #9C4A2C; --m-concreto: #555D69; --m-gesso: #97A0AC; --m-madeira: #A26B22; --m-vidro: #2A8FBA; --m-metal: #1F242B;
   --q0: #1A9850; --q1: #86C65A; --q2: #EFC23F; --q3: #EE8547; --q4: #D33343;
   --font-display: "Barlow Semi Condensed", "Arial Narrow", Arial, sans-serif;
@@ -24,7 +24,7 @@
   :root {
     --bg: #101419; --sheet: #171C23; --panel: #141920; --ink: #E5E9EF; --muted: #98A2B1; --line: #2C3440;
     --grid: #1F252E; --grid-strong: #2C3440; --accent: #8D9BFF; --accent-soft: rgba(141, 155, 255, .16); --on-accent: #10131A;
-    --danger: #FF7A88; --shadow: 0 10px 30px rgba(0, 0, 0, .5);
+    --danger: #FF7A88; --shadow: 0 10px 30px rgba(0, 0, 0, .5); --shadow-float: 0 2px 12px rgba(0, 0, 0, .45);
     --m-tijolo: #D27C59; --m-concreto: #A7AEB9; --m-gesso: #717A87; --m-madeira: #D4A35A; --m-vidro: #6BC6EA; --m-metal: #E3E7ED;
     color-scheme: dark;
   }
@@ -42,7 +42,6 @@ p { margin: 0 }
 a { color: var(--accent) }
 img { max-width: 100% }
 [hidden] { display: none !important }
-.eyebrow { font-family: var(--font-display); font-weight: 600; font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); display: block }
 .muted { color: var(--muted) }
 .small { font-size: 13px }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
@@ -65,7 +64,6 @@ select, input[type=number], input[type=text], textarea {
 }
 input[type=range], input[type=checkbox] { accent-color: var(--accent) }
 input[type=range] { width: 100% }
-kbd { font-family: var(--font-mono); font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; margin-left: auto }
 .btnrow { display: flex; flex-wrap: wrap; gap: 6px }
 .check { display: flex; align-items: center; gap: 7px; font-size: 14px }
 .hint { font-size: 13px; color: var(--muted) }
@@ -74,60 +72,120 @@ kbd { font-family: var(--font-mono); font-size: 11px; color: var(--muted); borde
 .site { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding-block: 14px 6px }
 .logo { display: flex; align-items: center; gap: 9px; font-family: var(--font-display); font-weight: 700; font-size: 22px; color: var(--ink); text-decoration: none }
 .logo svg { width: 28px; height: 28px; flex: none }
-.projbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0 }
-.projbar select { width: auto; max-width: 230px; font-weight: 500 }
 details.menu { position: relative }
 details.menu > summary { list-style: none; cursor: pointer; border: 1px solid var(--line); background: var(--sheet); border-radius: 6px; padding: 7px 11px; font-weight: 500 }
 details.menu > summary::-webkit-details-marker { display: none }
-details.menu > summary::after { content: " ▾"; color: var(--muted) }
+details.menu > summary .ic-sm { width: 14px; height: 14px; vertical-align: -2px; color: var(--muted); transform: rotate(90deg) }
+details.menu[open] > summary .ic-sm { transform: rotate(-90deg) }
 .menu-list { position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; min-width: 190px; display: flex; flex-direction: column; padding: 4px;
   background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow) }
 .menu-list button { border: 0; background: transparent; text-align: left; padding: 8px 10px }
 .menu-list button:hover { background: var(--accent-soft) }
 .menu-list hr { border: 0; border-top: 1px solid var(--line); margin: 4px 0 }
+.menu-list .menu-new { display: none }
 
-.intro { padding-block: 6px 14px; display: flex; flex-direction: column; gap: 4px }
-.intro h1 { font-size: clamp(24px, 3vw, 32px); font-weight: 700 }
-.intro p { color: var(--muted); max-width: 70ch }
+/* workspace: one screen tall, plan first */
+.ws { height: calc(100svh - var(--hdr, 64px)); min-height: 520px; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 8px; padding-bottom: 12px }
+.ws-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; min-width: 0 }
+.ws-top h1 { font-size: 21px; font-weight: 700; margin-right: auto; min-width: 0 }
+.example-chip { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 14px; background: var(--accent-soft); border-radius: 999px; padding: 3px 4px 3px 12px }
+.example-chip button { border-radius: 999px; padding: 4px 12px }
+.ws-body { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 12px; min-height: 0 }
+.ws.drawer-closed .ws-body { grid-template-columns: minmax(0, 1fr) }
+.ws-map { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: var(--bg); border: 1px solid var(--line); border-radius: 8px }
+.sheet { position: absolute; inset: 0 }
+canvas { display: block; touch-action: none; cursor: crosshair }
+#cv:focus-visible { outline-offset: -3px }
+#labelInput { position: absolute; width: 150px; padding: 3px 6px; font-size: 13px; z-index: 6 }
+.noscript { padding: 16px }
 
-.note-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; background: var(--accent-soft); border-radius: 8px; padding: 9px 12px; margin-bottom: 14px }
-.note-bar .sp { flex: 1 1 220px; min-width: 0 }
+/* instruments floating on the plan */
+.fl { position: absolute; z-index: 3 }
+.fl-top { top: 10px; left: 10px; right: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; pointer-events: none }
+.fl-top > * { pointer-events: auto }
+.ws.drawer-closed .fl-top { right: 220px }
+.floors { display: flex; flex-wrap: wrap; gap: 4px; background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; padding: 3px; box-shadow: var(--shadow-float) }
+.floors button { padding: 4px 10px; font-size: 14px; border-color: transparent; background: transparent }
+.floors button[aria-pressed="true"] { background: var(--ink); color: var(--sheet) }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--sheet); box-shadow: var(--shadow-float) }
+.seg button { border: 0; border-radius: 0; padding: 7px 13px; background: transparent; font-family: var(--font-mono); font-size: 13px }
+.seg button + button { border-left: 1px solid var(--line) }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--sheet) }
+.seg button:focus-visible, .btngroup button:focus-visible { outline-offset: -3px }
+.seg button.nodev:not([aria-pressed="true"]) { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 1px }
+.fl-chip { background: var(--sheet); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; box-shadow: var(--shadow-float) }
 
-/* tool layout: map with its toolbar on the left, results column on the right */
-.app { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start }
-.panel { display: flex; flex-direction: column; gap: 16px; min-width: 0 }
-.group { display: flex; flex-direction: column; gap: 7px }
-.board { display: flex; gap: 10px; align-items: flex-start; min-width: 0 }
-.toolbar { flex: none; width: 128px; display: flex; flex-direction: column; gap: 4px }
-.toolbar button { display: flex; align-items: center; gap: 8px; text-align: left; background: transparent; border-color: transparent }
-.toolbar button[aria-pressed="true"] { background: var(--sheet); border-color: var(--ink); font-weight: 600 }
-.toolbar .undo { margin-top: 8px; border-color: var(--line); justify-content: center }
-.canvas-area { flex: 1 1 auto; min-width: 0; display: flex; justify-content: center }
+.toolbar { top: calc(var(--flt-h, 40px) + 20px); left: 10px; width: 84px; display: flex; flex-direction: column; gap: 2px; padding: 4px;
+  background: var(--sheet); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-float) }
+.toolbar button { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 2px 6px; border-color: transparent; background: transparent;
+  font-size: 12px; line-height: 1.15; text-align: center; border-radius: 6px }
+.toolbar button { position: relative }
+.toolbar button span { max-width: 100%; overflow-wrap: anywhere }
+.toolbar kbd { position: absolute; top: 3px; right: 4px; font-family: var(--font-mono); font-size: 10px; line-height: 1; color: var(--muted) }
+.toolbar button[aria-pressed="true"] kbd { color: inherit; opacity: .7 }
+.lbl-short { display: none }
+.toolbar button:hover { background: var(--accent-soft); border-color: transparent }
+.toolbar button[aria-pressed="true"] { background: var(--ink); color: var(--sheet); font-weight: 600 }
+.ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round }
+.icons { position: absolute; width: 0; height: 0; overflow: hidden }
+
+.tool-opts { top: 10px; left: var(--opt-left, 360px); max-width: calc(100% - var(--opt-left, 360px) - 10px); background: var(--sheet); border: 1px solid var(--line);
+  border-radius: 8px; padding: 4px 10px; min-height: 36px; display: flex; align-items: center; box-shadow: var(--shadow-float) }
+.ws.drawer-closed .tool-opts { max-width: calc(100% - var(--opt-left, 360px) - 230px) }
+.tool-opts .opts { flex-wrap: nowrap; white-space: nowrap }
+.tool-opts select { min-width: 0; flex: 0 1 auto }
 .opts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-width: 0 }
-.opts select { width: auto; max-width: 260px }
-.opts input[type=range] { width: 90px }
+.opts select { width: auto; max-width: 240px; padding-block: 4px }
 .opt-label { font-size: 13px; color: var(--muted) }
-.opts-heat { margin-left: auto }
 .linkbtn { border: 0; background: none; padding: 0; color: var(--accent); text-decoration: underline; font-size: 13px; text-align: left; width: fit-content }
 
-.stage { display: flex; flex-direction: column; gap: 10px; min-width: 0 }
-.stagebar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px }
-.floors { display: flex; flex-wrap: wrap; gap: 6px }
-.floors button { padding: 5px 10px; font-size: 14px }
-.floors button[aria-selected="true"] { background: var(--ink); color: var(--sheet); border-color: var(--ink) }
-.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; background: var(--sheet) }
-.seg button { border: 0; border-radius: 0; padding: 6px 14px; background: transparent; font-family: var(--font-mono); font-size: 13px }
-.seg button + button { border-left: 1px solid var(--line) }
-.seg button[aria-checked="true"] { background: var(--ink); color: var(--sheet) }
-.readout { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); min-width: 0; min-height: 1.5em }
-.readout b { color: var(--ink); font-weight: 500 }
-.sheet { position: relative; max-width: 100%; background: var(--sheet); border: 1px solid var(--line); border-radius: 4px; overflow: hidden }
-canvas { display: block; max-width: 100%; touch-action: none; cursor: crosshair }
-#labelInput { position: absolute; width: 150px; padding: 3px 6px; font-size: 13px; z-index: 2 }
-.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted) }
+.fl-read { left: 106px; bottom: 10px; max-width: min(620px, calc(100% - 360px)); display: flex; flex-direction: column; gap: 2px;
+  background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; box-shadow: var(--shadow-float); pointer-events: none }
+.readout { font-size: 13px; color: var(--muted); min-width: 0 }
+.readout .mono { font-size: 12.5px; font-variant-numeric: tabular-nums }
+.readout b { color: var(--ink); font-weight: 600 }
+.fl-read .hint { font-size: 12.5px }
+.fl-view { right: 10px; bottom: 10px; display: flex; gap: 6px }
+.btngroup { display: flex; background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow-float); overflow: hidden }
+.btngroup button { border: 0; border-radius: 0; background: transparent; padding: 7px 9px; display: grid; place-items: center }
+.btngroup button + button { border-left: 1px solid var(--line) }
+.btngroup button:hover { background: var(--accent-soft) }
+.btngroup button:disabled { opacity: .35; cursor: default }
+.hud { top: 10px; right: 10px; display: flex; align-items: center; gap: 8px; background: var(--sheet); border: 1px solid var(--line); border-radius: 999px;
+  padding: 6px 8px 6px 12px; box-shadow: var(--shadow-float); font-size: 14px }
+.hud .ic { transform: rotate(180deg); width: 18px; height: 18px }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 999px; margin-right: 7px; vertical-align: 1px; flex: none }
+.hud-sum b, .dh-sum b { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums }
+
+/* popover next to the selected object */
+.pop { position: absolute; z-index: 5; width: 270px; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 12px;
+  background: var(--sheet); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow) }
+.pop.away { visibility: hidden }
+.pop-head { display: flex; align-items: center; gap: 8px }
+.pop-head h2 { font-size: 16px; font-weight: 700; margin-right: auto }
+.pop-x { border: 0; background: transparent; padding: 4px; margin: -4px -6px -4px 0; display: grid; place-items: center }
+.pop-x .ic { width: 18px; height: 18px }
+.pop-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center }
+.pop select, .pop input[type=text], .pop input[type=number] { width: 100% }
+.pop .btnrow input { flex: 1 1 80px; width: auto }
+.mono { font-family: var(--font-mono); font-weight: 500 }
+.field-label { font-size: 13px; color: var(--muted) }
+.field-row { display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--muted) }
+
+/* results drawer */
+.drawer { min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden }
+.ws.drawer-closed .drawer { display: none }
+.drawer-head { flex: none; border-bottom: 1px solid var(--line) }
+.drawer-toggle { width: 100%; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 0; background: transparent; padding: 10px 12px 10px 14px; text-align: left }
+.drawer-toggle:hover { background: var(--accent-soft) }
+.dh-title { font-family: var(--font-display); font-weight: 700; font-size: 17px }
+.dh-sum { margin-left: auto; font-size: 13.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0 }
+.drawer-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px; display: flex; flex-direction: column; gap: 12px }
+.group { display: flex; flex-direction: column; gap: 7px }
+.legend { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--ink) }
 .legend span { display: inline-flex; align-items: center; gap: 6px }
 .sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; flex: none }
-.foot { font-size: 12.5px; color: var(--muted); max-width: 80ch }
+.foot { font-size: 12.5px; color: var(--muted) }
 
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0 }
 .card h2 { font-size: 17px; font-weight: 700 }
@@ -139,9 +197,15 @@ canvas { display: block; max-width: 100%; touch-action: none; cursor: crosshair 
 .r .n { font-family: var(--font-mono); font-variant-numeric: tabular-nums }
 .r em { font-style: normal; color: var(--muted); font-size: 12.5px }
 .bands3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center }
-.bands3 div { background: var(--sheet); border: 1px solid var(--line); border-radius: 6px; padding: 6px 4px }
+.bands3 > button { display: flex; flex-direction: column; align-items: center; gap: 1px; background: var(--sheet); border: 1px solid var(--line); border-radius: 6px; padding: 6px 4px }
+.bands3 > button[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink) }
 .bands3 .v { font-family: var(--font-mono); font-size: 15px; font-variant-numeric: tabular-nums }
 .bands3 .l { font-size: 11.5px; color: var(--muted) }
+.verdict .v-status { display: flex; align-items: center; font-family: var(--font-display); font-weight: 700; font-size: 22px; line-height: 1.15 }
+.v-dl { margin: 0; display: flex; flex-direction: column; gap: 1px }
+.v-dl dt { font-size: 13px; color: var(--muted) }
+.v-dl dd { margin: 0; font-weight: 600 }
+.v-bands { display: flex; flex-direction: column; gap: 5px }
 .link { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 8px; font-size: 13.5px; align-items: baseline }
 .link .full { grid-column: 1 / -1 }
 .link button { justify-self: start }
@@ -155,8 +219,9 @@ textarea { min-height: 110px; font-family: var(--font-mono); font-size: 12px; re
 
 
 /* guide */
-.guide { max-width: 760px; margin: 48px auto 0; display: flex; flex-direction: column; gap: 14px; font-size: 16.5px; line-height: 1.65 }
+.guide { max-width: 720px; margin: 40px auto 0; display: flex; flex-direction: column; gap: 14px; font-size: 16.5px; line-height: 1.65 }
 .guide h2 { font-size: 26px; font-weight: 700; margin-top: 22px }
+.guide .lead { font-size: 18px; color: var(--muted) }
 .guide h3 { font-size: 19px; font-weight: 600; margin-top: 6px }
 .guide ol, .guide ul { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 6px }
 .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--sheet) }
@@ -198,8 +263,8 @@ dialog::backdrop { background: rgba(10, 14, 20, .45) }
 .sitenav a, .navbtn { white-space: nowrap; color: var(--ink); text-decoration: none; font-weight: 500; padding: 6px 10px; border-radius: 6px; border: 0; background: transparent; font-size: 15px }
 .sitenav a:hover, .navbtn:hover { background: var(--accent-soft) }
 .langsw select { width: auto; font-weight: 500 }
-.projbar { margin-bottom: 14px }
-.projbar select { width: auto; max-width: 260px; font-weight: 500 }
+.projbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0 }
+.projbar select { width: auto; max-width: 240px; font-weight: 500 }
 [id] { scroll-margin-top: 16px }
 .guide.doc { margin-top: 16px }
 .guide.doc h1 { font-size: 32px }
@@ -213,21 +278,54 @@ dialog::backdrop { background: rgba(10, 14, 20, .45) }
 .tour-actions { align-items: center; margin-top: 4px }
 .tour-gap { flex: 1 }
 
-/* Wide screens: the plan follows the scroll while the side columns are taller than it. */
-@media (min-width: 1101px) {
-  .stage { position: sticky; top: calc(12px + env(safe-area-inset-top, 0px)) }
+/* Below 1100 px the results drawer becomes a sheet over the bottom of the plan. */
+@media (max-width: 1099px) {
+  .ws-body { grid-template-columns: minmax(0, 1fr) }
+  .ws.drawer-closed .ws-body { grid-template-columns: minmax(0, 1fr) }
+  .ws.drawer-closed .fl-top { right: 10px }
+  .ws.drawer-closed .tool-opts { max-width: calc(100% - var(--opt-left, 360px) - 10px) }
+  .drawer, .ws.drawer-closed .drawer { display: flex; position: absolute; z-index: 4; left: 0; right: 0; bottom: 0; max-height: 72%;
+    border-radius: 10px 10px 8px 8px; box-shadow: var(--shadow) }
+  .ws.drawer-closed .drawer-body { display: none }
+  .ws.drawer-closed .drawer-head { border-bottom: 0 }
+  .drawer-toggle .ic { transform: rotate(-90deg) }
+  .drawer-toggle[aria-expanded="true"] .ic { transform: rotate(90deg) }
+  .fl-view, .fl-read { bottom: calc(var(--dh-h, 46px) + 10px) }
 }
-@media (max-width: 1100px) {
-  .app { grid-template-columns: minmax(0, 1fr) }
-  .panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) }
+@media (min-width: 1100px) {
+  .drawer-toggle .ic { margin-left: 2px }
 }
-@media (max-width: 720px) {
-  .board { flex-direction: column; align-items: stretch }
-  .toolbar { width: auto; flex-direction: row; flex-wrap: wrap }
-  .toolbar button { border-color: var(--line) }
-  .toolbar .undo { margin-top: 0 }
+/* Phones: the plan goes edge to edge, the tool rail sits on the bottom edge. */
+@media (max-width: 719px) {
+  .ws { margin-inline: -16px; min-height: 460px; gap: 6px; padding-bottom: 0 }
+  .ws-top { padding-inline: 16px; gap: 6px 8px }
+  .ws-top h1 { font-size: 17px; flex-basis: 100% }
+  .ws-map { border-radius: 0; border-inline: 0 }
+  .fl-top { top: 8px; left: 8px; right: 8px; gap: 4px }
+  .floors { padding: 2px }
+  .floors button { padding: 3px 6px; font-size: 13px }
+  .example-chip { display: none }
+  .seg button { padding: 6px 6px; font-size: 12px }
+  .fl-chip { padding: 5px 6px; font-size: 13px; gap: 4px }
+  .toolbar { top: auto; bottom: 0; left: 0; right: 0; width: auto; flex-direction: row; gap: 0; border-radius: 0; border-inline: 0; border-bottom: 0;
+    padding: 3px 4px calc(3px + env(safe-area-inset-bottom, 0px)); box-shadow: none }
+  .toolbar button { flex: 1 1 0; min-width: 0; font-size: 11px; padding: 6px 1px 5px }
+  .drawer, .ws.drawer-closed .drawer { bottom: var(--tb-h, 56px); max-height: calc(100% - var(--tb-h, 56px) - var(--flt-h, 36px) - 20px); border-radius: 10px 10px 0 0; border-inline: 0 }
+  .fl-view { right: 8px; bottom: calc(var(--tb-h, 56px) + var(--dh-h, 46px) + 8px) }
+  .btngroup button { padding: 6px 8px }
   .toolbar kbd { display: none }
-  .opts-heat { margin-left: 0 }
+  .lbl-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
+  .lbl-short { display: inline }
+  .fl-read { left: 8px; right: 8px; top: calc(var(--flt-h, 36px) + 14px); bottom: auto; max-width: none; padding: 5px 8px }
+  .readout { font-size: 12.5px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden }
+  .readout.is-hint { -webkit-line-clamp: 3 }
+  .tool-opts .opts { flex-wrap: wrap }
+  .tool-opts, .ws.drawer-closed .tool-opts { top: auto; left: 8px; right: 8px; max-width: none; bottom: calc(var(--tb-h, 56px) + var(--dh-h, 46px) + 52px) }
+  .projbar select { max-width: 190px }
+  #newProject { display: none }
+  .menu-list .menu-new { display: block }
+  .pop { left: 8px !important; right: 8px; top: auto !important; width: auto; bottom: calc(var(--tb-h, 56px) + var(--dh-h, 46px) + 8px); z-index: 6 }
+  .toast { bottom: calc(128px + env(safe-area-inset-bottom, 0px)) }
   .sitenav { order: 3; flex-basis: 100% }
   .langsw { margin-left: auto }
   .guide { font-size: 16px }

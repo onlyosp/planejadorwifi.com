@@ -14,7 +14,10 @@ function markSeen() {
 }
 
 export function startTour() {
-  const steps = (raw('tour.steps') || []).filter(s => !s.target || document.querySelector(s.target));
+  // Steps whose target is hidden in the current layout (the collapsed bottom sheet on phones,
+  // for instance) are skipped.
+  const shown = el => el && el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden';
+  const steps = (raw('tour.steps') || []).filter(s => !s.target || shown(document.querySelector(s.target)));
   if (!steps.length || state) return;
   const root = document.createElement('div');
   root.className = 'tour';
@@ -61,7 +64,9 @@ function go(i) {
   card.querySelector('[data-tour=back]').hidden = state.i === 0;
   card.querySelector('[data-tour=next]').textContent = state.i === state.steps.length - 1 ? t('tour.done') : t('tour.next');
   const target = step.target && document.querySelector(step.target);
-  if (target) target.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  // Targets inside the planner bring the whole workspace into view, not just themselves.
+  const host = target && target.closest('.ws');
+  if (target) (host || target).scrollIntoView({ block: host ? 'end' : 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   place();
   setTimeout(place, 350);
   card.focus({ preventScroll: true });

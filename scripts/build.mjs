@@ -139,12 +139,12 @@ const PARTIALS = { head: 'head', header: 'header', footer: 'footer' };
  *   flags     { name: boolean }        usable in <!-- build:name --> blocks; set
  *                                      thirdParty: true if it loads third-party code
  *   i18n      { 'pt-BR': {...}, ... }  deep-merged into each language file
- *   slots     { head, bodyEnd, afterTool, inGuide, afterGuide, footer, privacy }  HTML templates with the
+ *   slots     { head, bodyEnd, afterTool, inResults, inGuide, afterGuide, footer, privacy }  HTML templates with the
  *                                      same {{key}} syntax, inserted at those points
  *   writeFiles(outDir)                 writes extra files (scripts, styles, headers...) before
  *                                      CSS/JS fingerprinting
  * List extensions in SITE_EXTENSIONS. Without any, the site ships no third-party code. */
-export const SLOTS = ['head', 'bodyEnd', 'afterTool', 'inGuide', 'afterGuide', 'footer', 'privacy'];
+export const SLOTS = ['head', 'bodyEnd', 'afterTool', 'inResults', 'inGuide', 'afterGuide', 'footer', 'privacy'];
 
 export async function loadExtensions(list) {
   const paths = String(list || '').split(',').map(p => p.trim()).filter(Boolean);

@@ -77,6 +77,7 @@ export function normalizeProject(o, modelIds, names = PT_NAMES) {
     floors: [],
   };
   if (p.example) out.example = true;
+  if (p.example && p.exampleEdited) out.exampleEdited = true;
   const floors = Array.isArray(p.floors) && p.floors.length ? p.floors : [blankFloor(names.ground)];
   out.floors = floors.slice(0, 8).map((f, i) => ({
     name: String(f?.name || (i ? names.nth(i) : names.ground)).slice(0, 30),

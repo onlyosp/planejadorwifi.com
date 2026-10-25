@@ -16,10 +16,16 @@ const dbm = v => (v === -Infinity ? '—' : '−' + Math.round(-v));
 const pct = v => Math.round(v * 100) + '%';
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const icon = id => `<svg class="ic" aria-hidden="true"><use href="#i-${id}"/></svg>`;
 // Usage events (project_create, suggest_node...). Nothing listens in the public build; a build
 // extension may forward them to its own statistics tool.
 const track = (name, params = {}) => window.dispatchEvent(new CustomEvent('planejador:track', { detail: { name, params } }));
 
+// Layout modes: the results drawer turns into a bottom sheet below 1100 px, and the tool rail
+// moves to the bottom edge on phones. Touch screens get "tap" wording instead of "click".
+const sheetMode = matchMedia('(max-width: 1099px)');
+const compact = matchMedia('(max-width: 719px)');
+const touchUI = matchMedia('(hover: none)');
 
 /* ---------- state ---------- */
 let custom = St.loadCustomModels();
@@ -34,19 +40,32 @@ rebuildModels();
 let P = null;
 let tool = 'wall', mat = 'tijolo', model = 'be25', ortho = true;
 let sel = null, drag = null, measure = null, suggestion = null;
-let k = 40, dpr = 1, ver = 0;
-let hist = [];
+// View: k pixels per meter, (ox, oy) the plan's top-left corner inside the map, k0 the fitted scale.
+let k = 40, k0 = 40, ox = 0, oy = 0, fitted = true, dpr = 1, ver = 0;
+let hist = [], fut = [];
 const cur = () => P.floors[P.floor];
 const nodesAll = () => E.nodesAll(P);
 const nodeName = gi => { const a = nodesAll()[gi]; return a && a.n.main ? t('node.main') : t('node.n', { n: gi + 1 }); };
+const restore = json => St.normalizeProject(JSON.parse(json), new Set(Object.keys(MODELS)), NAMES);
 
-function pushHist() { hist.push(JSON.stringify(P)); if (hist.length > 80) hist.shift(); }
+function pushHist() { hist.push(JSON.stringify(P)); if (hist.length > 80) hist.shift(); fut = []; }
 function undo() {
   if (!hist.length) return;
-  P = St.normalizeProject(JSON.parse(hist.pop()), new Set(Object.keys(MODELS)), NAMES);
+  fut.push(JSON.stringify(P)); P = restore(hist.pop());
   sel = null; ver++; persist(); renderAll();
 }
-function dirty() { ver++; suggestion = null; persist(); schedule(); renderPanel(); }
+function redo() {
+  if (!fut.length) return;
+  hist.push(JSON.stringify(P)); P = restore(fut.pop());
+  sel = null; ver++; persist(); renderAll();
+}
+function dirty() {
+  ver++; suggestion = null;
+  if (sel && sel.type === 'sug') sel = null;
+  if (P.example) P.exampleEdited = true;
+  persist(); schedule(); renderPanel();
+}
+const live = msg => { const el = $('#live'); el.textContent = ''; setTimeout(() => { el.textContent = msg; }, 30); };
 
 /* ---------- persistence ---------- */
 let saveTimer = 0, warnedImage = false, warnedStorage = false;
@@ -90,7 +109,7 @@ function openProject(raw) {
   absorbModels(raw || {});
   P = St.normalizeProject(raw, new Set(Object.keys(MODELS)), NAMES);
   localizeDefaults(P);
-  hist = []; sel = null; measure = null; suggestion = null; ver++;
+  hist = []; fut = []; sel = null; measure = null; suggestion = null; ver++; fitted = true;
   persistNow(); renderAll();
 }
 
@@ -98,7 +117,7 @@ function openProject(raw) {
 let C = {};
 function readTokens() {
   const cs = getComputedStyle(document.documentElement);
-  ['sheet', 'ink', 'muted', 'line', 'grid', 'grid-strong', 'accent', 'on-accent', 'q0', 'q1', 'q2', 'q3', 'q4', ...Object.keys(MATERIALS).map(m => 'm-' + m)]
+  ['bg', 'sheet', 'ink', 'muted', 'line', 'grid', 'grid-strong', 'accent', 'on-accent', 'q0', 'q1', 'q2', 'q3', 'q4', ...Object.keys(MATERIALS).map(m => 'm-' + m)]
     .forEach(t => { C[t] = cs.getPropertyValue('--' + t).trim(); });
 }
 const rgb = h => { h = (h || '#888888').replace('#', ''); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); };
@@ -116,37 +135,95 @@ function grid(fi, bk, cs) {
   return cache.get(key);
 }
 const stats = (fi, bk) => E.stats(P, MODELS, fi, bk, grid(fi, bk, 0.25));
+// Coverage of the whole house on one band: every floor, weighted by its area.
+function houseStats(bk) {
+  let good = 0, n = 0, hasBand = false;
+  P.floors.forEach((f, fi) => { const s = stats(fi, bk); good += s.good * s.n; n += s.n; hasBand = hasBand || s.hasBand; });
+  return { good: n ? good / n : 0, hasBand };
+}
 
-// On wide screens the whole plan fits in the viewport, so the map and its toolbar stay usable
-// together while the side column scrolls. Phones use the full width instead.
-const area = $('#canvasArea'), wide = matchMedia('(min-width: 1101px)');
-const STAGE_CHROME = 230; // stage height outside the canvas: option bar, readout, legend, note
+/* ---------- view: fit, zoom and pan ---------- */
+const area = $('#canvasArea'), ws = $('#simulator');
+const el = id => document.getElementById(id);
+// Space the floating layers take inside the map, so "fit" frames the plan between them.
+function viewPad() {
+  const m = area.getBoundingClientRect(), r = id => el(id).getBoundingClientRect();
+  const fv = area.querySelector('.fl-view').getBoundingClientRect();
+  const top = r('stageBar').bottom - m.top + 10;
+  let bottom = Math.min(m.bottom, sheetMode.matches ? r('drawer').top : m.bottom);
+  if (compact.matches) {
+    bottom = Math.min(bottom, r('toolset').top, fv.top, el('toolOpts').hidden ? m.bottom : r('toolOpts').top);
+    return { l: 8, t: top + area.querySelector('.fl-read').offsetHeight + 6, r: 8, b: m.bottom - bottom + 8 };
+  }
+  bottom = Math.min(bottom, fv.top, area.querySelector('.fl-read').getBoundingClientRect().top);
+  return { l: r('toolset').right - m.left + 12, t: top, r: 14, b: m.bottom - bottom + 10 };
+}
+function fitView() {
+  const W = area.clientWidth, H = area.clientHeight; if (!W || !H || !P) return;
+  const pad = viewPad();
+  const aw = Math.max(80, W - pad.l - pad.r), ah = Math.max(80, H - pad.t - pad.b);
+  k0 = k = Math.max(4, Math.min(aw / P.w, ah / P.h));
+  ox = pad.l + (aw - P.w * k) / 2; oy = pad.t + (ah - P.h * k) / 2;
+  fitted = true;
+}
+function clampView() {
+  const W = area.clientWidth, H = area.clientHeight, keep = 60;
+  ox = clamp(ox, keep - P.w * k, W - keep); oy = clamp(oy, keep - P.h * k, H - keep);
+}
+function zoomAt(f, cx, cy) {
+  const nk = clamp(k * f, k0 * 0.5, k0 * 8);
+  const wx = (cx - ox) / k, wy = (cy - oy) / k;
+  k = nk; ox = cx - wx * k; oy = cy - wy * k; fitted = false;
+  clampView(); schedule();
+}
+const zoomCenter = f => zoomAt(f, area.clientWidth / 2, area.clientHeight / 2);
+
+let lastSize = '';
 function resize() {
-  const w = area.clientWidth; if (!w || !P) return;
-  k = w / P.w;
-  if (wide.matches) k = Math.min(k, Math.max(300, window.innerHeight - STAGE_CHROME) / P.h);
+  const W = area.clientWidth, H = area.clientHeight; if (!W || !H || !P) return;
+  layoutVars();
   dpr = window.devicePixelRatio || 1;
-  const cw = Math.round(P.w * k), ch = Math.round(P.h * k);
-  cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr);
-  cv.style.width = cw + 'px'; cv.style.height = ch + 'px';
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  const size = W + 'x' + H + ':' + P.w + 'x' + P.h;
+  if (fitted || size.split(':')[1] !== lastSize.split(':')[1]) fitView(); else clampView();
+  lastSize = size;
   draw();
 }
 let raf = 0;
 function schedule() { if (!raf) raf = requestAnimationFrame(() => { raf = 0; draw(); }); }
+
+// Heights the CSS needs to stack the phone layers: rail, drawer head and top bar.
+function layoutVars() {
+  const s = ws.style;
+  const hdr = document.querySelector('.site');
+  s.setProperty('--hdr', (hdr ? hdr.getBoundingClientRect().height : 60) + 'px');
+  s.setProperty('--tb-h', el('toolset').offsetHeight + 'px');
+  s.setProperty('--dh-h', el('drawerHead').offsetHeight + 'px');
+  s.setProperty('--flt-h', el('stageBar').offsetHeight + 'px');
+  // Tool options sit on the top bar's row, right after its last control.
+  const bar = el('stageBar'), last = bar.lastElementChild;
+  s.setProperty('--opt-left', (last.getBoundingClientRect().right - bar.getBoundingClientRect().left + 16) + 'px');
+}
 
 function line(w) { ctx.beginPath(); ctx.moveTo(w.x1 * k, w.y1 * k); ctx.lineTo(w.x2 * k, w.y2 * k); ctx.stroke(); }
 function halo(t, x, y, color) {
   ctx.save(); ctx.lineWidth = 4; ctx.strokeStyle = C.sheet; ctx.lineJoin = 'round';
   ctx.strokeText(t, x, y); ctx.fillStyle = color; ctx.fillText(t, x, y); ctx.restore();
 }
+const nodeR = () => Math.max(9, 0.28 * k);
 
 function draw() {
   if (!P) return;
   readTokens();
   const W = cv.width / dpr, H = cv.height / dpr, f = cur(), all = nodesAll();
+  const PW = P.w * k, PH = P.h * k;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.fillStyle = C.sheet; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+  ctx.setTransform(dpr, 0, 0, dpr, ox * dpr, oy * dpr);
+  ctx.fillStyle = C.sheet; ctx.fillRect(0, 0, PW, PH);
 
+  ctx.save(); ctx.beginPath(); ctx.rect(0, 0, PW, PH); ctx.clip();
   if (f.bg) {
     const im = imgFor(f.bg.src);
     if (im.complete && im.naturalWidth) {
@@ -167,11 +244,14 @@ function draw() {
   }
 
   ctx.lineWidth = 1;
-  for (let x = 0; x <= P.w; x++) { ctx.strokeStyle = x % 5 === 0 ? C['grid-strong'] : C.grid; ctx.beginPath(); ctx.moveTo(Math.round(x * k) + 0.5, 0); ctx.lineTo(Math.round(x * k) + 0.5, H); ctx.stroke(); }
-  for (let y = 0; y <= P.h; y++) { ctx.strokeStyle = y % 5 === 0 ? C['grid-strong'] : C.grid; ctx.beginPath(); ctx.moveTo(0, Math.round(y * k) + 0.5); ctx.lineTo(W, Math.round(y * k) + 0.5); ctx.stroke(); }
+  for (let x = 0; x <= P.w; x++) { ctx.strokeStyle = x % 5 === 0 ? C['grid-strong'] : C.grid; ctx.beginPath(); ctx.moveTo(Math.round(x * k) + 0.5, 0); ctx.lineTo(Math.round(x * k) + 0.5, PH); ctx.stroke(); }
+  for (let y = 0; y <= P.h; y++) { ctx.strokeStyle = y % 5 === 0 ? C['grid-strong'] : C.grid; ctx.beginPath(); ctx.moveTo(0, Math.round(y * k) + 0.5); ctx.lineTo(PW, Math.round(y * k) + 0.5); ctx.stroke(); }
   ctx.fillStyle = C.muted; ctx.font = '10px "IBM Plex Mono", monospace'; ctx.textBaseline = 'top'; ctx.textAlign = 'start';
-  for (let x = 2; x < P.w; x += 2) ctx.fillText(x + ' m', x * k + 3, 3);
-  for (let y = 2; y < P.h; y += 2) ctx.fillText(y + ' m', 3, y * k + 3);
+  const step = k < 18 ? 4 : 2;
+  for (let x = step; x < P.w; x += step) ctx.fillText(x + ' m', x * k + 3, 3);
+  for (let y = step; y < P.h; y += step) ctx.fillText(y + ' m', 3, y * k + 3);
+  ctx.restore();
+  ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.strokeRect(-0.5, -0.5, PW + 1, PH + 1);
 
   P.floors.forEach((of, fi) => {
     if (fi === P.floor) return;
@@ -185,9 +265,17 @@ function draw() {
       ctx.strokeStyle = C.accent; ctx.lineWidth = Math.max(8, MATERIALS[w.m].w * k + 6); ctx.globalAlpha = 0.35; line(w); ctx.globalAlpha = 1;
     }
     ctx.strokeStyle = C['m-' + w.m];
+    ctx.lineCap = 'round';
     ctx.lineWidth = Math.max(w.m === 'tijolo' || w.m === 'concreto' ? 4 : 2.5, MATERIALS[w.m].w * k);
     if (w.m === 'vidro') { ctx.setLineDash([6, 3]); line(w); ctx.setLineDash([]); } else line(w);
   });
+  if (sel && sel.type === 'wall' && f.walls[sel.i] && tool === 'select') {
+    const w = f.walls[sel.i];
+    [[w.x1, w.y1], [w.x2, w.y2]].forEach(([x, y]) => {
+      ctx.fillStyle = C.sheet; ctx.strokeStyle = C.accent; ctx.lineWidth = 2;
+      ctx.fillRect(x * k - 5, y * k - 5, 10, 10); ctx.strokeRect(x * k - 5, y * k - 5, 10, 10);
+    });
+  }
 
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.font = '600 13px "Barlow Semi Condensed", "Arial Narrow", sans-serif';
@@ -196,14 +284,22 @@ function draw() {
   E.topology(P, MODELS).forEach(l => {
     const a = all[l.child], b = all[l.parent];
     if (a.fi !== P.floor || b.fi !== P.floor) return;
-    ctx.save(); ctx.lineWidth = 2;
+    const picked = sel && sel.type === 'link' && sel.child === l.child;
+    ctx.save(); ctx.lineWidth = picked ? 3.5 : 2;
     if (l.wired) { ctx.strokeStyle = C.ink; ctx.setLineDash([2, 4]); } else { ctx.strokeStyle = C['q' + E.linkCat(l.v)]; ctx.setLineDash([8, 5]); }
     ctx.beginPath(); ctx.moveTo(a.n.x * k, a.n.y * k); ctx.lineTo(b.n.x * k, b.n.y * k); ctx.stroke(); ctx.restore();
+    // The label is a target: a small tag that opens the link popover.
+    const mx = (a.n.x + b.n.x) / 2 * k, my = (a.n.y + b.n.y) / 2 * k;
+    const text = l.wired ? t('node.cable') : dbm(l.v) + ' dBm';
     ctx.font = '500 11px "IBM Plex Mono", monospace';
-    halo(l.wired ? t('node.cable') : dbm(l.v) + ' dBm', (a.n.x + b.n.x) / 2 * k, (a.n.y + b.n.y) / 2 * k, C.ink);
+    const tw = ctx.measureText(text).width + 12;
+    ctx.save();
+    ctx.fillStyle = C.sheet; ctx.strokeStyle = picked ? C.accent : (l.wired ? C.line : C['q' + E.linkCat(l.v)]); ctx.lineWidth = picked ? 2 : 1.25;
+    roundRect(mx - tw / 2, my - 9, tw, 18, 9); ctx.fill(); ctx.stroke(); ctx.restore();
+    ctx.fillStyle = C.ink; ctx.fillText(text, mx, my + 0.5);
   });
 
-  const r = Math.max(9, 0.28 * k);
+  const r = nodeR();
   all.forEach((a, gi) => {
     const x = a.n.x * k, y = a.n.y * k, m = MODELS[a.n.model];
     if (a.fi !== P.floor) {
@@ -244,10 +340,18 @@ function draw() {
     halo(fmt(Math.hypot(seg.x2 - seg.x1, seg.y2 - seg.y1), 2) + ' m', (seg.x1 + seg.x2) / 2 * k, (seg.y1 + seg.y2) / 2 * k - 12, C.ink);
   }
   ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
+  placePop();
+}
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
 }
 
 /* ---------- canvas interaction ---------- */
-function pos(e) { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / k, y: (e.clientY - r.top) / k, px: e.clientX - r.left, py: e.clientY - r.top }; }
+function pos(e) {
+  const r = cv.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
+  return { x: (px - ox) / k, y: (py - oy) / k, px, py };
+}
 function snapPt(x, y) {
   let best = null, bd = 0.3;
   cur().walls.forEach(w => [[w.x1, w.y1], [w.x2, w.y2]].forEach(([px, py]) => {
@@ -255,14 +359,33 @@ function snapPt(x, y) {
   }));
   return best || { x: clamp(Math.round(x / GRID) * GRID, 0, P.w), y: clamp(Math.round(y / GRID) * GRID, 0, P.h) };
 }
-function wallEnd(x1, y1, p) {
+function wallEnd(x1, y1, p, flip = false) {
   const s = snapPt(p.x, p.y);
-  if (!ortho) return s;
+  if (ortho === flip) return s; // Shift flips the 90° lock for this wall
+
   return Math.abs(s.x - x1) >= Math.abs(s.y - y1) ? { x: s.x, y: y1 } : { x: x1, y: s.y };
 }
-function hitTest(p) {
+function linkAt(p) {
+  const all = nodesAll();
+  for (const l of E.topology(P, MODELS)) {
+    const a = all[l.child], b = all[l.parent];
+    if (a.fi !== P.floor || b.fi !== P.floor) continue;
+    const mx = (a.n.x + b.n.x) / 2, my = (a.n.y + b.n.y) / 2;
+    if (Math.abs(mx - p.x) * k < 32 && Math.abs(my - p.y) * k < 12) return { type: 'link', child: l.child };
+  }
+  return null;
+}
+// Ends of the selected wall are handles that resize it.
+function wallHandleAt(p) {
+  if (!sel || sel.type !== 'wall') return 0;
+  const w = cur().walls[sel.i]; if (!w) return 0;
+  const near = (x, y) => Math.hypot(x - p.x, y - p.y) * k < 12;
+  return near(w.x1, w.y1) ? 1 : near(w.x2, w.y2) ? 2 : 0;
+}
+function hitTest(p, links = false) {
   const f = cur(), tol = Math.max(0.25, 9 / k);
   for (let i = f.nodes.length - 1; i >= 0; i--) if (Math.hypot(f.nodes[i].x - p.x, f.nodes[i].y - p.y) < Math.max(0.45, 14 / k)) return { type: 'node', i };
+  if (links) { const l = linkAt(p); if (l) return l; }
   for (let i = f.labels.length - 1; i >= 0; i--) {
     const l = f.labels[i];
     if (Math.abs(l.x - p.x) < Math.max(0.6, (l.t.length * 3.5) / k) && Math.abs(l.y - p.y) < Math.max(0.3, 9 / k)) return { type: 'label', i };
@@ -277,78 +400,172 @@ function removeHit(h) {
   if (h.type === 'node' && removed && removed.main) { const first = nodesAll()[0]; if (first) first.n.main = true; }
 }
 
+// Pointers: one finger or the mouse draws and edits; two fingers pan and zoom. Taps (no
+// movement) place nodes, erase and name rooms, so a pinch never leaves a stray node behind.
+const ptrs = new Map();
+let tap = null, pan = null, pinch = null, spaceDown = false, overMap = false;
+const TAP = 6;
+
+function startPan(e) { pan = { x: e.clientX, y: e.clientY, ox, oy }; cv.style.cursor = 'grabbing'; }
+function cancelDrag() {
+  if (!drag) return;
+  if ((drag.kind === 'node' || drag.kind === 'label' || drag.kind === 'wallEnd') && hist.length) {
+    if (drag.moved) { P = restore(hist.pop()); ver++; } else hist.pop();
+    fut = drag.fut || fut;
+  }
+  drag = null; schedule();
+}
 cv.addEventListener('pointerdown', e => {
+  try { cv.setPointerCapture(e.pointerId); } catch { /* ignore */ }
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  touched = true;
+  if (ptrs.size === 2) {
+    cancelDrag(); tap = null; pan = null;
+    const [a, b] = [...ptrs.values()], r = cv.getBoundingClientRect();
+    pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), k, cx: (a.x + b.x) / 2 - r.left, cy: (a.y + b.y) / 2 - r.top, ox, oy };
+    return;
+  }
+  if (ptrs.size > 2) return;
+  if (e.button === 1 || (e.button === 0 && spaceDown)) { e.preventDefault(); startPan(e); return; }
   if (e.button > 0) return;
   const p = pos(e);
   hideLabelInput(true);
-  try { cv.setPointerCapture(e.pointerId); } catch { /* ignore */ }
+  tap = { x: e.clientX, y: e.clientY, p, moved: false };
   if (tool === 'wall' || tool === 'measure') {
     const s = snapPt(p.x, p.y);
     drag = { kind: tool, x1: s.x, y1: s.y, x2: s.x, y2: s.y };
-    if (tool === 'measure') measure = null;
-  } else if (tool === 'node') {
-    pushHist();
-    const s = snapPt(p.x, p.y);
-    cur().nodes.push({ x: s.x, y: s.y, model, main: !nodesAll().length, wired: false });
-    sel = { type: 'node', i: cur().nodes.length - 1 };
-    dirty();
-  } else if (tool === 'erase') {
-    const h = hitTest(p);
-    if (h) { pushHist(); removeHit(h); sel = null; dirty(); }
-  } else if (tool === 'label') {
-    openLabelInput(p);
+    if (tool === 'measure') { measure = null; if (sel && sel.type === 'measure') sel = null; }
   } else if (tool === 'select') {
-    const h = hitTest(p);
+    const end = wallHandleAt(p);
+    if (end) {
+      const w = cur().walls[sel.i], x = w['x' + end], y = w['y' + end], f0 = fut;
+      pushHist();
+      const joined = [];
+      cur().walls.forEach((v, j) => [1, 2].forEach(n => { if (j !== sel.i && Math.hypot(v['x' + n] - x, v['y' + n] - y) < 0.01) joined.push([j, n]); }));
+      drag = { kind: 'wallEnd', i: sel.i, end, x, y, joined: [[sel.i, end], ...joined], moved: false, fut: f0 };
+      return;
+    }
+    const h = hitTest(p, true);
     sel = h;
-    if (h && (h.type === 'node' || h.type === 'label')) { pushHist(); drag = { kind: h.type, i: h.i, moved: false }; }
-    renderPanel(); draw(); readout(p);
+    if (h && (h.type === 'node' || h.type === 'label')) {
+      // The popover opens on a plain click, not after dragging the object somewhere else.
+      const f0 = fut; pushHist(); drag = { kind: h.type, i: h.i, moved: false, fut: f0 };
+      $('#pop').classList.add('away');
+    } else if (!h) startPan(e);
+    renderPop(); schedule(); readout(p);
   }
 });
 cv.addEventListener('pointermove', e => {
+  if (!drag && !pan && tool === 'select' && e.pointerType === 'mouse') cv.style.cursor = wallHandleAt(pos(e)) ? 'move' : 'default';
+  if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pinch && ptrs.size >= 2) {
+    const [a, b] = [...ptrs.values()], r = cv.getBoundingClientRect();
+    const d = Math.hypot(a.x - b.x, a.y - b.y), cx = (a.x + b.x) / 2 - r.left, cy = (a.y + b.y) / 2 - r.top;
+    const nk = clamp(pinch.k * d / Math.max(1, pinch.d), k0 * 0.5, k0 * 8);
+    const wx = (pinch.cx - pinch.ox) / pinch.k, wy = (pinch.cy - pinch.oy) / pinch.k;
+    k = nk; ox = cx - wx * k; oy = cy - wy * k; fitted = false; clampView(); schedule();
+    return;
+  }
+  if (tap && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) > TAP) tap.moved = true;
+  if (pan) {
+    if (tap && !tap.moved) return;
+    ox = pan.ox + e.clientX - pan.x; oy = pan.oy + e.clientY - pan.y; fitted = false; clampView(); schedule();
+    return;
+  }
   const p = pos(e);
   if (drag) {
-    if (drag.kind === 'wall') { const s = wallEnd(drag.x1, drag.y1, p); drag.x2 = s.x; drag.y2 = s.y; }
+    if (drag.kind === 'wall') { const s = wallEnd(drag.x1, drag.y1, p, e.shiftKey); drag.x2 = s.x; drag.y2 = s.y; }
+    else if (drag.kind === 'wallEnd') {
+      const w = cur().walls[drag.i], o = drag.end === 1 ? [w.x2, w.y2] : [w.x1, w.y1];
+      const s = wallEnd(o[0], o[1], p, e.shiftKey);
+      if (s.x !== drag.x || s.y !== drag.y) {
+        // Corners follow: other wall ends that met this one move with it.
+        drag.joined.forEach(([j, end]) => { const v = cur().walls[j]; v['x' + end] = s.x; v['y' + end] = s.y; });
+        drag.x = s.x; drag.y = s.y; drag.moved = true; ver++; suggestion = null; $('#pop').classList.add('away');
+      }
+    }
     else if (drag.kind === 'measure') { const s = snapPt(p.x, p.y); drag.x2 = s.x; drag.y2 = s.y; }
-    else {
+    else if (tap && tap.moved) {
       const o = drag.kind === 'node' ? cur().nodes[drag.i] : cur().labels[drag.i];
       const s = drag.kind === 'node' ? snapPt(p.x, p.y) : { x: clamp(p.x, 0, P.w), y: clamp(p.y, 0, P.h) };
       if (o && (o.x !== s.x || o.y !== s.y)) {
-        o.x = s.x; o.y = s.y; drag.moved = true;
+        o.x = s.x; o.y = s.y; drag.moved = true; $('#pop').classList.add('away');
         if (drag.kind === 'node') { ver++; suggestion = null; }
       }
     }
     schedule();
   }
-  readout(p);
+  if (e.pointerType === 'mouse' || drag) readout(p);
 });
+function endPointer(e) {
+  ptrs.delete(e.pointerId);
+  if (pinch) { if (!ptrs.size) pinch = null; tap = null; return; }
+  if (pan) {
+    const wasTap = tap && !tap.moved; pan = null; setCursor();
+    if (wasTap && tool === 'select') { sel = null; renderPop(); schedule(); }
+    tap = null; return;
+  }
+  const p = tap && tap.p, wasTap = tap && !tap.moved; tap = null;
+  $('#pop').classList.remove('away');
+  if (drag) { endDrag(); return; }
+  if (!wasTap || e.type === 'pointercancel') return;
+  if (tool === 'node') {
+    pushHist();
+    const s = snapPt(p.x, p.y);
+    cur().nodes.push({ x: s.x, y: s.y, model, main: !nodesAll().length, wired: false });
+    sel = { type: 'node', i: cur().nodes.length - 1 };
+    dirty(); live(t('live.node', { node: nodeName(nodesAll().length - 1) }));
+  } else if (tool === 'erase') {
+    const h = hitTest(p);
+    if (h) { pushHist(); removeHit(h); sel = null; dirty(); live(t('live.deleted')); }
+  } else if (tool === 'label') {
+    openLabelInput(p);
+  }
+}
 function endDrag() {
-  if (!drag) return;
   const d = drag; drag = null;
   if (d.kind === 'wall') {
-    if (Math.hypot(d.x2 - d.x1, d.y2 - d.y1) >= 0.2) { pushHist(); cur().walls.push({ x1: d.x1, y1: d.y1, x2: d.x2, y2: d.y2, m: mat }); dirty(); }
+    const len = Math.hypot(d.x2 - d.x1, d.y2 - d.y1);
+    if (len >= 0.2) { pushHist(); cur().walls.push({ x1: d.x1, y1: d.y1, x2: d.x2, y2: d.y2, m: mat }); dirty(); live(t('live.wall', { len: fmt(len, 2) })); }
     else schedule();
   } else if (d.kind === 'measure') {
     measure = Math.hypot(d.x2 - d.x1, d.y2 - d.y1) >= 0.1 ? { ...d, fi: P.floor } : null;
-    showCalib(); schedule();
-  } else if (!d.moved) hist.pop();
-  else dirty();
+    sel = measure ? { type: 'measure' } : null;
+    renderPop(); schedule();
+  } else if (!d.moved) { hist.pop(); fut = d.fut || fut; renderPop(); }
+  else {
+    if (d.kind === 'node' || d.kind === 'label') sel = null;
+    dirty();
+  }
 }
-cv.addEventListener('pointerup', endDrag);
-cv.addEventListener('pointercancel', endDrag);
-cv.addEventListener('pointerleave', () => { if (!drag) readout(null); });
+cv.addEventListener('pointerup', endPointer);
+cv.addEventListener('pointercancel', endPointer);
+cv.addEventListener('pointerleave', e => { overMap = false; if (e.pointerType === 'mouse' && !drag && !pan) readout(null); });
+cv.addEventListener('pointerenter', () => { overMap = true; });
+cv.addEventListener('wheel', e => {
+  if (!(e.ctrlKey || e.metaKey)) return; // plain wheel scrolls the page; Ctrl/pinch zooms the plan
+  e.preventDefault();
+  const r = cv.getBoundingClientRect();
+  zoomAt(Math.exp(-e.deltaY * 0.01), e.clientX - r.left, e.clientY - r.top);
+}, { passive: false });
 
+let touched = false; // phones show the tool hint until the first touch on the plan
 function readout(p) {
-  const el = $('#readout');
-  if (!p) { el.textContent = t('readout.idle'); return; }
+  const box = $('#readout');
+  const hint = t((touchUI.matches ? 'hintsTouch.' : 'hints.') + tool);
+  $('#toolHint').textContent = hint;
+  $('#toolHint').hidden = compact.matches;
+  box.classList.toggle('is-hint', !p && compact.matches && !touched);
+  if (!p) { box.textContent = compact.matches && !touched ? hint : t(touchUI.matches ? 'readout.idleTouch' : 'readout.idle'); return; }
   const nodes = nodesAll();
-  const where = `x ${fmt(p.x, 1)} · y ${fmt(p.y, 1)} m`;
-  if (!nodes.length) { el.innerHTML = `${where} · <b>${esc(t('readout.noNodes'))}</b>`; return; }
+  const where = `<span class="mono">x ${fmt(p.x, 1)} · y ${fmt(p.y, 1)} m</span>`;
+  if (!nodes.length) { box.innerHTML = `${where} · <b>${esc(t('readout.noNodes'))}</b>`; return; }
   const b = E.bestAt(P, MODELS, p.x, p.y, P.floor, P.band, nodes);
-  const others = E.BAND_KEYS.filter(bk => bk !== P.band)
-    .map(bk => `${bandLabel(bk)} ${dbm(E.bestAt(P, MODELS, p.x, p.y, P.floor, bk, nodes).v)}`).join(' · ');
-  el.innerHTML = b.v === -Infinity
+  const others = `<span class="mono">${E.BAND_KEYS.filter(bk => bk !== P.band)
+    .map(bk => `${bandLabel(bk)} ${dbm(E.bestAt(P, MODELS, p.x, p.y, P.floor, bk, nodes).v)}`).join(' · ')}</span>`;
+  box.innerHTML = b.v === -Infinity
     ? `${where} · <b>${esc(t('readout.noBand', { band: bandLabel(P.band) }))}</b> · ${others}`
-    : `${where} · <b>${dbm(b.v)} dBm, ${esc(cat(E.catOf(b.v)).name.toLowerCase())}</b> ${esc(t('readout.via'))} ${esc(nodeName(b.who))} · ${others}`;
+    : `${where} · <b><span class="mono">${dbm(b.v)} dBm</span>, ${esc(cat(E.catOf(b.v)).name.toLowerCase())}</b> ${esc(t('readout.via'))} ${esc(nodeName(b.who))} · ${others}`;
 }
 
 const li = $('#labelInput'); let liPos = null;
@@ -371,25 +588,82 @@ li.addEventListener('keydown', e => {
 });
 li.addEventListener('blur', () => hideLabelInput(true));
 
+function nudge(dx, dy) {
+  if (!sel || (sel.type !== 'node' && sel.type !== 'label')) return false;
+  const o = (sel.type === 'node' ? cur().nodes : cur().labels)[sel.i]; if (!o) return false;
+  pushHist(); o.x = clamp(o.x + dx, 0, P.w); o.y = clamp(o.y + dy, 0, P.h); dirty();
+  return true;
+}
+// Keyboard selection on the focused plan: [ and ] step through walls, nodes and names.
+function itemsOnFloor() {
+  const f = cur();
+  return [...f.nodes.map((_, i) => ({ type: 'node', i })), ...f.labels.map((_, i) => ({ type: 'label', i })), ...f.walls.map((_, i) => ({ type: 'wall', i }))];
+}
+function itemName(h) {
+  const f = cur();
+  if (h.type === 'node') return nodeName(nodesAll().findIndex(a => a.n === f.nodes[h.i]));
+  if (h.type === 'label') return f.labels[h.i].t;
+  const w = f.walls[h.i];
+  return `${t('sel.wall')}, ${matLabel(w.m)}, ${fmt(Math.hypot(w.x2 - w.x1, w.y2 - w.y1), 2)} m`;
+}
+function stepSelection(dir) {
+  const list = itemsOnFloor(); if (!list.length) return;
+  const at = sel ? list.findIndex(h => h.type === sel.type && h.i === sel.i) : -1;
+  sel = list[(at + dir + list.length) % list.length];
+  renderPop(); schedule(); live(t('live.selected', { item: itemName(sel) }));
+}
+// Single-key shortcuts only act while the planner is in use: focus on the page itself or inside it,
+// and the workspace on screen. Reading the guide with the keyboard never changes the plan.
+function plannerActive(target) {
+  if (target !== document.body && !ws.contains(target)) return false;
+  const r = ws.getBoundingClientRect();
+  return r.bottom > 80 && r.top < window.innerHeight - 80;
+}
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const menu = $('#projMenu');
+    if (menu.open) { menu.open = false; menu.querySelector('summary').focus(); return; }
+  }
   if (e.target.closest('input,textarea,select,dialog')) return;
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); return; }
-  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (!plannerActive(e.target)) return;
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
+  if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
+  if (mod || e.altKey) return;
+  if (e.key === ' ') {
+    if (overMap && !e.target.closest('button,summary,a')) { e.preventDefault(); spaceDown = true; cv.style.cursor = 'grab'; }
+    return;
+  }
+  if (e.target === cv && (e.key === '[' || e.key === ']')) { e.preventDefault(); stepSelection(e.key === ']' ? 1 : -1); return; }
   const map = { v: 'select', w: 'wall', n: 'node', t: 'label', m: 'measure', e: 'erase' };
-  const t = map[e.key.toLowerCase()];
-  if (t) { setTool(t); return; }
-  if ((e.key === 'Delete' || e.key === 'Backspace') && sel) { e.preventDefault(); pushHist(); removeHit(sel); sel = null; dirty(); }
-  if (e.key === 'Escape') { drag = null; sel = null; measure = null; showCalib(); renderPanel(); schedule(); }
+  const tl = map[e.key.toLowerCase()];
+  if (tl) { setTool(tl); return; }
+  const bands = { 1: '2.4', 2: '5', 3: '6' };
+  if (bands[e.key]) { setBand(bands[e.key]); return; }
+  if (e.key === '+' || e.key === '=') { zoomCenter(1.25); return; }
+  if (e.key === '-' || e.key === '_') { zoomCenter(0.8); return; }
+  if (e.key === '0') { fitView(); schedule(); return; }
+  const arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+  if (arrows[e.key]) { const s = e.shiftKey ? 1 : GRID; if (nudge(arrows[e.key][0] * s, arrows[e.key][1] * s)) e.preventDefault(); return; }
+  if ((e.key === 'Delete' || e.key === 'Backspace') && sel && ['wall', 'node', 'label'].includes(sel.type)) {
+    e.preventDefault(); pushHist(); removeHit(sel); sel = null; dirty(); live(t('live.deleted')); return;
+  }
+  if (e.key === 'Escape') { drag = null; sel = null; measure = null; renderPop(); schedule(); }
 });
+document.addEventListener('keyup', e => { if (e.key === ' ') { spaceDown = false; setCursor(); } });
 
-/* ---------- tool rail ---------- */
+/* ---------- tool rail and options ---------- */
+function setCursor() { cv.style.cursor = tool === 'select' ? 'default' : tool === 'erase' ? 'not-allowed' : 'crosshair'; }
 function setTool(name) {
   tool = name;
   document.querySelectorAll('#toolset [data-tool]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === name)));
   $('#matGroup').hidden = name !== 'wall';
   $('#modelGroup').hidden = name !== 'node';
-  $('#toolHint').textContent = t('hints.' + tool);
-  cv.style.cursor = name === 'select' ? 'default' : name === 'erase' ? 'not-allowed' : 'crosshair';
+  $('#toolOpts').hidden = name !== 'wall' && name !== 'node';
+  if (sel && sel.type === 'measure' && name !== 'measure') { sel = null; measure = null; renderPop(); }
+  setCursor(); readout(null);
+  if (fitted && P) fitView(); // the phone's tool options take room above the rail
+  schedule();
 }
 document.querySelectorAll('#toolset [data-tool]').forEach(b => b.addEventListener('click', () => setTool(b.dataset.tool)));
 
@@ -413,19 +687,32 @@ $('#ortho').addEventListener('change', e => { ortho = e.target.checked; });
 $('#heatOn').addEventListener('change', e => { P.heat = e.target.checked; persist(); schedule(); });
 $('#alpha').addEventListener('input', e => { P.alpha = e.target.value / 100; persist(); schedule(); });
 $('#undoBtn').addEventListener('click', undo);
+$('#redoBtn').addEventListener('click', redo);
+$('#zoomIn').addEventListener('click', () => zoomCenter(1.25));
+$('#zoomOut').addEventListener('click', () => zoomCenter(0.8));
+$('#zoomFit').addEventListener('click', () => { fitView(); schedule(); });
 $('#manageModels').addEventListener('click', openModels);
 
+const hasBandDevice = bk => nodesAll().some(a => MODELS[a.n.model].bands.includes(bk));
+let bandsSig = '';
 function renderBands() {
-  $('#bands').innerHTML = E.BAND_KEYS.map(bk => [bk, BANDS[bk]])
-    .map(([bk]) => `<button type="button" role="radio" aria-checked="${bk === P.band}" data-band="${bk}">${bandLabel(bk)}</button>`).join('');
+  const sig = P.band + E.BAND_KEYS.map(bk => +hasBandDevice(bk)).join('') + nodesAll().length;
+  if (sig === bandsSig) return;
+  bandsSig = sig;
+  $('#bands').innerHTML = E.BAND_KEYS.map(bk => {
+    const none = nodesAll().length && !hasBandDevice(bk), label = t('bandNoDevice', { band: bandLabel(bk) });
+    return `<button type="button" aria-pressed="${bk === P.band}" data-band="${bk}"${none ? ` class="nodev" title="${esc(label)}" aria-label="${esc(label)}"` : ''}>${bandLabel(bk)}</button>`;
+  }).join('');
 }
-$('#bands').addEventListener('click', e => {
-  const b = e.target.closest('[data-band]'); if (!b) return;
-  P.band = b.dataset.band; suggestion = null; persist(); renderBands(); fillMatSel(); renderPanel(); schedule();
-});
+function setBand(bk) {
+  if (!BANDS[bk] || bk === P.band) return;
+  P.band = bk; suggestion = null; if (sel && sel.type === 'sug') sel = null;
+  persist(); fillMatSel(); renderPanel(); schedule();
+}
+$('#bands').addEventListener('click', e => { const b = e.target.closest('[data-band]'); if (b) setBand(b.dataset.band); });
 
 function renderFloors() {
-  $('#floors').innerHTML = P.floors.map((f, i) => `<button type="button" role="tab" aria-selected="${i === P.floor}" data-floor="${i}">${esc(f.name)}</button>`).join('')
+  $('#floors').innerHTML = P.floors.map((f, i) => `<button type="button" aria-pressed="${i === P.floor}" data-floor="${i}">${esc(f.name)}</button>`).join('')
     + `<button type="button" class="ghost" data-floor="add">${esc(t('floors.add'))}</button>`;
 }
 $('#floors').addEventListener('click', e => {
@@ -441,21 +728,93 @@ function renderLegend() {
     + `<span><i class="sw" style="background:var(--accent)"></i>${esc(t('legendMain'))}</span>`;
 }
 
-/* ---------- side panel ---------- */
+/* ---------- results drawer ---------- */
+let drawerOpen = true;
+const DRAWER_KEY = 'planejador:drawer';
+function drawerPref() { try { return localStorage.getItem(DRAWER_KEY) !== 'closed'; } catch { return true; } }
+function setDrawer(open, remember = false) {
+  drawerOpen = open;
+  ws.classList.toggle('drawer-closed', !open);
+  $('#drawerToggle').setAttribute('aria-expanded', String(open));
+  $('#drawerToggle').title = open ? t('hud.close') : t('hud.open');
+  $('#hud').hidden = open || sheetMode.matches;
+  $('#hud').setAttribute('aria-expanded', String(open));
+  if (remember && !sheetMode.matches) { try { localStorage.setItem(DRAWER_KEY, open ? 'open' : 'closed'); } catch { /* ignore */ } }
+  requestAnimationFrame(() => { layoutVars(); placePop(); });
+}
+$('#drawerToggle').addEventListener('click', () => setDrawer(!drawerOpen, true));
+$('#hud').addEventListener('click', () => setDrawer(true, true));
+sheetMode.addEventListener('change', () => setDrawer(sheetMode.matches ? false : drawerPref()));
+
+// The verdict: what to buy, whether a cable is needed and how each band covers the house.
+function mainBand() { return hasBandDevice('5') || !hasBandDevice('2.4') ? '5' : '2.4'; }
+function verdict() {
+  const all = nodesAll();
+  if (!all.length) return null;
+  const mb = mainBand(), house = Object.fromEntries(E.BAND_KEYS.map(bk => [bk, houseStats(bk)]));
+  const weak = E.weakLinks(P, MODELS);
+  const short = house[mb].good < 0.9;
+  return { mb, house, weak, status: short ? 'short' : weak.length ? 'okCable' : 'ok' };
+}
+function summaryChip(v) {
+  if (!v) return `<span class="dot" style="background:var(--muted)"></span>${esc(t('hud.noNodes'))}`;
+  const dot = v.status === 'ok' ? 'q0' : v.status === 'okCable' ? 'q2' : 'q4';
+  const weak = v.weak.length ? ' · ' + esc(v.weak.length === 1 ? t('hud.weak1') : t('hud.weakN', { n: v.weak.length })) : '';
+  return `<span class="dot" style="background:var(--${dot})"></span><b>${pct(v.house[v.mb].good)}</b> · ${bandLabel(v.mb)}${weak}`;
+}
+function renderVerdict(v) {
+  let h = `<h2>${esc(t('verdict.title'))}</h2>`;
+  if (!v) {
+    h += `<p class="small muted">${esc(t('verdict.empty'))}</p><div class="btnrow"><button type="button" class="primary" data-pick="node">${esc(t('verdict.placeNode'))}</button></div>`;
+    $('#pVerdict').innerHTML = h; return;
+  }
+  const kit = {};
+  nodesAll().forEach(a => { kit[a.n.model] = (kit[a.n.model] || 0) + 1; });
+  const kitText = Object.entries(kit).map(([id, n]) => `${n} × ${MODELS[id].name}`).join(' + ');
+  const dot = v.status === 'ok' ? 'q0' : v.status === 'okCable' ? 'q2' : 'q4';
+  h += `<p class="v-status"><span class="dot" style="background:var(--${dot})"></span>${esc(t('verdict.' + v.status))}</p>`;
+  h += `<dl class="v-dl"><dt>${esc(t('verdict.devices'))}</dt><dd>${esc(kitText)}</dd></dl>`;
+  const line = v.status === 'short' ? 'verdict.shortLine' : 'verdict.okLine';
+  h += `<p class="small">${esc(t(line, { band: bandLabel(v.mb), pct: pct(v.house[v.mb].good) }))}</p>`;
+  if (v.weak.length) {
+    const w = v.weak[0];
+    h += `<p class="small">${esc(t('verdict.cableLine', { node: nodeName(w.child) }))}</p><div class="btnrow">${wireBtn(w.child, 'primary')}</div>`;
+  }
+  if (v.status === 'short' && !suggestion) h += `<div class="btnrow"><button type="button" data-sug="run"${v.weak.length ? '' : ' class="primary"'}>${esc(t('panel.suggestRun'))}</button></div>`;
+  const six = v.house['6'];
+  h += `<p class="small muted">${esc(!six.hasBand ? t('verdict.sixNone') : six.good >= 0.9 ? t('verdict.sixGood') : t('verdict.sixNear', { pct: pct(six.good) }))}</p>`;
+  h += `<div class="v-bands"><span class="small muted">${esc(t('verdict.byBand'))}</span><div class="bands3">${E.BAND_KEYS.map(bk => {
+    const s = v.house[bk];
+    return `<button type="button" data-band="${bk}" aria-pressed="${bk === P.band}" aria-label="${esc(t('verdict.showBand', { band: bandLabel(bk) }))}: ${s.hasBand ? pct(s.good) : '—'}"><span class="v">${s.hasBand ? pct(s.good) : '—'}</span><span class="l">${bandLabel(bk)}</span></button>`;
+  }).join('')}</div></div>`;
+  h += `<p class="hint">${esc(t('verdict.note'))}</p>`;
+  $('#pVerdict').innerHTML = h;
+}
+$('#pVerdict').addEventListener('click', e => {
+  const b = e.target.closest('[data-band]'); if (b) { setBand(b.dataset.band); return; }
+  if (e.target.closest('[data-pick=node]')) { setTool('node'); if (sheetMode.matches) setDrawer(false); }
+});
+
 const wireBtn = (gi, cls) => `<button type="button" class="${cls}" data-wire="${gi}">${esc(t('panel.wireIt', { node: nodeName(gi) }))}</button>`;
+let lastStatus = '';
 function renderPanel() {
   const st = stats(P.floor, P.band), bl = bandLabel(P.band), f = cur(), all = nodesAll();
+  const v = verdict();
+  renderVerdict(v);
+  const status = v ? v.status : 'empty';
+  if (lastStatus && status !== lastStatus && v) live(t('verdict.' + v.status));
+  lastStatus = status;
+  $('#drawerSum').innerHTML = summaryChip(v);
+  $('#hud').innerHTML = `<span class="hud-sum">${summaryChip(v)}</span>${icon('chev')}<span class="sr">${esc(t('hud.open'))}</span>`;
+
   let h = `<h2>${esc(t('panel.coverage', { band: bl }))}${P.floors.length > 1 ? ' · ' + esc(f.name) : ''}</h2>`;
   if (!all.length) h += `<p class="small muted">${t('panel.needNode')}</p>`;
   else if (!st.hasBand) h += `<p class="small muted">${esc(t('panel.noBand', { band: bl }))}</p>`;
   else {
     h += `<div><div class="big">${pct(st.good)}<small>${esc(t('panel.goodShare'))}</small></div><p class="small muted">${esc(t('panel.area', { area: fmt(st.area, 0) }))}</p></div>`;
-    const weak = E.weakLinks(P, MODELS)[0];
-    if (weak) h += `<p class="small warn">${esc(t('panel.weakNote', { node: nodeName(weak.child) }))}</p>`;
     h += `<div class="bar" aria-hidden="true">${st.counts.map((c, i) => (c ? `<span style="width:${c / st.n * 100}%;background:var(--q${i})"></span>` : '')).join('')}</div>`;
     h += `<div class="rows">${[0, 1, 2, 3, 4].map(i => `<div class="r"><i class="sw" style="background:var(--q${i})"></i><span>${esc(cat(i).name)} <em>${esc(cat(i).use)}</em></span><span class="n">${pct(st.n ? st.counts[i] / st.n : 0)}</span></div>`).join('')}</div>`;
   }
-  h += `<div class="bands3">${E.BAND_KEYS.map(bk => { const s = stats(P.floor, bk); return `<div><div class="v">${s.hasBand ? pct(s.good) : '—'}</div><div class="l">${bandLabel(bk)}</div></div>`; }).join('')}</div>`;
   $('#pCoverage').innerHTML = h;
 
   const topo = E.topology(P, MODELS);
@@ -463,7 +822,7 @@ function renderPanel() {
   if (all.length < 2) lh += `<p class="small muted">${esc(t('panel.linksEmpty'))}</p>`;
   else {
     lh += topo.map(l => `<div class="link"><span>${esc(nodeName(l.child))} → ${esc(nodeName(l.parent))}${all[l.child].fi !== all[l.parent].fi ? ` <span class="muted">${esc(t('panel.otherFloor'))}</span>` : ''}</span>`
-      + (l.wired ? `<span class="pill pill-wire">${esc(t('panel.cable'))}</span>` : `<span class="pill"><i class="dot" style="background:var(--q${E.linkCat(l.v)})"></i>${dbm(l.v)} dBm · ${bandLabel(l.band)}</span>`)
+      + linkPill(l)
       + (l.wired ? '' : `<span class="small muted full">${esc(t('panel.linkQuality', { q: t('panel.linkWords.' + E.linkCat(l.v)) }))}</span>`)
       + (!l.wired && E.linkCat(l.v) === 4 ? wireBtn(l.child, 'full') : '') + '</div>').join('');
     lh += `<p class="small muted">${esc(t('panel.linksHint'))}</p>`;
@@ -471,19 +830,15 @@ function renderPanel() {
   $('#pLinks').innerHTML = lh;
 
   let sh = `<h2>${esc(t('panel.suggestTitle'))}</h2>`;
-  if (suggestion && suggestion.none) sh += `<p class="small">${esc(t('panel.none.' + suggestion.none, suggestion.child != null ? { child: nodeName(suggestion.child), parent: nodeName(suggestion.parent) } : undefined))}</p>${suggestion.none === 'weakLink' ? `<div class="btnrow">${wireBtn(suggestion.child, 'primary')}<button type="button" data-sug="clear" class="ghost">${esc(t('panel.ok'))}</button></div>` : `<button type="button" data-sug="clear" class="ghost">${esc(t('panel.ok'))}</button>`}`;
-  else if (suggestion) {
-    const extra = suggestion.relaxed ? esc(t('panel.suggestRelaxed'))
-      : suggestion.link != null ? esc(t('panel.suggestLink', { v: dbm(suggestion.link) })) : '';
-    sh += `<p class="small">${t('panel.suggestResult', { model: esc(MODELS[suggestion.model].name), x: fmt(suggestion.x, 1), y: fmt(suggestion.y, 1), band: bl, from: pct(suggestion.from), to: pct(suggestion.to) })}${extra}</p>`
-      + `<div class="btnrow"><button type="button" data-sug="add" class="primary">${esc(t('panel.addHere'))}</button><button type="button" data-sug="clear" class="ghost">${esc(t('panel.discard'))}</button></div>`;
-  } else {
-    sh += `<p class="small muted">${esc(t('panel.suggestIntro', { band: bl }))}</p><button type="button" data-sug="run">${esc(t('panel.suggestRun'))}</button>`;
-  }
+  if (suggestion && suggestion.none) sh += `<p class="small">${esc(noneText(suggestion))}</p>${suggestion.none === 'weakLink' ? `<div class="btnrow">${wireBtn(suggestion.child, 'primary')}<button type="button" data-sug="clear" class="ghost">${esc(t('panel.ok'))}</button></div>` : `<button type="button" data-sug="clear" class="ghost">${esc(t('panel.ok'))}</button>`}`;
+  else if (suggestion) sh += `<p class="small">${sugText()}</p>` + sugButtons();
+  else sh += `<p class="small muted">${esc(t('panel.suggestIntro', { band: bl }))}</p><button type="button" data-sug="run">${esc(t('panel.suggestRun'))}</button>`;
   $('#pSuggest').innerHTML = sh;
 
-  renderSel();
-  $('#exampleBar').hidden = !P.example;
+  renderBands();
+  renderPop();
+  $('#undoBtn').disabled = !hist.length; $('#redoBtn').disabled = !fut.length;
+  $('#exampleBar').hidden = !P.example || !!P.exampleEdited;
   $('#areaW').value = P.w; $('#areaH').value = P.h;
   $('#heatOn').checked = P.heat; $('#alpha').value = Math.round(P.alpha * 100);
   $('#bgCtl').hidden = !f.bg;
@@ -491,73 +846,173 @@ function renderPanel() {
   $('#delFloor').hidden = P.floors.length < 2;
   $('#delFloor').textContent = t('floors.remove', { name: f.name });
 }
-// Wiring a satellite from the Links or Suggest card, where the weak link is reported.
-['#pLinks', '#pSuggest'].forEach(id => $(id).addEventListener('click', e => {
-  const gi = e.target.closest('[data-wire]')?.dataset.wire;
-  const a = gi != null && nodesAll()[+gi];
-  if (!a) return;
-  pushHist();
-  a.n.wired = true;
-  track('wire_node');
-  dirty();
-}));
-$('#pSuggest').addEventListener('click', e => {
-  const act = e.target.closest('[data-sug]')?.dataset.sug;
-  if (act === 'run') {
-    e.target.textContent = t('panel.computing'); e.target.disabled = true;
-    setTimeout(() => { suggestion = E.suggest(P, MODELS, P.floor, P.band, model); renderPanel(); schedule(); }, 20);
-    track('suggest_node', { band: P.band });
-  } else if (act === 'add' && suggestion) {
+const linkPill = l => (l.wired ? `<span class="pill pill-wire">${esc(t('panel.cable'))}</span>`
+  : `<span class="pill"><i class="dot" style="background:var(--q${E.linkCat(l.v)})"></i>${dbm(l.v)} dBm · ${bandLabel(l.band)}</span>`);
+const noneText = s => t('panel.none.' + s.none, s.child != null ? { child: nodeName(s.child), parent: nodeName(s.parent) } : undefined);
+function sugText() {
+  const s = suggestion, extra = s.relaxed ? esc(t('panel.suggestRelaxed')) : s.link != null ? esc(t('panel.suggestLink', { v: dbm(s.link) })) : '';
+  return t('panel.suggestResult', { model: esc(MODELS[s.model].name), x: fmt(s.x, 1), y: fmt(s.y, 1), band: bandLabel(P.band), from: pct(s.from), to: pct(s.to) }) + extra;
+}
+const sugButtons = () => `<div class="btnrow"><button type="button" data-sug="add" class="primary">${esc(t('panel.addHere'))}</button><button type="button" data-sug="clear" class="ghost">${esc(t('panel.discard'))}</button></div>`;
+
+function setWired(gi, on) {
+  const a = nodesAll()[gi]; if (!a || a.n.main) return;
+  pushHist(); a.n.wired = on;
+  if (on) track('wire_node');
+  dirty(); live(t(on ? 'live.wired' : 'live.unwired', { node: nodeName(gi) }));
+}
+function runSuggest(btn) {
+  if (btn) { btn.textContent = t('panel.computing'); btn.disabled = true; }
+  setTimeout(() => {
+    suggestion = E.suggest(P, MODELS, P.floor, P.band, model);
+    if (!suggestion.none) { sel = { type: 'sug' }; if (sheetMode.matches) setDrawer(false); }
+    renderPanel(); schedule();
+  }, 20);
+  track('suggest_node', { band: P.band });
+}
+// Actions shared by the drawer cards and the popover on the plan.
+ws.addEventListener('click', e => {
+  const wire = e.target.closest('[data-wire]'), unwire = e.target.closest('[data-unwire]'), sug = e.target.closest('[data-sug]');
+  if (wire) { setWired(+wire.dataset.wire, true); return; }
+  if (unwire) { setWired(+unwire.dataset.unwire, false); return; }
+  if (!sug) return;
+  const act = sug.dataset.sug;
+  if (act === 'run') runSuggest(sug);
+  else if (act === 'add' && suggestion) {
     pushHist();
-    cur().nodes.push({ x: suggestion.x, y: suggestion.y, model: suggestion.model, main: !nodesAll().length, wired: !!suggestion.relaxed });
-    sel = { type: 'node', i: cur().nodes.length - 1 };
-    dirty();
-  } else if (act === 'clear') { suggestion = null; renderPanel(); schedule(); }
+    const fl = P.floors[suggestion.fi] || cur();
+    fl.nodes.push({ x: suggestion.x, y: suggestion.y, model: suggestion.model, main: !nodesAll().length, wired: !!suggestion.relaxed });
+    sel = { type: 'node', i: fl.nodes.length - 1 };
+    dirty(); live(t('live.node', { node: nodeName(nodesAll().length - 1) }));
+  } else if (act === 'clear') { suggestion = null; if (sel && sel.type === 'sug') sel = null; renderPanel(); schedule(); }
 });
 
-function renderSel() {
-  const box = $('#pSel'), f = cur();
-  const item = sel && (sel.type === 'wall' ? f.walls : sel.type === 'node' ? f.nodes : f.labels)[sel.i];
-  if (!item) { box.hidden = true; return; }
-  box.hidden = false;
-  if (sel.type === 'wall') {
-    box.innerHTML = `<h2>${esc(t('sel.wall'))}</h2><p class="small muted">${fmt(Math.hypot(item.x2 - item.x1, item.y2 - item.y1), 2)} m</p>
-      <label class="eyebrow" for="selMat">${esc(t('sel.material'))}</label>
-      <select id="selMat">${Object.entries(MATERIALS).map(([key, m]) => `<option value="${key}"${key === item.m ? ' selected' : ''}>${esc(matLabel(key))} · −${m.db.join('/')} dB</option>`).join('')}</select>
-      <div class="btnrow"><button type="button" data-selact="del">${esc(t('sel.delWall'))}</button></div>`;
-  } else if (sel.type === 'node') {
-    const gi = nodesAll().findIndex(a => a.n === item);
-    box.innerHTML = `<h2>${esc(nodeName(gi))}</h2>
-      <label class="eyebrow" for="selModel">${esc(t('sel.model'))}</label><select id="selModel">${modelOptions(item.model)}</select>
-      ${item.main ? `<p class="small muted">${esc(t('sel.mainNote'))}</p>` : `<label class="check"><input type="checkbox" id="selWired"${item.wired ? ' checked' : ''}> ${esc(t('sel.wired'))}</label>`}
-      <div class="btnrow">${item.main ? '' : `<button type="button" data-selact="main">${esc(t('sel.makeMain'))}</button>`}<button type="button" data-selact="del">${esc(t('sel.delNode'))}</button></div>`;
-  } else {
-    box.innerHTML = `<h2>${esc(t('sel.room'))}</h2><label class="sr" for="selText">${esc(t('sel.text'))}</label><input type="text" id="selText" value="${esc(item.t)}" maxlength="40">
-      <div class="btnrow"><button type="button" data-selact="del">${esc(t('sel.delRoom'))}</button></div>`;
-  }
+/* ---------- popover next to the selected object ---------- */
+const pop = $('#pop');
+function popHead(title) {
+  return `<div class="pop-head"><h2 id="popTitle">${esc(title)}</h2><button type="button" class="pop-x" data-selact="close" aria-label="${esc(t('sel.close'))}">${icon('x')}</button></div>`;
 }
-$('#pSel').addEventListener('change', e => {
+function renderPop() {
+  const f = cur(), focused = document.activeElement && pop.contains(document.activeElement) ? document.activeElement.id : null;
+  let h = '';
+  if (sel && (sel.type === 'wall' || sel.type === 'node' || sel.type === 'label')) {
+    const item = (sel.type === 'wall' ? f.walls : sel.type === 'node' ? f.nodes : f.labels)[sel.i];
+    if (!item) sel = null;
+    else if (sel.type === 'wall') {
+      h = popHead(t('sel.wall'))
+        + `<label class="field-label" for="selLen">${esc(t('sel.length'))}</label>
+        <input type="number" id="selLen" min="0.2" max="113" step="0.05" value="${Math.round(Math.hypot(item.x2 - item.x1, item.y2 - item.y1) * 100) / 100}">
+        <p class="hint">${esc(t('sel.lengthHint'))}</p>
+        <label class="field-label" for="selMat">${esc(t('sel.material'))}</label>
+        <select id="selMat">${Object.entries(MATERIALS).map(([key, m]) => `<option value="${key}"${key === item.m ? ' selected' : ''}>${esc(matLabel(key))} · −${m.db.join('/')} dB</option>`).join('')}</select>
+        <div class="btnrow"><button type="button" class="ghost danger" data-selact="del">${esc(t('sel.delWall'))}</button></div>`;
+    } else if (sel.type === 'node') {
+      const gi = nodesAll().findIndex(a => a.n === item);
+      h = popHead(nodeName(gi))
+        + `<label class="field-label" for="selModel">${esc(t('sel.model'))}</label><select id="selModel">${modelOptions(item.model)}</select>
+        ${item.main ? `<p class="small muted">${esc(t('sel.mainNote'))}</p>` : `<label class="check"><input type="checkbox" id="selWired"${item.wired ? ' checked' : ''}> ${esc(t('sel.wired'))}</label>`}
+        <div class="btnrow">${item.main ? '' : `<button type="button" data-selact="main">${esc(t('sel.makeMain'))}</button>`}<button type="button" class="ghost danger" data-selact="del">${esc(t('sel.delNode'))}</button></div>`;
+    } else {
+      h = popHead(t('sel.room'))
+        + `<label class="sr" for="selText">${esc(t('sel.text'))}</label><input type="text" id="selText" value="${esc(item.t)}" maxlength="40">
+        <div class="btnrow"><button type="button" class="ghost danger" data-selact="del">${esc(t('sel.delRoom'))}</button></div>`;
+    }
+  } else if (sel && sel.type === 'link') {
+    const l = E.topology(P, MODELS).find(x => x.child === sel.child);
+    if (!l) sel = null;
+    else {
+      h = popHead(nodeName(l.child) + ' → ' + nodeName(l.parent))
+        + `<p class="pop-row">${linkPill(l)}</p>`
+        + (l.wired ? `<div class="btnrow"><button type="button" data-unwire="${l.child}">${esc(t('sel.unwire'))}</button></div>`
+          : `<p class="small muted">${esc(t('panel.linkQuality', { q: t('panel.linkWords.' + E.linkCat(l.v)) }))} ${esc(t('panel.linksHint'))}</p><div class="btnrow">${wireBtn(l.child, E.linkCat(l.v) === 4 ? 'primary' : '')}</div>`);
+    }
+  } else if (sel && sel.type === 'measure' && measure) {
+    h = popHead(t('sel.measureTitle'))
+      + `<p class="pop-row"><b class="mono">${esc(t('sel.measured', { len: fmt(Math.hypot(measure.x2 - measure.x1, measure.y2 - measure.y1), 2) }))}</b></p>`
+      + (f.bg ? `<label class="field-label" for="calLen">${esc(t('sel.realLength'))}</label><div class="btnrow"><input type="number" id="calLen" min="0.1" step="0.05"><button type="button" id="calApply" class="primary">${esc(t('sel.apply'))}</button></div>`
+        : `<p class="small muted">${esc(t('sel.measureNoImage'))}</p>`);
+  } else if (sel && sel.type === 'sug' && suggestion && !suggestion.none) {
+    h = popHead(t('panel.suggestTitle')) + `<p class="small">${sugText()}</p>` + sugButtons();
+  } else if (sel && sel.type !== 'wall' && sel.type !== 'node' && sel.type !== 'label') sel = null;
+  pop.hidden = !h;
+  if (h) {
+    pop.innerHTML = h;
+    if (focused) document.getElementById(focused)?.focus();
+  }
+  placePop();
+}
+function popAnchor() {
+  if (!sel) return null;
+  const f = cur(), all = nodesAll(), at = (x, y, r) => ({ x: ox + x * k, y: oy + y * k, r });
+  if (sel.type === 'node' && f.nodes[sel.i]) return at(f.nodes[sel.i].x, f.nodes[sel.i].y, nodeR() + 4);
+  if (sel.type === 'label' && f.labels[sel.i]) return at(f.labels[sel.i].x, f.labels[sel.i].y, 24);
+  if (sel.type === 'wall' && f.walls[sel.i]) { const w = f.walls[sel.i]; return at((w.x1 + w.x2) / 2, (w.y1 + w.y2) / 2, 8); }
+  if (sel.type === 'link') {
+    const l = E.topology(P, MODELS).find(x => x.child === sel.child); if (!l) return null;
+    const a = all[l.child].n, b = all[l.parent].n; return at((a.x + b.x) / 2, (a.y + b.y) / 2, 30);
+  }
+  if (sel.type === 'measure' && measure) return at((measure.x1 + measure.x2) / 2, (measure.y1 + measure.y2) / 2, 12);
+  if (sel.type === 'sug' && suggestion) return at(suggestion.x, suggestion.y, nodeR() + 8);
+  return null;
+}
+function placePop() {
+  if (pop.hidden) return;
+  if (compact.matches) {
+    pop.style.left = pop.style.top = '';
+    // The popover docks above the rail; scroll the plan so the object stays visible above it.
+    const a = popAnchor(), m = area.getBoundingClientRect(), limit = pop.getBoundingClientRect().top - m.top - 12;
+    if (a && a.y + a.r > limit) { oy -= a.y + a.r - limit; fitted = false; clampView(); schedule(); }
+    return;
+  }
+  const a = popAnchor(); if (!a) return;
+  const mw = area.clientWidth, mh = area.clientHeight, pw = pop.offsetWidth, ph = pop.offsetHeight, g = 14, m = 10;
+  let x, y;
+  if (['wall', 'link', 'measure'].includes(sel.type)) {
+    // Lines: above or below the midpoint, so the line itself stays visible.
+    x = a.x - pw / 2; y = a.y - a.r - g - ph;
+    if (y < m) y = a.y + a.r + g;
+  } else {
+    // Points: beside the object.
+    x = a.x + a.r + g; y = a.y - ph / 2;
+    if (x + pw > mw - m) x = a.x - a.r - g - pw;
+  }
+  pop.style.left = clamp(x, m, mw - pw - m) + 'px';
+  const top = el('stageBar').getBoundingClientRect().bottom - area.getBoundingClientRect().top + 8; // stay below the top strip
+  pop.style.top = clamp(y, Math.min(top, mh - ph - m), mh - ph - m) + 'px';
+}
+pop.addEventListener('change', e => {
   const f = cur(), id = e.target.id;
-  if (!sel) return;
+  if (!sel || id === 'calLen') return;
   pushHist();
   if (id === 'selMat') f.walls[sel.i].m = e.target.value;
+  else if (id === 'selLen') {
+    // Keeps the first end and the direction; the far end moves, clamped to the plan.
+    const w = f.walls[sel.i], len = clamp(+e.target.value || 0, 0.2, 113), L = Math.hypot(w.x2 - w.x1, w.y2 - w.y1) || 1;
+    w.x2 = clamp(w.x1 + (w.x2 - w.x1) / L * len, 0, P.w); w.y2 = clamp(w.y1 + (w.y2 - w.y1) / L * len, 0, P.h);
+  }
   else if (id === 'selModel') f.nodes[sel.i].model = e.target.value;
-  else if (id === 'selWired') f.nodes[sel.i].wired = e.target.checked;
+  else if (id === 'selWired') { const gi = nodesAll().findIndex(a => a.n === f.nodes[sel.i]); hist.pop(); setWired(gi, e.target.checked); return; }
   else if (id === 'selText') { const text = e.target.value.trim(); if (!text) { hist.pop(); return; } f.labels[sel.i].t = text; }
   dirty();
 });
-$('#pSel').addEventListener('click', e => {
+pop.addEventListener('click', e => {
+  if (e.target.closest('#calApply')) { applyCalibration(); return; }
   const act = e.target.closest('[data-selact]')?.dataset.selact;
   if (!act || !sel) return;
+  if (act === 'close') { if (sel.type === 'measure') measure = null; sel = null; renderPop(); schedule(); cv.focus({ preventScroll: true }); return; }
   pushHist();
-  if (act === 'del') { removeHit(sel); sel = null; }
+  if (act === 'del') { removeHit(sel); sel = null; live(t('live.deleted')); }
   else if (act === 'main') { nodesAll().forEach(a => { a.n.main = false; }); const n = cur().nodes[sel.i]; n.main = true; n.wired = false; }
   dirty();
 });
+pop.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { e.stopPropagation(); if (sel && sel.type === 'measure') measure = null; sel = null; renderPop(); schedule(); cv.focus({ preventScroll: true }); }
+  if (e.key === 'Enter' && e.target.id === 'calLen') { e.preventDefault(); applyCalibration(); }
+});
 
 /* ---------- plan, area and background image ---------- */
-$('#areaW').addEventListener('change', e => { pushHist(); P.w = clamp(+e.target.value || 16, 4, 80); dirty(); resize(); });
-$('#areaH').addEventListener('change', e => { pushHist(); P.h = clamp(+e.target.value || 12, 4, 80); dirty(); resize(); });
+$('#areaW').addEventListener('change', e => { pushHist(); P.w = clamp(+e.target.value || 16, 4, 80); fitted = true; dirty(); resize(); });
+$('#areaH').addEventListener('change', e => { pushHist(); P.h = clamp(+e.target.value || 12, 4, 80); fitted = true; dirty(); resize(); });
 $('#bgFile').addEventListener('change', e => {
   const file = e.target.files[0]; if (!file) return;
   const rd = new FileReader();
@@ -570,7 +1025,7 @@ $('#bgFile').addEventListener('change', e => {
       pushHist();
       cur().bg = { src: c.toDataURL('image/jpeg', 0.78), mpp: P.w / c.width, alpha: 0.5 };
       P.h = Math.max(P.h, Math.ceil(c.height * P.w / c.width));
-      dirty(); resize();
+      fitted = true; dirty(); resize();
       toast(t('toast.imageLoaded'));
     };
     im.onerror = () => toast(t('toast.imageError'));
@@ -580,22 +1035,15 @@ $('#bgFile').addEventListener('change', e => {
 });
 $('#bgAlpha').addEventListener('input', e => { if (cur().bg) { cur().bg.alpha = e.target.value / 100; persist(); schedule(); } });
 $('#bgRemove').addEventListener('click', () => { pushHist(); cur().bg = null; dirty(); });
-function showCalib() {
-  const box = $('#calib');
-  if (!measure) { box.hidden = true; return; }
-  box.hidden = false;
-  $('#calLenNow').textContent = fmt(Math.hypot(measure.x2 - measure.x1, measure.y2 - measure.y1), 2) + ' m';
-  $('#calForm').hidden = !cur().bg;
-}
-$('#calApply').addEventListener('click', () => {
-  const real = +$('#calLen').value, f = cur();
+function applyCalibration() {
+  const real = +($('#calLen')?.value), f = cur();
   if (!measure || !f.bg || !(real > 0)) return;
   const L = Math.hypot(measure.x2 - measure.x1, measure.y2 - measure.y1); if (L < 0.05) return;
-  pushHist(); f.bg.mpp *= real / L; measure = null; showCalib();
+  pushHist(); f.bg.mpp *= real / L; measure = null; sel = null;
   const im = imgFor(f.bg.src);
   if (im.naturalWidth) { P.w = clamp(Math.max(P.w, Math.ceil(im.naturalWidth * f.bg.mpp)), 4, 80); P.h = clamp(Math.max(P.h, Math.ceil(im.naturalHeight * f.bg.mpp)), 4, 80); }
-  dirty(); resize();
-});
+  fitted = true; dirty(); resize();
+}
 $('#delFloor').addEventListener('click', async () => {
   const f = cur();
   if (!await ask({ title: t('floors.removeTitle', { name: f.name }), message: t('floors.removeMsg'), ok: t('floors.removeOk'), danger: true })) return;
@@ -625,7 +1073,8 @@ $('#projMenu').addEventListener('click', async e => {
   const act = e.target.closest('[data-act]')?.dataset.act;
   if (!act) return;
   $('#projMenu').open = false;
-  if (act === 'rename') {
+  if (act === 'new') $('#newProject').click();
+  else if (act === 'rename') {
     const name = await ask({ title: t('project.renameTitle'), input: { label: t('project.nameLabel'), value: P.name }, ok: t('project.save') });
     if (name) { P.name = name; persistNow(); }
   } else if (act === 'duplicate') {
@@ -683,7 +1132,6 @@ $('#importFile').addEventListener('change', e => {
 });
 
 $('#startBlank').addEventListener('click', () => { persistNow(); openProject(St.blankProject(t('project.defaultName'), NAMES.ground)); setTool('wall'); });
-$('#keepExample').addEventListener('click', () => { delete P.example; persist(); renderPanel(); });
 
 /* ---------- router models dialog ---------- */
 let editingId = null;
@@ -783,22 +1231,24 @@ function toast(msg) {
 }
 
 /* ---------- boot ---------- */
-function afterFloor() { suggestion = null; renderFloors(); renderPanel(); showCalib(); resize(); }
-function renderAll() { renderProjects(); renderBands(); fillMatSel(); fillModelSel(); afterFloor(); }
+function afterFloor() { suggestion = null; renderFloors(); renderPanel(); resize(); }
+function renderAll() { renderProjects(); bandsSig = ''; renderBands(); fillMatSel(); fillModelSel(); afterFloor(); }
 
 St.migrateLegacy();
+setDrawer(sheetMode.matches ? false : drawerPref());
 {
   const list = St.listProjects();
   const saved = (St.currentId() && St.loadProject(St.currentId())) || (list[0] && St.loadProject(list[0].id));
   openProject(saved || St.exampleProject({ name: t('project.exampleName'), ground: NAMES.ground, rooms: raw('project.exampleRooms') }));
 }
 new ResizeObserver(resize).observe(area);
+new ResizeObserver(() => { layoutVars(); }).observe(el('stageBar'));
 window.addEventListener('resize', resize);
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', schedule);
-if (document.fonts) document.fonts.ready.then(schedule);
+compact.addEventListener('change', () => { readout(null); placePop(); });
+if (document.fonts) document.fonts.ready.then(() => { layoutVars(); if (fitted) fitView(); schedule(); });
 setTool(P.example ? 'select' : 'wall');
 renderLegend();
-readout(null);
 
 $('#tourBtn')?.addEventListener('click', startTour);
 const isBot = /bot|crawl|spider|slurp|mediapartners|lighthouse|headless/i.test(navigator.userAgent);

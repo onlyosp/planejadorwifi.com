@@ -31,9 +31,8 @@
     "p": "Planejador WiFi te muestra hasta dónde llega la señal antes de comprar el router: dibuja las paredes, coloca el router y los nodos mesh y mira la cobertura en 2,4, 5 y 6 GHz. Gratis, sin registro, y tus proyectos se quedan en tu navegador."
   },
   "example": {
-    "text": "<strong>Casa de ejemplo.</strong> Edítala libremente o crea un proyecto en blanco para dibujar la tuya.",
     "blank": "Proyecto en blanco",
-    "keep": "Editar el ejemplo"
+    "chip": "Estás viendo la casa de ejemplo."
   },
   "project": {
     "label": "Proyecto",
@@ -60,7 +59,14 @@
     "roomPlaceholder": "Ej.: Dormitorio",
     "roomName": "Nombre de la habitación",
     "foot": "Estimación: pérdida log-distancia (n = 2,5) más la atenuación de cada pared atravesada y de cada losa entre pisos. Error típico de ±8 dB. Sirve para comparar posiciones; no sustituye la medición con el celular.",
-    "noscript": "El simulador necesita JavaScript activado en el navegador."
+    "noscript": "El simulador necesita JavaScript activado en el navegador.",
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar",
+    "fit": "Ajustar a la pantalla",
+    "view": "Vista",
+    "history": "Historial",
+    "canvasKeys": "Con el plano enfocado, usa [ y ] para elegir paredes, nodos y nombres, las flechas para mover, Supr para borrar y Esc para soltar.",
+    "heatShort": "Calor"
   },
   "tools": {
     "select": "Seleccionar",
@@ -70,7 +76,9 @@
     "measure": "Medir",
     "erase": "Borrar",
     "undo": "Deshacer",
-    "undoTitle": "Deshacer (Ctrl+Z)"
+    "undoTitle": "Deshacer (Ctrl+Z)",
+    "redo": "Rehacer",
+    "redoTitle": "Rehacer (Ctrl+Shift+Z)"
   },
   "panel": {
     "label": "Resultados"
@@ -82,10 +90,7 @@
     "image": "Foto o imagen del plano",
     "imageOpacity": "Opacidad de la imagen",
     "scaleHint": "Para ajustar la escala, usa <b>Medir</b>, arrastra sobre una medida conocida de la imagen e indica su tamaño real.",
-    "removeImage": "Quitar imagen",
-    "measured": "Línea medida:",
-    "realLength": "Longitud real de esta línea (m)",
-    "apply": "Ajustar imagen"
+    "removeImage": "Quitar imagen"
   },
   "share": {
     "title": "Compartir",
@@ -187,8 +192,8 @@
   },
   "ui": {
     "hints": {
-      "select": "Haz clic en una pared o nodo para editarlo. Arrastra nodos y nombres para moverlos. Haz clic en un punto vacío para leer la señal.",
-      "wall": "Haz clic y arrastra para dibujar una pared. Los extremos se ajustan a la cuadrícula de 25 cm y a las paredes existentes. Las puertas y ventanas son paredes del material correcto.",
+      "select": "Haz clic en una pared, nodo o enlace para editarlo. Arrastra nodos y nombres para moverlos, o el fondo para mover el plano. Ctrl + rueda hace zoom.",
+      "wall": "Haz clic y arrastra para dibujar una pared. Los extremos se ajustan a la cuadrícula de 25 cm y a las paredes existentes. Mantén Shift para dibujar en diagonal (o desmarca “Solo 90°”).",
       "node": "Haz clic donde irá cada router o nodo mesh. El primero es el principal, conectado al módem.",
       "label": "Haz clic en el plano y escribe el nombre de la habitación. Enter confirma.",
       "measure": "Arrastra para medir una distancia. Con imagen de fondo, úsalo para ajustar la escala.",
@@ -239,7 +244,8 @@
       "idle": "Pasa el cursor sobre el plano para leer la señal.",
       "noNodes": "ningún router colocado",
       "noBand": "ningún dispositivo transmite en {band}",
-      "via": "vía"
+      "via": "vía",
+      "idleTouch": "Toca el plano para leer la señal."
     },
     "node": {
       "main": "Principal",
@@ -264,7 +270,6 @@
       "goodShare": "de la casa con ≥ −67 dBm",
       "area": "Área considerada: {area} m², el rectángulo alrededor de las paredes.",
       "wireIt": "Conectar {node} por cable",
-      "weakNote": "Esta cifra supone que {node} funciona, pero su enlace con la red mesh es débil. Conéctalo con un cable o acércalo a otro nodo.",
       "linksTitle": "Enlace entre nodos",
       "linksEmpty": "Con dos o más nodos, aquí aparece la calidad del backhaul, el enlace entre ellos.",
       "otherFloor": "(otro piso)",
@@ -305,7 +310,16 @@
       "delNode": "Borrar nodo",
       "room": "Nombre de la habitación",
       "text": "Texto",
-      "delRoom": "Borrar nombre"
+      "delRoom": "Borrar nombre",
+      "close": "Cerrar",
+      "unwire": "Usar inalámbrico",
+      "measureTitle": "Medida",
+      "measured": "Línea medida: {len} m",
+      "realLength": "Longitud real de esta línea (m)",
+      "apply": "Ajustar imagen",
+      "measureNoImage": "Para usarla como escala, carga una foto del plano en Plano y escala.",
+      "length": "Longitud (m)",
+      "lengthHint": "O arrastra los cuadraditos en los extremos de la pared."
     },
     "models": {
       "isp": "Router del proveedor",
@@ -397,12 +411,12 @@
         {
           "target": "[data-tool=wall]",
           "title": "Dibuja las paredes",
-          "body": "Haz clic y arrastra en el mapa. Elige el material en la barra de arriba: ladrillo, hormigón, vidrio… Las puertas y ventanas también son paredes."
+          "body": "Arrastra en el mapa para dibujar. El material está en las opciones de la herramienta: ladrillo, hormigón, vidrio… Las puertas y ventanas también son paredes."
         },
         {
           "target": "[data-tool=node]",
           "title": "Coloca el router",
-          "body": "Haz clic donde está el módem: ese es el nodo principal. Luego añade los demás nodos mesh y revisa el enlace entre ellos."
+          "body": "Marca dónde está el módem: ese es el nodo principal. Luego añade los demás nodos mesh y revisa el enlace entre ellos."
         },
         {
           "target": "#bands",
@@ -410,9 +424,9 @@
           "body": "Cambia entre 2,4, 5 y 6 GHz. Verde es señal excelente; rojo es sin señal útil."
         },
         {
-          "target": "#pCoverage",
+          "target": "#drawerHead",
           "title": "Mira el resultado",
-          "body": "Aquí aparece el porcentaje de la casa con buena señal, por banda. Pasa el cursor por el mapa para leer la señal en cada punto."
+          "body": "El plan en resumen: cuántos equipos, si alguno necesita cable y la cobertura de cada banda."
         },
         {
           "target": "#pSuggest",
@@ -420,6 +434,53 @@
           "body": "<b>Sugerir posición</b> prueba todos los puntos libres y muestra dónde un nodo más aporta más."
         }
       ]
+    },
+    "hintsTouch": {
+      "select": "Toca una pared, nodo o enlace para editarlo. Arrastra nodos y nombres para moverlos, o el fondo para mover el plano. Pellizca para hacer zoom.",
+      "wall": "Arrastra para dibujar una pared. Para diagonales, desmarca “Solo 90°” en las opciones de la herramienta.",
+      "node": "Toca donde irá cada router o nodo mesh. El primero es el principal, conectado al módem.",
+      "label": "Toca el plano y escribe el nombre de la habitación.",
+      "measure": "Arrastra para medir una distancia. Con imagen de fondo, úsalo para ajustar la escala.",
+      "erase": "Toca una pared, nodo o nombre para borrarlo."
+    },
+    "bandNoDevice": "{band}: ningún equipo transmite en esta banda",
+    "verdict": {
+      "title": "Tu plan",
+      "empty": "Coloca el router en el plano para ver el resultado.",
+      "placeNode": "Colocar el router",
+      "ok": "Cubre la casa",
+      "okCable": "Cubre la casa, con cable",
+      "short": "Todavía falta señal",
+      "okLine": "En {band}, el {pct} de la casa tiene buena señal.",
+      "shortLine": "En {band}, solo el {pct} de la casa tiene buena señal. Mira dónde ayuda un nodo más.",
+      "cableLine": "El enlace de {node} es débil: conéctalo con un cable o acércalo a otro nodo.",
+      "devices": "Equipos",
+      "sixGood": "6 GHz también cubre la casa: puedes usar la banda más rápida.",
+      "sixNear": "6 GHz llega al {pct} de la casa: es la más rápida cerca de los nodos.",
+      "sixNone": "Ningún equipo tiene 6 GHz. Para usar esa banda, elige un modelo con 6 GHz (Wi-Fi 6E o 7).",
+      "byBand": "Toda la casa, por banda",
+      "showBand": "Ver el mapa en {band}",
+      "note": "Estimación con error típico de ±8 dB."
+    },
+    "hud": {
+      "weak1": "1 enlace débil",
+      "weakN": "{n} enlaces débiles",
+      "noNodes": "Sin router",
+      "open": "Mostrar resultado",
+      "close": "Ocultar resultado"
+    },
+    "live": {
+      "wall": "Pared creada, {len} m.",
+      "node": "{node} agregado.",
+      "deleted": "Elemento borrado.",
+      "wired": "{node} conectado por cable.",
+      "unwired": "{node} ahora inalámbrico.",
+      "selected": "Seleccionado: {item}."
     }
+  },
+  "drawer": {
+    "title": "Resultado",
+    "hide": "Ocultar resultado",
+    "about": "Sobre la estimación"
   }
 }

@@ -79,7 +79,7 @@ An extension's default export receives `{ env, langs }` and returns any of:
 |---|---|
 | `flags` | `{ name: true }`, usable as `<!-- build:name -->…<!-- /build:name -->` in templates. Set `thirdParty: true` when the extension loads anything from a third party: the privacy page then drops its "no third-party cookies" statement. |
 | `i18n` | Texts per language, `{ 'pt-BR': {...}, en: {...}, es: {...} }`, merged into `i18n/*.json`. Provide all three languages. |
-| `slots` | HTML inserted at fixed points: `head`, `bodyEnd`, `afterTool`, `inGuide`, `afterGuide`, `footer`, `privacy`. Slots use the same `{{key}}` syntax as the templates. |
+| `slots` | HTML inserted at fixed points: `head`, `bodyEnd`, `afterTool` (below the planner workspace), `inResults` (at the end of the planner's results drawer), `inGuide`, `afterGuide`, `footer`, `privacy`. Slots use the same `{{key}}` syntax as the templates. |
 | `writeFiles(outDir)` | Writes extra files (scripts, styles, server configuration) before CSS and JavaScript are fingerprinted. |
 
 The app announces usage events (`project_create`, `project_export`, `project_import`, `suggest_node`, `model_create`, `copy_summary`) as a `planejador:track` DOM event, which an extension can listen to. If your extension collects anything about visitors, describe it in the `privacy` slot, in every language, and ask for consent where the law requires it.

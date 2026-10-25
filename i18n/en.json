@@ -31,9 +31,8 @@
     "p": "Planejador WiFi shows where the signal reaches before you buy a router: draw the walls, place the router and mesh nodes, and see the coverage on 2.4, 5 and 6 GHz. Free, no sign-up, and your projects stay in your browser."
   },
   "example": {
-    "text": "<strong>Example house.</strong> Edit it freely or start a blank project to draw your own.",
     "blank": "Blank project",
-    "keep": "Edit the example"
+    "chip": "You're looking at the example house."
   },
   "project": {
     "label": "Project",
@@ -60,7 +59,14 @@
     "roomPlaceholder": "e.g. Bedroom",
     "roomName": "Room name",
     "foot": "Estimate: log-distance path loss (n = 2.5) plus the attenuation of each wall crossed and each slab between floors. Typical error ±8 dB. Use it to compare placements; it does not replace measuring with your phone.",
-    "noscript": "The planner needs JavaScript enabled in your browser."
+    "noscript": "The planner needs JavaScript enabled in your browser.",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "fit": "Fit to screen",
+    "view": "View",
+    "history": "History",
+    "canvasKeys": "With the plan focused, press [ and ] to pick walls, nodes and names, the arrows to move, Delete to remove and Esc to let go.",
+    "heatShort": "Heat"
   },
   "tools": {
     "select": "Select",
@@ -70,7 +76,9 @@
     "measure": "Measure",
     "erase": "Erase",
     "undo": "Undo",
-    "undoTitle": "Undo (Ctrl+Z)"
+    "undoTitle": "Undo (Ctrl+Z)",
+    "redo": "Redo",
+    "redoTitle": "Redo (Ctrl+Shift+Z)"
   },
   "panel": {
     "label": "Results"
@@ -82,10 +90,7 @@
     "image": "Floor plan photo or image",
     "imageOpacity": "Image opacity",
     "scaleHint": "To set the scale, use <b>Measure</b>, drag over a known length on the image and enter its real size.",
-    "removeImage": "Remove image",
-    "measured": "Measured line:",
-    "realLength": "Real length of this line (m)",
-    "apply": "Adjust image"
+    "removeImage": "Remove image"
   },
   "share": {
     "title": "Share",
@@ -187,8 +192,8 @@
   },
   "ui": {
     "hints": {
-      "select": "Click a wall or node to edit it. Drag nodes and names to move them. Click an empty spot to read the signal.",
-      "wall": "Click and drag to draw a wall. Ends snap to the 25 cm grid and to existing walls. Doors and windows are walls of the right material.",
+      "select": "Click a wall, node or link to edit it. Drag nodes and names to move them, or the background to move the plan. Ctrl + scroll zooms.",
+      "wall": "Click and drag to draw a wall. Ends snap to the 25 cm grid and to existing walls. Hold Shift to draw at an angle (or untick “90° only”).",
       "node": "Click where each router or mesh node goes. The first one is the main node, connected to the modem.",
       "label": "Click on the plan and type the room name. Enter confirms.",
       "measure": "Drag to measure a distance. With a background image, use this to set the scale.",
@@ -239,7 +244,8 @@
       "idle": "Hover over the plan to read the signal.",
       "noNodes": "no router placed",
       "noBand": "no device transmits on {band}",
-      "via": "via"
+      "via": "via",
+      "idleTouch": "Tap the plan to read the signal."
     },
     "node": {
       "main": "Main",
@@ -264,7 +270,6 @@
       "goodShare": "of the house at ≥ −67 dBm",
       "area": "Area counted: {area} m², the rectangle around the walls.",
       "wireIt": "Connect {node} by cable",
-      "weakNote": "This number assumes {node} works, but its link to the mesh is weak. Connect it with a cable or move it closer to another node.",
       "linksTitle": "Links between nodes",
       "linksEmpty": "With two or more nodes, the backhaul quality between them shows up here.",
       "otherFloor": "(another floor)",
@@ -305,7 +310,16 @@
       "delNode": "Delete node",
       "room": "Room name",
       "text": "Text",
-      "delRoom": "Delete name"
+      "delRoom": "Delete name",
+      "close": "Close",
+      "unwire": "Use wireless",
+      "measureTitle": "Measurement",
+      "measured": "Measured line: {len} m",
+      "realLength": "Real length of this line (m)",
+      "apply": "Adjust image",
+      "measureNoImage": "To use it as a scale, load a floor plan photo under Plan and scale.",
+      "length": "Length (m)",
+      "lengthHint": "Or drag the small squares at the ends of the wall."
     },
     "models": {
       "isp": "ISP router",
@@ -397,12 +411,12 @@
         {
           "target": "[data-tool=wall]",
           "title": "Draw the walls",
-          "body": "Click and drag on the map. Pick the material in the bar above: brick, concrete, glass… Doors and windows are walls too."
+          "body": "Drag on the map to draw. The material is in the tool options: brick, concrete, glass… Doors and windows are walls too."
         },
         {
           "target": "[data-tool=node]",
           "title": "Place the router",
-          "body": "Click where the modem is: that is the main node. Then add the other mesh nodes and check the link between them."
+          "body": "Mark where the modem is: that is the main node. Then add the other mesh nodes and check the link between them."
         },
         {
           "target": "#bands",
@@ -410,9 +424,9 @@
           "body": "Switch between 2.4, 5 and 6 GHz. Green is excellent signal; red is no usable signal."
         },
         {
-          "target": "#pCoverage",
+          "target": "#drawerHead",
           "title": "See the result",
-          "body": "The share of the house with good signal shows here, per band. Hover over the map to read the signal at each point."
+          "body": "The plan in short: how many devices, whether one needs a cable, and the coverage on each band."
         },
         {
           "target": "#pSuggest",
@@ -420,6 +434,53 @@
           "body": "<b>Suggest a spot</b> tests every free point and shows where one more node helps most."
         }
       ]
+    },
+    "hintsTouch": {
+      "select": "Tap a wall, node or link to edit it. Drag nodes and names to move them, or the background to move the plan. Pinch to zoom.",
+      "wall": "Drag to draw a wall. For angled walls, untick “90° only” in the tool options.",
+      "node": "Tap where each router or mesh node goes. The first one is the main node, connected to the modem.",
+      "label": "Tap the plan and type the room name.",
+      "measure": "Drag to measure a distance. With a background image, use it to set the scale.",
+      "erase": "Tap a wall, node or name to delete it."
+    },
+    "bandNoDevice": "{band}: no device transmits on this band",
+    "verdict": {
+      "title": "Your plan",
+      "empty": "Place the router on the plan to see the result.",
+      "placeNode": "Place the router",
+      "ok": "Covers the house",
+      "okCable": "Covers the house, with a cable",
+      "short": "Some areas lack signal",
+      "okLine": "On {band}, {pct} of the house gets good signal.",
+      "shortLine": "On {band}, only {pct} of the house gets good signal. See where one more node helps.",
+      "cableLine": "The link of {node} is weak: wire it with a cable or move it closer to another node.",
+      "devices": "Devices",
+      "sixGood": "6 GHz covers the house too: you can use the fastest band.",
+      "sixNear": "6 GHz reaches {pct} of the house: fastest near the nodes.",
+      "sixNone": "No device has 6 GHz. To use that band, pick a model with 6 GHz (Wi-Fi 6E or 7).",
+      "byBand": "Whole house, by band",
+      "showBand": "Show the map on {band}",
+      "note": "Estimate with a typical error of ±8 dB."
+    },
+    "hud": {
+      "weak1": "1 weak link",
+      "weakN": "{n} weak links",
+      "noNodes": "No router",
+      "open": "Show result",
+      "close": "Hide result"
+    },
+    "live": {
+      "wall": "Wall added, {len} m.",
+      "node": "{node} added.",
+      "deleted": "Item deleted.",
+      "wired": "{node} connected by cable.",
+      "unwired": "{node} is now wireless.",
+      "selected": "Selected: {item}."
     }
+  },
+  "drawer": {
+    "title": "Result",
+    "hide": "Hide result",
+    "about": "About the estimate"
   }
 }
