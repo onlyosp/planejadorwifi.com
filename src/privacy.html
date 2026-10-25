@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+{{{@head}}}
+<title>{{privacy.title}}</title>
+<meta name="description" content="{{privacy.description}}">
+<link rel="canonical" href="{{@canonical}}">
+{{{@hreflang}}}
+</head>
+<body>
+<div class="wrap">
+  {{{@header}}}
+  <main class="guide doc">
+    <h1>{{privacy.h1}}</h1>
+    <p class="muted">{{privacy.updated}}</p>
+
+    <h2>{{privacy.projectsTitle}}</h2>
+    <p>{{{privacy.projectsText}}}</p>
+
+    <!-- build:!thirdParty -->
+    <h2>{{privacy.cookiesTitle}}</h2>
+    <p>{{privacy.noCookies}}</p>
+    <!-- /build:!thirdParty -->
+
+    {{{@slot.privacy}}}
+
+    <h2>{{privacy.rightsTitle}}</h2>
+    <p>{{{privacy.rightsText}}}</p>
+  </main>
+  {{{@footer}}}
+</div>
+{{{@slot.bodyEnd}}}
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<!-- build:ptHome -->{{{@langRedirect}}}<!-- /build:ptHome -->
+{{{@head}}}
+<title>{{meta.title}}</title>
+<meta name="description" content="{{meta.description}}">
+<link rel="canonical" href="{{@canonical}}">
+{{{@hreflang}}}
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#E7EAEE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101419" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="{{ogLocale}}">
+<meta property="og:site_name" content="Planejador WiFi">
+<meta property="og:title" content="{{meta.ogTitle}}">
+<meta property="og:description" content="{{meta.ogDescription}}">
+<meta property="og:url" content="{{@canonical}}">
+<meta property="og:image" content="{{@site}}/assets/img/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="/site.webmanifest">
+<script type="module" src="/assets/js/app.js"></script>
+{{{@jsonLd}}}
+</head>
+<body>
+<a class="skip" href="#how-to">{{nav.skip}}</a>
+<div class="wrap">
+  {{{@header}}}
+
+  <main>
+    <div class="intro" id="simulator">
+      <h1>{{intro.h1}}</h1>
+      <p>{{intro.p}}</p>
+    </div>
+
+    <div class="note-bar" id="exampleBar" hidden>
+      <span class="sp">{{{example.text}}}</span>
+      <button type="button" id="startBlank" class="primary">{{example.blank}}</button>
+      <button type="button" id="keepExample" class="ghost">{{example.keep}}</button>
+    </div>
+
+    <div class="projbar" id="projectBar">
+      <label class="opt-label" for="projectSel">{{project.label}}</label>
+      <select id="projectSel"></select>
+      <button type="button" id="newProject">{{project.new}}</button>
+      <details class="menu" id="projMenu">
+        <summary>{{project.file}}</summary>
+        <div class="menu-list">
+          <button type="button" data-act="rename">{{project.rename}}</button>
+          <button type="button" data-act="duplicate">{{project.duplicate}}</button>
+          <hr>
+          <button type="button" data-act="export">{{project.export}}</button>
+          <button type="button" data-act="import">{{project.import}}</button>
+          <hr>
+          <button type="button" data-act="delete" class="danger">{{project.delete}}</button>
+        </div>
+      </details>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+    </div>
+
+    <section class="app" aria-label="{{stage.label}}">
+      <div class="stage">
+        <div class="stagebar">
+          <div class="floors" id="floors" role="tablist" aria-label="{{stage.floors}}"></div>
+          <div class="seg" id="bands" role="radiogroup" aria-label="{{stage.bands}}"></div>
+          <div class="opts" id="matGroup">
+            <label class="opt-label" for="matSel">{{stage.material}}</label>
+            <select id="matSel"></select>
+            <label class="check"><input type="checkbox" id="ortho" checked> {{stage.ortho}}</label>
+          </div>
+          <div class="opts" id="modelGroup" hidden>
+            <label class="opt-label" for="modelSel">{{stage.model}}</label>
+            <select id="modelSel"></select>
+            <button type="button" class="linkbtn" id="manageModels">{{stage.otherModel}}</button>
+          </div>
+          <div class="opts opts-heat">
+            <label class="check"><input type="checkbox" id="heatOn" checked> {{stage.heatmap}}</label>
+            <label class="sr" for="alpha">{{stage.heatOpacity}}</label>
+            <input type="range" id="alpha" min="15" max="85" step="5">
+          </div>
+        </div>
+        <div class="board">
+          <div class="toolbar" id="toolset" role="toolbar" aria-label="{{stage.tools}}" aria-orientation="vertical">
+            <button type="button" data-tool="select" aria-pressed="false">{{tools.select}}<kbd>V</kbd></button>
+            <button type="button" data-tool="wall" aria-pressed="false">{{tools.wall}}<kbd>W</kbd></button>
+            <button type="button" data-tool="node" aria-pressed="false">{{tools.node}}<kbd>N</kbd></button>
+            <button type="button" data-tool="label" aria-pressed="false">{{tools.label}}<kbd>T</kbd></button>
+            <button type="button" data-tool="measure" aria-pressed="false">{{tools.measure}}<kbd>M</kbd></button>
+            <button type="button" data-tool="erase" aria-pressed="false">{{tools.erase}}<kbd>E</kbd></button>
+            <button type="button" id="undoBtn" class="undo" title="{{tools.undoTitle}}">{{tools.undo}}</button>
+          </div>
+          <div class="canvas-area" id="canvasArea">
+            <div class="sheet" id="wrap">
+              <canvas id="cv" aria-label="{{stage.canvas}}"></canvas>
+              <input type="text" id="labelInput" placeholder="{{stage.roomPlaceholder}}" aria-label="{{stage.roomName}}" hidden>
+            </div>
+          </div>
+        </div>
+        <div class="readout" id="readout"></div>
+        <p class="hint" id="toolHint"></p>
+        <div class="legend" id="legend"></div>
+        <p class="foot">{{stage.foot}}</p>
+        <noscript><p>{{stage.noscript}}</p></noscript>
+      </div>
+
+      <aside class="panel" aria-label="{{panel.label}}">
+        <section class="card" id="pCoverage"></section>
+        <section class="card" id="pLinks"></section>
+        <section class="card" id="pSuggest"></section>
+        <section class="card" id="pSel" hidden></section>
+        <section class="card">
+          <h2>{{plan.title}}</h2>
+          <div class="fields">
+            <label for="areaW">{{plan.width}}<input type="number" id="areaW" min="4" max="80" step="0.5"></label>
+            <label for="areaH">{{plan.depth}}<input type="number" id="areaH" min="4" max="80" step="0.5"></label>
+          </div>
+          <label class="eyebrow" for="bgFile">{{plan.image}}</label>
+          <input type="file" id="bgFile" accept="image/*">
+          <div id="bgCtl" class="group" hidden>
+            <label class="small muted" for="bgAlpha">{{plan.imageOpacity}}</label>
+            <input type="range" id="bgAlpha" min="10" max="100" step="5">
+            <p class="hint">{{{plan.scaleHint}}}</p>
+            <button type="button" id="bgRemove" class="ghost">{{plan.removeImage}}</button>
+          </div>
+          <div id="calib" class="group" hidden>
+            <span class="small">{{plan.measured}} <b id="calLenNow">—</b></span>
+            <div id="calForm" class="group">
+              <label class="small muted" for="calLen">{{plan.realLength}}</label>
+              <div class="btnrow"><input type="number" id="calLen" min="0.1" step="0.05" style="flex:1 1 90px;width:auto"><button type="button" id="calApply" class="primary">{{plan.apply}}</button></div>
+            </div>
+          </div>
+          <button type="button" id="delFloor" class="ghost danger" hidden></button>
+        </section>
+        <section class="card">
+          <h2>{{share.title}}</h2>
+          <p class="small muted">{{share.text}}</p>
+          <div class="btnrow"><button type="button" id="copySummary">{{share.copy}}</button></div>
+          <label class="sr" for="copyFallback">{{share.fallback}}</label>
+          <textarea id="copyFallback" readonly hidden></textarea>
+        </section>
+      </aside>
+    </section>
+
+    {{{@slot.afterTool}}}
+
+    <article class="guide">
+      <h2 id="how-to">{{guide.howToTitle}}</h2>
+      <ol>{{{guide.howToSteps}}}</ol>
+
+      <h2 id="walls">{{guide.wallsTitle}}</h2>
+      <p>{{guide.wallsText}}</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>{{guide.material}}</th><th class="num">{{bands.2_4}}</th><th class="num">{{bands.5}}</th><th class="num">{{bands.6}}</th></tr></thead>
+          <tbody>{{{@materialRows}}}</tbody>
+        </table>
+      </div>
+
+      <h2 id="signal">{{guide.signalTitle}}</h2>
+      <p>{{guide.signalText}}</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>{{guide.signal}}</th><th>{{guide.level}}</th><th>{{guide.practice}}</th></tr></thead>
+          <tbody>{{{guide.signalRows}}}</tbody>
+        </table>
+      </div>
+
+      <h2 id="bands">{{guide.bandsTitle}}</h2>
+      {{{guide.bandsText}}}
+
+      {{{@slot.inGuide}}}
+
+      <h2 id="faq">{{guide.faqTitle}}</h2>
+      <div class="faq">{{{@faqHtml}}}</div>
+      {{{@slot.afterGuide}}}
+    </article>
+  </main>
+
+  {{{@footer}}}
+</div>
+
+<dialog id="dlg">
+  <form method="dialog" class="dlg">
+    <h2 id="dlgTitle"></h2>
+    <p id="dlgMsg"></p>
+    <label class="field" id="dlgField"><span id="dlgLabel"></span><input type="text" id="dlgInput" maxlength="60"></label>
+    <div class="btnrow end">
+      <button value="ok" id="dlgOk" class="primary">OK</button>
+      <button value="cancel" formnovalidate>{{dialog.cancel}}</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="modelsDlg">
+  <form method="dialog" class="dlg">
+    <h2>{{models.title}}</h2>
+    <p class="small muted">{{models.intro}}</p>
+    <ul id="modelList"></ul>
+    <fieldset>
+      <legend id="mFormTitle"></legend>
+      <label class="field" for="mName">{{models.name}}<input type="text" id="mName" maxlength="60" placeholder="{{models.namePlaceholder}}"></label>
+      <div class="bandchecks" id="mBands" role="group" aria-label="{{stage.bands}}">
+        <label class="check"><input type="checkbox" value="2.4" checked> {{bands.2_4}}</label>
+        <label class="check"><input type="checkbox" value="5" checked> {{bands.5}}</label>
+        <label class="check"><input type="checkbox" value="6"> {{bands.6}}</label>
+      </div>
+      <label class="field" for="mAdj">{{models.power}}<input type="number" id="mAdj" min="-10" max="10" step="1" value="0"></label>
+      <p class="hint">{{models.powerHint}}</p>
+      <p class="err" id="mErr" role="alert"></p>
+      <div class="btnrow"><button type="button" id="mSave" class="primary"></button><button type="button" id="mCancel" hidden>{{models.cancelEdit}}</button></div>
+    </fieldset>
+    <div class="btnrow end"><button value="close">{{dialog.close}}</button></div>
+  </form>
+</dialog>
+
+{{{@slot.bodyEnd}}}
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

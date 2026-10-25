@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+{{{@head}}}
+<title>{{notFound.title}}</title>
+<meta name="robots" content="noindex">
+</head>
+<body>
+<div class="wrap">
+  {{{@header}}}
+  <main class="guide doc">
+    <h1>{{notFound.h1}}</h1>
+    <p>{{notFound.text}}</p>
+    <p><a href="{{@home}}">{{notFound.back}}</a></p>
+  </main>
+  {{{@footer}}}
+</div>
+{{{@slot.bodyEnd}}}
+</body>
+</html>

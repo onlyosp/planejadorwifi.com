@@ -1,0 +1,422 @@
+{
+  "lang": "pt-BR",
+  "locale": "pt-BR",
+  "ogLocale": "pt_BR",
+  "langName": "Português",
+  "paths": {
+    "index": "/",
+    "privacy": "/politica-de-privacidade",
+    "notFound": "/404.html"
+  },
+  "meta": {
+    "title": "Simulador de Wi-Fi Mesh na Planta da Casa | Planejador WiFi",
+    "description": "Desenhe a planta da sua casa, posicione roteadores e nós mesh e veja a cobertura Wi-Fi estimada em 2,4, 5 e 6 GHz. Grátis, sem cadastro e de código aberto.",
+    "ogTitle": "Simulador de Wi-Fi Mesh na Planta da Casa",
+    "ogDescription": "Desenhe a planta, posicione os roteadores e veja onde o sinal chega. Grátis e sem cadastro.",
+    "appDescription": "Simulador gratuito de cobertura Wi-Fi e rede mesh: desenhe a planta da casa, posicione os roteadores e veja o sinal estimado em 2,4, 5 e 6 GHz.",
+    "os": "Qualquer navegador moderno"
+  },
+  "nav": {
+    "label": "Menu principal",
+    "homeLabel": "Planejador WiFi, página inicial",
+    "simulator": "Simulador",
+    "howTo": "Como usar",
+    "faq": "Perguntas frequentes",
+    "tour": "Tour guiado",
+    "language": "Idioma",
+    "skip": "Pular para o guia"
+  },
+  "intro": {
+    "h1": "Simulador de Wi-Fi mesh na planta da sua casa",
+    "p": "O Planejador WiFi mostra onde o sinal chega bem antes de você comprar o roteador: desenhe as paredes, posicione o roteador e os nós mesh e veja a cobertura em 2,4, 5 e 6 GHz. Grátis, sem cadastro, e seus projetos ficam no seu navegador."
+  },
+  "example": {
+    "text": "<strong>Casa de exemplo.</strong> Edite à vontade ou crie um projeto em branco para desenhar a sua.",
+    "blank": "Projeto em branco",
+    "keep": "Editar o exemplo"
+  },
+  "project": {
+    "label": "Projeto",
+    "new": "Novo projeto",
+    "file": "Arquivo",
+    "rename": "Renomear",
+    "duplicate": "Duplicar",
+    "export": "Exportar JSON",
+    "import": "Importar JSON",
+    "delete": "Excluir projeto"
+  },
+  "stage": {
+    "label": "Simulador",
+    "floors": "Andares",
+    "bands": "Faixa de frequência",
+    "material": "Material",
+    "ortho": "Só 90°",
+    "model": "Modelo",
+    "otherModel": "Outro modelo…",
+    "heatmap": "Mapa de calor",
+    "heatOpacity": "Opacidade do mapa",
+    "tools": "Ferramentas",
+    "canvas": "Planta da casa com mapa de cobertura Wi-Fi",
+    "roomPlaceholder": "Ex.: Quarto",
+    "roomName": "Nome do cômodo",
+    "foot": "Estimativa: perda log-distância (n = 2,5) mais a atenuação de cada parede cruzada e da laje entre andares. Erro típico de ±8 dB. Serve para comparar posições, não substitui a medição com o celular.",
+    "noscript": "O simulador precisa de JavaScript ativado no navegador."
+  },
+  "tools": {
+    "select": "Selecionar",
+    "wall": "Parede",
+    "node": "Nó mesh",
+    "label": "Cômodo",
+    "measure": "Medir",
+    "erase": "Apagar",
+    "undo": "Desfazer",
+    "undoTitle": "Desfazer (Ctrl+Z)"
+  },
+  "panel": {
+    "label": "Resultados"
+  },
+  "plan": {
+    "title": "Planta e escala",
+    "width": "Largura (m)",
+    "depth": "Profundidade (m)",
+    "image": "Foto ou imagem da planta",
+    "imageOpacity": "Opacidade da imagem",
+    "scaleHint": "Para acertar a escala, use <b>Medir</b>, arraste sobre uma medida conhecida da imagem e informe o tamanho real.",
+    "removeImage": "Remover imagem",
+    "measured": "Linha medida:",
+    "realLength": "Tamanho real dessa linha (m)",
+    "apply": "Ajustar imagem"
+  },
+  "share": {
+    "title": "Compartilhar",
+    "text": "Copie um resumo em texto do projeto para pedir opinião num fórum, a um técnico ou a um assistente de IA.",
+    "copy": "Copiar resumo",
+    "fallback": "Resumo para copiar"
+  },
+  "bands": {
+    "2_4": "2,4 GHz",
+    "5": "5 GHz",
+    "6": "6 GHz"
+  },
+  "guide": {
+    "howToTitle": "Como usar o simulador",
+    "howToSteps": "<li>Clique em <b>Novo projeto</b> e informe a largura e a profundidade do terreno ou da casa.</li><li>Se tiver a planta em foto ou PDF convertido em imagem, carregue em <b>Planta e escala</b> e acerte a escala com <b>Medir</b>.</li><li>Com a ferramenta <b>Parede</b>, desenhe as paredes externas e internas escolhendo o material. Portas e janelas também são paredes, de madeira ou vidro.</li><li>Com <b>Nó mesh</b>, posicione o roteador principal onde fica o modem da operadora e depois os demais nós.</li><li>Troque entre 2,4, 5 e 6 GHz e veja o mapa de calor. Verde é sinal excelente, vermelho é sem sinal útil.</li><li>Use <b>Sugerir posição</b> para descobrir onde mais um nó traria o maior ganho, e <b>Arquivo › Exportar JSON</b> para guardar o projeto.</li>",
+    "wallsTitle": "Quanto cada parede tira do sinal",
+    "wallsText": "Cada parede cruzada pelo sinal soma uma perda em decibéis (dB). A cada 10 dB a potência que chega cai para um décimo, por isso duas ou três paredes de alvenaria já fazem diferença. Os valores abaixo são médias usadas pelo simulador; a perda real varia com a espessura, a umidade e a armação de ferro.",
+    "material": "Material",
+    "materialNames": {
+      "tijolo": "Alvenaria (tijolo ou bloco cerâmico rebocado)",
+      "concreto": "Concreto, pilar ou parede estrutural",
+      "slab": "Laje entre andares",
+      "gesso": "Drywall ou gesso",
+      "madeira": "Porta de madeira",
+      "vidro": "Vidro comum ou janela",
+      "metal": "Metal, espelho, geladeira"
+    },
+    "signalTitle": "O que significa cada nível de sinal",
+    "signalText": "O sinal Wi-Fi é medido em dBm, sempre negativo: quanto mais perto de zero, melhor.",
+    "signal": "Sinal",
+    "level": "Nível",
+    "practice": "Na prática",
+    "signalRows": "<tr><td class=\"num\">−60 dBm ou melhor</td><td>Excelente</td><td>Streaming 4K, jogos online e velocidade máxima do plano.</td></tr><tr><td class=\"num\">−60 a −67 dBm</td><td>Bom</td><td>Vídeo HD e videochamadas estáveis. É a meta para os cômodos usados.</td></tr><tr><td class=\"num\">−67 a −72 dBm</td><td>Razoável</td><td>Navegação e mensagens funcionam; vídeo pode oscilar.</td></tr><tr><td class=\"num\">−72 a −80 dBm</td><td>Fraco</td><td>Lento e instável.</td></tr><tr><td class=\"num\">abaixo de −80 dBm</td><td>Sem sinal útil</td><td>A conexão cai com frequência.</td></tr>",
+    "bandsTitle": "2,4, 5 ou 6 GHz?",
+    "bandsText": "<p><b>2,4 GHz</b> vai mais longe e atravessa melhor as paredes, mas é lenta e disputada com os vizinhos. Serve para aparelhos de casa inteligente e cantos distantes.</p><p><b>5 GHz</b> é o equilíbrio para o dia a dia: bem mais rápida, com alcance médio. É nessa faixa que vale olhar o mapa primeiro.</p><p><b>6 GHz</b>, presente em roteadores Wi-Fi 6E e Wi-Fi 7 tri-band, é a mais rápida e a menos congestionada, mas perde mais em cada parede. Rende mais no mesmo cômodo do roteador e na ligação entre os nós mesh.</p>",
+    "faqTitle": "Perguntas frequentes"
+  },
+  "faq": [
+    {
+      "q": "O simulador é preciso?",
+      "a": "É uma estimativa com erro típico de 8 dB para mais ou para menos. Serve para comparar posições e decidir quantos nós comprar. Depois de instalar, confirme com um aplicativo de medição no celular."
+    },
+    {
+      "q": "Quantos nós mesh eu preciso?",
+      "a": "Como regra geral, um nó para cada 80 a 120 m² em casa de alvenaria, e um por andar em sobrados. Paredes de concreto, lajes e casas compridas pedem mais. Desenhe a sua planta e use o botão Sugerir posição para ver se mais um nó compensa."
+    },
+    {
+      "q": "Onde colocar o roteador principal?",
+      "a": "O mais perto possível do centro da casa, a cerca de 1 metro do chão, longe de geladeira, espelhos e armários de metal. Se o modem fica num canto, leve o cabo de rede até um ponto central ou use um nó mesh nesse ponto."
+    },
+    {
+      "q": "Vale a pena um mesh Wi-Fi 7 com 6 GHz?",
+      "a": "A faixa de 6 GHz é rápida e pouco congestionada, mas atravessa mal paredes. Ela vale mais para ligar os nós entre si e para aparelhos no mesmo cômodo. Para internet de até 1 Gbps, um mesh Wi-Fi 7 dual-band costuma bastar."
+    },
+    {
+      "q": "Backhaul por cabo ou sem fio?",
+      "a": "Por cabo sempre que der: a velocidade não cai e os nós podem ficar mais longe um do outro. Sem fio, procure ter entre −60 e −70 dBm entre os nós. Abaixo disso, a velocidade dos aparelhos ligados ao nó distante cai bastante."
+    },
+    {
+      "q": "Onde ficam salvos os meus projetos?",
+      "a": "Só no seu navegador, no armazenamento local do aparelho. Nada é enviado para servidor. Para guardar uma cópia ou abrir em outro computador, use Arquivo e depois Exportar JSON."
+    }
+  ],
+  "footer": {
+    "license": "Planejador WiFi · código aberto sob licença MIT",
+    "github": "Código no GitHub",
+    "privacy": "Política de privacidade"
+  },
+  "dialog": {
+    "cancel": "Cancelar",
+    "close": "Fechar"
+  },
+  "models": {
+    "title": "Modelos de roteador",
+    "intro": "Os modelos prontos usam valores médios de potência. Cadastre o seu roteador se ele não estiver na lista.",
+    "name": "Nome",
+    "namePlaceholder": "Ex.: Asus ZenWiFi BT8",
+    "power": "Potência em relação a um nó mesh comum (dB)",
+    "powerHint": "Use de −2 a −4 para roteadores de operadora ou modelos de entrada, e de +1 a +3 para modelos topo de linha.",
+    "cancelEdit": "Cancelar edição"
+  },
+  "privacy": {
+    "title": "Política de Privacidade | Planejador WiFi",
+    "description": "Como o Planejador WiFi trata seus dados: os projetos ficam salvos só no seu navegador.",
+    "h1": "Política de privacidade",
+    "updated": "Última atualização: 25 de outubro de 2026.",
+    "projectsTitle": "Seus projetos",
+    "projectsText": "As plantas, os roteadores e os modelos que você cadastra ficam salvos apenas no armazenamento local (localStorage) do seu navegador. Eles não são enviados a nenhum servidor. Se você limpar os dados do navegador, eles somem; para guardar uma cópia, use <b>Arquivo › Exportar JSON</b>.",
+    "cookiesTitle": "Cookies",
+    "noCookies": "Este site não usa cookies nem ferramentas de rastreamento de terceiros.",
+    "rightsTitle": "Seus direitos (LGPD)",
+    "rightsText": "Você pode pedir informações sobre o tratamento de dados ou a exclusão de dados pelo e-mail <b>contato@planejadorwifi.com</b>."
+  },
+  "notFound": {
+    "title": "Página não encontrada | Planejador WiFi",
+    "h1": "Página não encontrada",
+    "text": "O endereço que você abriu não existe ou mudou de lugar.",
+    "back": "Abrir o simulador de Wi-Fi"
+  },
+  "ui": {
+    "hints": {
+      "select": "Clique numa parede ou nó para editar. Arraste nós e nomes para mover. Clique num ponto vazio para ler o sinal.",
+      "wall": "Clique e arraste para desenhar uma parede. As pontas grudam na grade de 25 cm e nas paredes existentes. Portas e janelas são paredes do material certo.",
+      "node": "Clique onde vai ficar cada roteador ou nó mesh. O primeiro é o principal, ligado ao modem.",
+      "label": "Clique na planta e digite o nome do cômodo. Enter confirma.",
+      "measure": "Arraste para medir uma distância. Com imagem de fundo, use isso para acertar a escala.",
+      "erase": "Clique numa parede, nó ou nome para apagar."
+    },
+    "bands": {
+      "2.4": "2,4 GHz",
+      "5": "5 GHz",
+      "6": "6 GHz"
+    },
+    "materials": {
+      "tijolo": "Alvenaria (tijolo/bloco)",
+      "concreto": "Concreto / pilar",
+      "gesso": "Drywall / gesso",
+      "madeira": "Porta de madeira",
+      "vidro": "Vidro / janela",
+      "metal": "Metal, espelho, geladeira"
+    },
+    "cats": [
+      {
+        "name": "Excelente",
+        "range": "≥ −60 dBm",
+        "use": "4K, jogos, chamadas"
+      },
+      {
+        "name": "Bom",
+        "range": "−60 a −67",
+        "use": "vídeo HD, videochamada"
+      },
+      {
+        "name": "Razoável",
+        "range": "−67 a −72",
+        "use": "navegação, vídeo oscila"
+      },
+      {
+        "name": "Fraco",
+        "range": "−72 a −80",
+        "use": "lento e instável"
+      },
+      {
+        "name": "Sem sinal útil",
+        "range": "< −80 dBm",
+        "use": "conexão cai"
+      }
+    ],
+    "legendMain": "principal",
+    "readout": {
+      "idle": "Passe o cursor sobre a planta para ler o sinal.",
+      "noNodes": "nenhum roteador posicionado",
+      "noBand": "nenhum aparelho transmite em {band}",
+      "via": "via"
+    },
+    "node": {
+      "main": "Principal",
+      "n": "Nó {n}",
+      "cable": "cabo",
+      "without": "sem {band}",
+      "suggestion": "sugestão"
+    },
+    "floors": {
+      "ground": "Térreo",
+      "nth": "{n}º andar",
+      "add": "+ Andar",
+      "remove": "Remover {name}",
+      "removeTitle": "Remover {name}?",
+      "removeMsg": "As paredes, nós e nomes deste andar serão apagados.",
+      "removeOk": "Remover"
+    },
+    "panel": {
+      "coverage": "Cobertura · {band}",
+      "needNode": "Posicione pelo menos um roteador com a ferramenta <b>Nó mesh</b>.",
+      "noBand": "Nenhum aparelho do projeto transmite em {band}.",
+      "goodShare": "da casa com ≥ −67 dBm",
+      "area": "Área considerada: {area} m², o retângulo em volta das paredes.",
+      "linksTitle": "Ligação entre nós",
+      "linksEmpty": "Com dois ou mais nós, aqui aparece a qualidade do backhaul, a ligação entre eles.",
+      "otherFloor": "(outro andar)",
+      "cable": "cabo",
+      "linkQuality": "Ligação {q}.",
+      "linkWords": {
+        "0": "ótima",
+        "2": "ok",
+        "4": "fraca, use cabo"
+      },
+      "linksHint": "Sem fio, mire em −60 a −70 dBm entre nós. Abaixo disso, ligue por cabo de rede.",
+      "suggestTitle": "Onde pôr mais um nó?",
+      "suggestIntro": "Testa cada ponto livre deste andar e escolhe o que mais aumenta a área com sinal bom em {band}.",
+      "suggestRun": "Sugerir posição",
+      "computing": "Calculando…",
+      "suggestResult": "Um <b>{model}</b> no ponto marcado (x {x}, y {y} m) leva a cobertura em {band} de <b>{from}</b> para <b>{to}</b>.",
+      "suggestRelaxed": " Nenhum ponto útil tem boa ligação sem fio com os outros nós: ligue esse por cabo.",
+      "suggestLink": " Ligação sem fio estimada: {v} dBm.",
+      "addHere": "Adicionar nó aqui",
+      "discard": "Descartar",
+      "ok": "Ok",
+      "none": {
+        "noWalls": "Desenhe as paredes da casa primeiro.",
+        "noSpot": "Não achei um ponto livre longe das paredes. Aumente a área ou ajuste o desenho.",
+        "alreadyGood": "A cobertura já está boa em quase toda a casa. Outro nó não muda muito.",
+        "noGain": "Nenhuma posição melhora a cobertura de forma relevante."
+      }
+    },
+    "sel": {
+      "wall": "Parede",
+      "material": "Material",
+      "delWall": "Apagar parede",
+      "model": "Modelo",
+      "mainNote": "Nó principal: liga no modem da operadora.",
+      "wired": "Ligado por cabo de rede",
+      "makeMain": "Tornar principal",
+      "delNode": "Apagar nó",
+      "room": "Nome do cômodo",
+      "text": "Texto",
+      "delRoom": "Apagar nome"
+    },
+    "models": {
+      "isp": "Roteador da operadora",
+      "ispShort": "Operadora",
+      "ready": "Modelos prontos",
+      "mine": "Meus modelos",
+      "tagReady": "pronto",
+      "edit": "Editar",
+      "del": "Excluir",
+      "newTitle": "Novo modelo",
+      "editTitle": "Editar modelo",
+      "add": "Adicionar modelo",
+      "save": "Salvar alterações",
+      "errName": "Dê um nome ao modelo.",
+      "errBands": "Marque pelo menos uma faixa.",
+      "errInUse": "Esse modelo está em uso neste projeto. Troque o modelo desses nós antes de excluir.",
+      "updated": "Modelo atualizado.",
+      "added": "Modelo “{name}” adicionado."
+    },
+    "project": {
+      "defaultName": "Minha casa",
+      "exampleName": "Casa de exemplo",
+      "exampleRooms": [
+        "Cozinha",
+        "Sala",
+        "Quarto 1",
+        "Suíte",
+        "Quarto 2",
+        "Banho",
+        "Quarto 3",
+        "Área"
+      ],
+      "newTitle": "Novo projeto",
+      "nameLabel": "Nome do projeto",
+      "create": "Criar",
+      "renameTitle": "Renomear projeto",
+      "save": "Salvar",
+      "copySuffix": "(cópia)",
+      "importedSuffix": "(importado)",
+      "deleteTitle": "Excluir “{name}”?",
+      "deleteMsg": "O projeto sai deste navegador e não dá para desfazer. Exporte o JSON antes se quiser guardar uma cópia.",
+      "deleteOk": "Excluir",
+      "fileSlug": "projeto"
+    },
+    "toast": {
+      "storage": "Este navegador não deixou salvar. Use Arquivo › Exportar JSON para não perder o projeto.",
+      "image": "Sem espaço para guardar a imagem de fundo. O desenho foi salvo, a imagem não.",
+      "imageLoaded": "Imagem carregada. Use Medir para acertar a escala.",
+      "imageError": "Não consegui abrir essa imagem. Tente um arquivo JPG ou PNG.",
+      "notFound": "Não encontrei esse projeto neste navegador.",
+      "duplicated": "Projeto duplicado.",
+      "deleted": "Projeto excluído.",
+      "imported": "Projeto “{name}” importado.",
+      "importError": "Esse arquivo não é um projeto do Planejador WiFi. Escolha um JSON exportado por aqui.",
+      "copied": "Resumo copiado.",
+      "copyFail": "Não consegui copiar sozinho. Selecionei o texto: use Ctrl+C ou Cmd+C."
+    },
+    "summary": {
+      "area": "Área: {w} × {h} m, {floors} andar(es). Coordenadas em metros a partir do canto superior esquerdo.",
+      "walls": "Paredes",
+      "none": "nenhuma",
+      "rooms": "Cômodos",
+      "devices": "Aparelhos",
+      "noDevices": "nenhum",
+      "at": "em",
+      "cable": "cabo",
+      "coverage": "Cobertura com ≥ −67 dBm",
+      "noDeviceBand": "sem aparelho nessa faixa",
+      "backhaul": "Backhaul",
+      "on": "em",
+      "model": "Estimativa do Planejador WiFi (perda log-distância + atenuação por parede, erro típico de ±8 dB)."
+    },
+    "tour": {
+      "next": "Próximo",
+      "back": "Voltar",
+      "skip": "Pular",
+      "done": "Começar",
+      "of": "{i} de {n}",
+      "steps": [
+        {
+          "title": "Bem-vindo ao Planejador WiFi",
+          "body": "Em menos de um minuto: desenhe sua casa, posicione o roteador e veja onde o Wi-Fi chega bem. Tudo fica salvo só no seu navegador."
+        },
+        {
+          "target": "#projectBar",
+          "title": "Seus projetos",
+          "body": "Comece um <b>Novo projeto</b> para a sua casa. A casa de exemplo continua salva para consulta. Em <b>Arquivo</b> você exporta e importa o projeto em JSON."
+        },
+        {
+          "target": "[data-tool=wall]",
+          "title": "Desenhe as paredes",
+          "body": "Clique e arraste no mapa. Escolha o material na barra de cima: alvenaria, concreto, vidro… Portas e janelas também são paredes."
+        },
+        {
+          "target": "[data-tool=node]",
+          "title": "Posicione o roteador",
+          "body": "Clique onde fica o modem: esse é o nó principal. Depois adicione os demais nós mesh e veja a ligação entre eles."
+        },
+        {
+          "target": "#bands",
+          "title": "Compare as faixas",
+          "body": "Troque entre 2,4, 5 e 6 GHz. Verde é sinal excelente; vermelho é sem sinal útil."
+        },
+        {
+          "target": "#pCoverage",
+          "title": "Veja o resultado",
+          "body": "A porcentagem da casa com sinal bom aparece aqui, por faixa. Passe o cursor no mapa para ler o sinal em cada ponto."
+        },
+        {
+          "target": "#pSuggest",
+          "title": "Peça uma sugestão",
+          "body": "<b>Sugerir posição</b> testa todos os pontos livres e mostra onde mais um nó traria o maior ganho."
+        }
+      ]
+    }
+  }
+}

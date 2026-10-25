@@ -1,0 +1,27 @@
+name: Feature request
+description: Suggest an idea for the planner
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the situation first, e.g. "I can't tell whether my garage gets signal".
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Screenshots, exported project JSON or links
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to implement this (with or without an AI assistant)

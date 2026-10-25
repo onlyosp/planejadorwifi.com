@@ -1,0 +1,422 @@
+{
+  "lang": "en",
+  "locale": "en-US",
+  "ogLocale": "en_US",
+  "langName": "English",
+  "paths": {
+    "index": "/en/",
+    "privacy": "/en/privacy",
+    "notFound": "/en/404.html"
+  },
+  "meta": {
+    "title": "Wi-Fi Mesh Planner on Your Floor Plan | Planejador WiFi",
+    "description": "Draw your floor plan, place routers and mesh nodes, and see the estimated Wi-Fi coverage on 2.4, 5 and 6 GHz. Free, no sign-up, open source.",
+    "ogTitle": "Wi-Fi Mesh Planner on Your Floor Plan",
+    "ogDescription": "Draw your floor plan, place your routers and see where the signal reaches. Free, no sign-up.",
+    "appDescription": "Free Wi-Fi coverage and mesh network planner: draw your floor plan, place routers and see the estimated signal on 2.4, 5 and 6 GHz.",
+    "os": "Any modern browser"
+  },
+  "nav": {
+    "label": "Main menu",
+    "homeLabel": "Planejador WiFi, home page",
+    "simulator": "Planner",
+    "howTo": "How to use",
+    "faq": "FAQ",
+    "tour": "Guided tour",
+    "language": "Language",
+    "skip": "Skip to the guide"
+  },
+  "intro": {
+    "h1": "Plan your Wi-Fi mesh on your floor plan",
+    "p": "Planejador WiFi shows where the signal reaches before you buy a router: draw the walls, place the router and mesh nodes, and see the coverage on 2.4, 5 and 6 GHz. Free, no sign-up, and your projects stay in your browser."
+  },
+  "example": {
+    "text": "<strong>Example house.</strong> Edit it freely or start a blank project to draw your own.",
+    "blank": "Blank project",
+    "keep": "Edit the example"
+  },
+  "project": {
+    "label": "Project",
+    "new": "New project",
+    "file": "File",
+    "rename": "Rename",
+    "duplicate": "Duplicate",
+    "export": "Export JSON",
+    "import": "Import JSON",
+    "delete": "Delete project"
+  },
+  "stage": {
+    "label": "Planner",
+    "floors": "Floors",
+    "bands": "Frequency band",
+    "material": "Material",
+    "ortho": "90° only",
+    "model": "Model",
+    "otherModel": "Other model…",
+    "heatmap": "Heat map",
+    "heatOpacity": "Heat map opacity",
+    "tools": "Tools",
+    "canvas": "Floor plan with Wi-Fi coverage map",
+    "roomPlaceholder": "e.g. Bedroom",
+    "roomName": "Room name",
+    "foot": "Estimate: log-distance path loss (n = 2.5) plus the attenuation of each wall crossed and each slab between floors. Typical error ±8 dB. Use it to compare placements; it does not replace measuring with your phone.",
+    "noscript": "The planner needs JavaScript enabled in your browser."
+  },
+  "tools": {
+    "select": "Select",
+    "wall": "Wall",
+    "node": "Mesh node",
+    "label": "Room",
+    "measure": "Measure",
+    "erase": "Erase",
+    "undo": "Undo",
+    "undoTitle": "Undo (Ctrl+Z)"
+  },
+  "panel": {
+    "label": "Results"
+  },
+  "plan": {
+    "title": "Plan and scale",
+    "width": "Width (m)",
+    "depth": "Depth (m)",
+    "image": "Floor plan photo or image",
+    "imageOpacity": "Image opacity",
+    "scaleHint": "To set the scale, use <b>Measure</b>, drag over a known length on the image and enter its real size.",
+    "removeImage": "Remove image",
+    "measured": "Measured line:",
+    "realLength": "Real length of this line (m)",
+    "apply": "Adjust image"
+  },
+  "share": {
+    "title": "Share",
+    "text": "Copy a text summary of the project to ask for advice on a forum, from a technician or an AI assistant.",
+    "copy": "Copy summary",
+    "fallback": "Summary to copy"
+  },
+  "bands": {
+    "2_4": "2.4 GHz",
+    "5": "5 GHz",
+    "6": "6 GHz"
+  },
+  "guide": {
+    "howToTitle": "How to use the planner",
+    "howToSteps": "<li>Click <b>New project</b> and enter the width and depth of the lot or the house.</li><li>If you have the floor plan as a photo or an image, load it under <b>Plan and scale</b> and set the scale with <b>Measure</b>.</li><li>With the <b>Wall</b> tool, draw the outer and inner walls and pick the material. Doors and windows are walls too, made of wood or glass.</li><li>With <b>Mesh node</b>, place the main router where the ISP modem is, then the other nodes.</li><li>Switch between 2.4, 5 and 6 GHz and look at the heat map. Green is excellent signal; red is no usable signal.</li><li>Use <b>Suggest a spot</b> to find where one more node helps most, and <b>File › Export JSON</b> to keep the project.</li>",
+    "wallsTitle": "How much each wall takes from the signal",
+    "wallsText": "Every wall the signal crosses adds a loss in decibels (dB). Each 10 dB cuts the received power to one tenth, so two or three brick walls already make a difference. The values below are the averages the planner uses; real loss depends on thickness, moisture and steel reinforcement.",
+    "material": "Material",
+    "materialNames": {
+      "tijolo": "Brick or plastered ceramic block",
+      "concreto": "Concrete, pillar or structural wall",
+      "slab": "Slab between floors",
+      "gesso": "Drywall or plaster",
+      "madeira": "Wooden door",
+      "vidro": "Plain glass or window",
+      "metal": "Metal, mirror, fridge"
+    },
+    "signalTitle": "What each signal level means",
+    "signalText": "Wi-Fi signal is measured in dBm and is always negative: the closer to zero, the better.",
+    "signal": "Signal",
+    "level": "Level",
+    "practice": "In practice",
+    "signalRows": "<tr><td class=\"num\">−60 dBm or better</td><td>Excellent</td><td>4K streaming, online gaming and the full speed of your plan.</td></tr><tr><td class=\"num\">−60 to −67 dBm</td><td>Good</td><td>Stable HD video and video calls. The target for rooms you use.</td></tr><tr><td class=\"num\">−67 to −72 dBm</td><td>Fair</td><td>Browsing and messaging work; video may stutter.</td></tr><tr><td class=\"num\">−72 to −80 dBm</td><td>Weak</td><td>Slow and unstable.</td></tr><tr><td class=\"num\">below −80 dBm</td><td>No usable signal</td><td>The connection drops often.</td></tr>",
+    "bandsTitle": "2.4, 5 or 6 GHz?",
+    "bandsText": "<p><b>2.4 GHz</b> reaches farther and goes through walls better, but it is slow and shared with your neighbors. Good for smart-home devices and far corners.</p><p><b>5 GHz</b> is the everyday balance: much faster, with medium range. Check the map on this band first.</p><p><b>6 GHz</b>, found on Wi-Fi 6E and tri-band Wi-Fi 7 routers, is the fastest and least crowded, but loses more at every wall. It shines in the router's own room and on the link between mesh nodes.</p>",
+    "faqTitle": "Frequently asked questions"
+  },
+  "faq": [
+    {
+      "q": "How accurate is the planner?",
+      "a": "It is an estimate with a typical error of 8 dB either way. Use it to compare placements and decide how many nodes to buy. After installing, confirm with a Wi-Fi analyzer app on your phone."
+    },
+    {
+      "q": "How many mesh nodes do I need?",
+      "a": "As a rule of thumb, one node per 80 to 120 m² (860 to 1,300 sq ft) in a brick house, and one per floor in multi-story homes. Concrete walls, slabs and long houses need more. Draw your plan and use Suggest a spot to see whether another node pays off."
+    },
+    {
+      "q": "Where should I put the main router?",
+      "a": "As close to the center of the house as possible, about 1 meter (3 ft) off the floor, away from fridges, mirrors and metal cabinets. If the modem sits in a corner, run a network cable to a central spot or put a mesh node there."
+    },
+    {
+      "q": "Is a Wi-Fi 7 mesh with 6 GHz worth it?",
+      "a": "The 6 GHz band is fast and uncrowded but goes through walls poorly. It is most useful for the link between nodes and for devices in the same room. For internet plans up to 1 Gbps, a dual-band Wi-Fi 7 mesh is usually enough."
+    },
+    {
+      "q": "Wired or wireless backhaul?",
+      "a": "Wired whenever you can: speed does not drop and nodes can sit farther apart. Wirelessly, aim for −60 to −70 dBm between nodes. Below that, devices connected to the far node get much slower."
+    },
+    {
+      "q": "Where are my projects saved?",
+      "a": "Only in your browser, in the device's local storage. Nothing is sent to a server. To keep a copy or open it on another computer, use File and then Export JSON."
+    }
+  ],
+  "footer": {
+    "license": "Planejador WiFi · open source under the MIT license",
+    "github": "Code on GitHub",
+    "privacy": "Privacy policy"
+  },
+  "dialog": {
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "models": {
+    "title": "Router models",
+    "intro": "Built-in models use average power values. Add your router if it is not on the list.",
+    "name": "Name",
+    "namePlaceholder": "e.g. Asus ZenWiFi BT8",
+    "power": "Power compared with a typical mesh node (dB)",
+    "powerHint": "Use −2 to −4 for ISP routers or entry-level models, and +1 to +3 for high-end models.",
+    "cancelEdit": "Cancel editing"
+  },
+  "privacy": {
+    "title": "Privacy Policy | Planejador WiFi",
+    "description": "How Planejador WiFi handles your data: projects are stored only in your browser.",
+    "h1": "Privacy policy",
+    "updated": "Last updated: October 25, 2026.",
+    "projectsTitle": "Your projects",
+    "projectsText": "The floor plans, routers and models you create are stored only in your browser's local storage (localStorage). They are not sent to any server. If you clear your browser data, they are gone; to keep a copy, use <b>File › Export JSON</b>.",
+    "cookiesTitle": "Cookies",
+    "noCookies": "This site uses no cookies and no third-party tracking tools.",
+    "rightsTitle": "Your rights",
+    "rightsText": "You can ask for information about how your data is processed, or for its deletion, at <b>contato@planejadorwifi.com</b>."
+  },
+  "notFound": {
+    "title": "Page not found | Planejador WiFi",
+    "h1": "Page not found",
+    "text": "The address you opened does not exist or has moved.",
+    "back": "Open the Wi-Fi planner"
+  },
+  "ui": {
+    "hints": {
+      "select": "Click a wall or node to edit it. Drag nodes and names to move them. Click an empty spot to read the signal.",
+      "wall": "Click and drag to draw a wall. Ends snap to the 25 cm grid and to existing walls. Doors and windows are walls of the right material.",
+      "node": "Click where each router or mesh node goes. The first one is the main node, connected to the modem.",
+      "label": "Click on the plan and type the room name. Enter confirms.",
+      "measure": "Drag to measure a distance. With a background image, use this to set the scale.",
+      "erase": "Click a wall, node or name to delete it."
+    },
+    "bands": {
+      "2.4": "2.4 GHz",
+      "5": "5 GHz",
+      "6": "6 GHz"
+    },
+    "materials": {
+      "tijolo": "Brick / block",
+      "concreto": "Concrete / pillar",
+      "gesso": "Drywall / plaster",
+      "madeira": "Wooden door",
+      "vidro": "Glass / window",
+      "metal": "Metal, mirror, fridge"
+    },
+    "cats": [
+      {
+        "name": "Excellent",
+        "range": "≥ −60 dBm",
+        "use": "4K, gaming, calls"
+      },
+      {
+        "name": "Good",
+        "range": "−60 to −67",
+        "use": "HD video, video calls"
+      },
+      {
+        "name": "Fair",
+        "range": "−67 to −72",
+        "use": "browsing, video stutters"
+      },
+      {
+        "name": "Weak",
+        "range": "−72 to −80",
+        "use": "slow and unstable"
+      },
+      {
+        "name": "No usable signal",
+        "range": "< −80 dBm",
+        "use": "connection drops"
+      }
+    ],
+    "legendMain": "main",
+    "readout": {
+      "idle": "Hover over the plan to read the signal.",
+      "noNodes": "no router placed",
+      "noBand": "no device transmits on {band}",
+      "via": "via"
+    },
+    "node": {
+      "main": "Main",
+      "n": "Node {n}",
+      "cable": "cable",
+      "without": "no {band}",
+      "suggestion": "suggestion"
+    },
+    "floors": {
+      "ground": "Ground floor",
+      "nth": "Floor {n}",
+      "add": "+ Floor",
+      "remove": "Remove {name}",
+      "removeTitle": "Remove {name}?",
+      "removeMsg": "The walls, nodes and names on this floor will be deleted.",
+      "removeOk": "Remove"
+    },
+    "panel": {
+      "coverage": "Coverage · {band}",
+      "needNode": "Place at least one router with the <b>Mesh node</b> tool.",
+      "noBand": "No device in this project transmits on {band}.",
+      "goodShare": "of the house at ≥ −67 dBm",
+      "area": "Area counted: {area} m², the rectangle around the walls.",
+      "linksTitle": "Links between nodes",
+      "linksEmpty": "With two or more nodes, the backhaul quality between them shows up here.",
+      "otherFloor": "(another floor)",
+      "cable": "cable",
+      "linkQuality": "Link {q}.",
+      "linkWords": {
+        "0": "great",
+        "2": "ok",
+        "4": "weak, use a cable"
+      },
+      "linksHint": "Wirelessly, aim for −60 to −70 dBm between nodes. Below that, connect them with a network cable.",
+      "suggestTitle": "Where should another node go?",
+      "suggestIntro": "Tests every free spot on this floor and picks the one that adds the most area with good signal on {band}.",
+      "suggestRun": "Suggest a spot",
+      "computing": "Computing…",
+      "suggestResult": "A <b>{model}</b> at the marked spot (x {x}, y {y} m) takes {band} coverage from <b>{from}</b> to <b>{to}</b>.",
+      "suggestRelaxed": " No useful spot has a good wireless link to the other nodes: connect this one with a cable.",
+      "suggestLink": " Estimated wireless link: {v} dBm.",
+      "addHere": "Add node here",
+      "discard": "Discard",
+      "ok": "OK",
+      "none": {
+        "noWalls": "Draw the walls of the house first.",
+        "noSpot": "No free spot away from the walls. Enlarge the area or adjust the drawing.",
+        "alreadyGood": "Coverage is already good in almost the whole house. Another node would not change much.",
+        "noGain": "No position improves coverage significantly."
+      }
+    },
+    "sel": {
+      "wall": "Wall",
+      "material": "Material",
+      "delWall": "Delete wall",
+      "model": "Model",
+      "mainNote": "Main node: connects to the ISP modem.",
+      "wired": "Connected by network cable",
+      "makeMain": "Make main",
+      "delNode": "Delete node",
+      "room": "Room name",
+      "text": "Text",
+      "delRoom": "Delete name"
+    },
+    "models": {
+      "isp": "ISP router",
+      "ispShort": "ISP",
+      "ready": "Built-in models",
+      "mine": "My models",
+      "tagReady": "built-in",
+      "edit": "Edit",
+      "del": "Delete",
+      "newTitle": "New model",
+      "editTitle": "Edit model",
+      "add": "Add model",
+      "save": "Save changes",
+      "errName": "Give the model a name.",
+      "errBands": "Select at least one band.",
+      "errInUse": "This model is used in this project. Change those nodes to another model before deleting it.",
+      "updated": "Model updated.",
+      "added": "Model “{name}” added."
+    },
+    "project": {
+      "defaultName": "My home",
+      "exampleName": "Example house",
+      "exampleRooms": [
+        "Kitchen",
+        "Living room",
+        "Bedroom 1",
+        "Master",
+        "Bedroom 2",
+        "Bath",
+        "Bedroom 3",
+        "Utility"
+      ],
+      "newTitle": "New project",
+      "nameLabel": "Project name",
+      "create": "Create",
+      "renameTitle": "Rename project",
+      "save": "Save",
+      "copySuffix": "(copy)",
+      "importedSuffix": "(imported)",
+      "deleteTitle": "Delete “{name}”?",
+      "deleteMsg": "The project is removed from this browser and cannot be restored. Export the JSON first if you want to keep a copy.",
+      "deleteOk": "Delete",
+      "fileSlug": "project"
+    },
+    "toast": {
+      "storage": "This browser did not allow saving. Use File › Export JSON so you don't lose the project.",
+      "image": "Not enough space to store the background image. The drawing was saved, the image was not.",
+      "imageLoaded": "Image loaded. Use Measure to set the scale.",
+      "imageError": "Could not open this image. Try a JPG or PNG file.",
+      "notFound": "That project was not found in this browser.",
+      "duplicated": "Project duplicated.",
+      "deleted": "Project deleted.",
+      "imported": "Project “{name}” imported.",
+      "importError": "This file is not a Planejador WiFi project. Choose a JSON exported from here.",
+      "copied": "Summary copied.",
+      "copyFail": "Could not copy automatically. The text is selected: press Ctrl+C or Cmd+C."
+    },
+    "summary": {
+      "area": "Area: {w} × {h} m, {floors} floor(s). Coordinates in meters from the top-left corner.",
+      "walls": "Walls",
+      "none": "none",
+      "rooms": "Rooms",
+      "devices": "Devices",
+      "noDevices": "none",
+      "at": "at",
+      "cable": "cable",
+      "coverage": "Coverage at ≥ −67 dBm",
+      "noDeviceBand": "no device on this band",
+      "backhaul": "Backhaul",
+      "on": "on",
+      "model": "Planejador WiFi estimate (log-distance path loss + per-wall attenuation, typical error ±8 dB)."
+    },
+    "tour": {
+      "next": "Next",
+      "back": "Back",
+      "skip": "Skip",
+      "done": "Start",
+      "of": "{i} of {n}",
+      "steps": [
+        {
+          "title": "Welcome to Planejador WiFi",
+          "body": "In under a minute: draw your house, place the router and see where Wi-Fi reaches well. Everything stays in your browser."
+        },
+        {
+          "target": "#projectBar",
+          "title": "Your projects",
+          "body": "Start a <b>New project</b> for your home. The example house stays saved for reference. Under <b>File</b> you export and import projects as JSON."
+        },
+        {
+          "target": "[data-tool=wall]",
+          "title": "Draw the walls",
+          "body": "Click and drag on the map. Pick the material in the bar above: brick, concrete, glass… Doors and windows are walls too."
+        },
+        {
+          "target": "[data-tool=node]",
+          "title": "Place the router",
+          "body": "Click where the modem is: that is the main node. Then add the other mesh nodes and check the link between them."
+        },
+        {
+          "target": "#bands",
+          "title": "Compare the bands",
+          "body": "Switch between 2.4, 5 and 6 GHz. Green is excellent signal; red is no usable signal."
+        },
+        {
+          "target": "#pCoverage",
+          "title": "See the result",
+          "body": "The share of the house with good signal shows here, per band. Hover over the map to read the signal at each point."
+        },
+        {
+          "target": "#pSuggest",
+          "title": "Ask for a suggestion",
+          "body": "<b>Suggest a spot</b> tests every free point and shows where one more node helps most."
+        }
+      ]
+    }
+  }
+}

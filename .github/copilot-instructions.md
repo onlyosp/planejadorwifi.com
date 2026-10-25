@@ -1,0 +1,1 @@
+Follow the project rules in AGENTS.md at the repository root. Never add secrets or third-party scripts (analytics, ads, trackers) to the code. The site must stay fully static. Every visible text lives in i18n/pt-BR.json, i18n/en.json and i18n/es.json and must be updated in all three; code, comments and docs are English. Run `npm run check` before finishing.
