@@ -69,7 +69,8 @@
     "view": "View",
     "history": "History",
     "canvasKeys": "With the plan focused, press [ and ] to pick walls, nodes and names, the arrows to move, Delete to remove and Esc to let go.",
-    "heatShort": "Heat"
+    "heatShort": "Heat",
+    "multi": "Select several"
   },
   "tools": {
     "select": "Select",
@@ -196,7 +197,7 @@
   },
   "ui": {
     "hints": {
-      "select": "Click a wall, node or link to edit it. Drag nodes and names to move them, or the background to move the plan. Ctrl + scroll zooms.",
+      "select": "Click a wall, node or link to edit it; Shift-click or Shift-drag selects several. Drag the background to move the plan; Ctrl + scroll zooms.",
       "wall": "Click and drag to draw a wall. Ends snap to the 25 cm grid and to existing walls. For angled walls, untick “Lock to 90°”.",
       "node": "Click where the modem is to place the main router, then where each mesh node goes.",
       "label": "Click on the plan and type the room name. Enter confirms.",
@@ -329,7 +330,21 @@
       "measureNoImage": "To use it as a scale, load a floor plan photo under File › Plan and scale.",
       "length": "Length (m)",
       "lengthHint": "Or drag the small squares at the ends, at any angle.",
-      "matLoss": "{mat} · −{db} dB at {band}"
+      "matLoss": "{mat} · −{db} dB at {band}",
+      "multiTitle": "{n} items selected",
+      "countWalls": "Walls: {n}",
+      "countNodes": "Nodes: {n}",
+      "countNames": "Labels: {n}",
+      "multiMaterial": "Wall material",
+      "multiModel": "Node model",
+      "mixed": "Mixed",
+      "multiHint": "Drag any selected item to move them all together.",
+      "delSelected": "Delete selected",
+      "applyAll": "Apply to all selected",
+      "pendingMat": "Walls: {n} → {mat}",
+      "pendingModel": "Nodes: {n} → {model}",
+      "delConfirm": "Delete {n} selected items?",
+      "delConfirmMsg": "You can bring them back with Undo (Ctrl+Z)."
     },
     "models": {
       "isp": "ISP router",
@@ -446,7 +461,7 @@
       ]
     },
     "hintsTouch": {
-      "select": "Tap a wall, node or link to edit it. Drag nodes and names to move them, or the background to move the plan. Pinch to zoom.",
+      "select": "Tap a wall, node or link to edit it. To pick several, tick “Select several”. Drag the background to move the plan; pinch to zoom.",
       "wall": "Drag to draw a wall. For angled walls, untick “Lock to 90°” in the tool options.",
       "node": "Tap where the modem is to place the main router, then where each mesh node goes.",
       "label": "Tap the plan and type the room name.",
@@ -490,7 +505,8 @@
       "selected": "Selected: {item}.",
       "band": "Map on {band}.",
       "suggestDone": "Suggestion ready: coverage goes from {from} to {to}.",
-      "suggestCancelled": "Suggestion cancelled."
+      "suggestCancelled": "Suggestion cancelled.",
+      "applied": "Change applied to the selected items."
     }
   },
   "drawer": {

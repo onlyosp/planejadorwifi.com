@@ -266,7 +266,7 @@ function draw() {
 
   ctx.lineCap = 'round';
   f.walls.forEach((w, i) => {
-    if (sel && sel.type === 'wall' && sel.i === i) {
+    if (isSel('wall', i)) {
       ctx.strokeStyle = C.accent; ctx.lineWidth = Math.max(8, MATERIALS[w.m].w * k + 6); ctx.globalAlpha = 0.35; line(w); ctx.globalAlpha = 1;
     }
     ctx.strokeStyle = C['m-' + w.m];
@@ -287,7 +287,7 @@ function draw() {
   // Room names step above a node that sits on them, so both stay readable.
   f.labels.forEach((l, i) => {
     const near = f.nodes.some(n => Math.abs(n.x - l.x) * k < 46 && Math.abs(n.y - l.y) * k < 22);
-    halo(l.t, l.x * k, l.y * k - (near ? nodeR() + 16 : 0), sel && sel.type === 'label' && sel.i === i ? C.accent : C.ink);
+    halo(l.t, l.x * k, l.y * k - (near ? nodeR() + 16 : 0), isSel('label', i) ? C.accent : C.ink);
   });
 
   E.topology(P, MODELS).forEach(l => {
@@ -319,7 +319,7 @@ function draw() {
       return;
     }
     const active = m.bands.includes(P.band);
-    if (sel && sel.type === 'node' && sel.i === a.ni) {
+    if (isSel('node', a.ni)) {
       ctx.fillStyle = C.accent; ctx.globalAlpha = 0.25; ctx.beginPath(); ctx.arc(x, y, r + 7, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
     }
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
@@ -347,6 +347,12 @@ function draw() {
     ctx.font = '600 12px "Barlow Semi Condensed", sans-serif'; halo(t('node.suggestion'), x, y - r - 12, C.accent);
   }
 
+  if (drag && drag.kind === 'box') {
+    // Selection box: dashed Drafting Blue outline over a faint tint.
+    const x = Math.min(drag.x1, drag.x2) * k, y = Math.min(drag.y1, drag.y2) * k, w = Math.abs(drag.x2 - drag.x1) * k, h = Math.abs(drag.y2 - drag.y1) * k;
+    ctx.save(); ctx.fillStyle = C.accent; ctx.globalAlpha = 0.08; ctx.fillRect(x, y, w, h);
+    ctx.globalAlpha = 1; ctx.strokeStyle = C.accent; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]); ctx.strokeRect(x, y, w, h); ctx.restore();
+  }
   const isWall = drag && drag.kind === 'wall';
   const seg = drag && (drag.kind === 'wall' || drag.kind === 'measure') ? drag : (measure && measure.fi === P.floor ? measure : null);
   if (seg) {
@@ -424,9 +430,74 @@ let tap = null, pan = null, pinch = null, spaceDown = false, overMap = false;
 const TAP = 6;
 
 function startPan(e) { pan = { x: e.clientX, y: e.clientY, ox, oy }; cv.style.cursor = 'grabbing'; }
+/* ---------- multiple selection ----------
+   sel = { type: 'multi', items: [{ type, i }, ...] } groups walls, nodes and room names on the floor. */
+// A change made with several items selected waits for confirmation: { key, mat, model }.
+let multiPending = null;
+const selKey = () => selItems().map(h => h.type + h.i).join(',');
+let multiMode = false; // "Select several": taps toggle items and dragging the background draws a box
+const ITEM_TYPES = ['wall', 'node', 'label'];
+const listOf = type => (type === 'wall' ? cur().walls : type === 'node' ? cur().nodes : cur().labels);
+const selItems = () => (!sel ? [] : sel.type === 'multi' ? sel.items : ITEM_TYPES.includes(sel.type) ? [sel] : []);
+const isSel = (type, i) => selItems().some(h => h.type === type && h.i === i);
+function setSelection(items) { sel = items.length > 1 ? { type: 'multi', items } : items[0] || null; }
+function toggleInSelection(h) {
+  const before = selItems(), items = before.filter(x => !(x.type === h.type && x.i === h.i));
+  if (items.length === before.length) items.push(h);
+  setSelection(items);
+}
+function announceSelection() {
+  const items = selItems();
+  if (items.length > 1) live(t('live.selected', { item: t('sel.multiTitle', { n: items.length }) }));
+  else if (items.length) live(t('live.selected', { item: itemName(items[0]) }));
+}
+function removeItems(items) {
+  let lostMain = false;
+  for (const type of ITEM_TYPES) {
+    const arr = listOf(type);
+    items.filter(h => h.type === type).map(h => h.i).sort((a, b) => b - a)
+      .forEach(i => { const r = arr.splice(i, 1)[0]; if (type === 'node' && r && r.main) lostMain = true; });
+  }
+  if (lostMain) { const first = nodesAll()[0]; if (first) first.n.main = true; }
+}
+const snapshotOf = items => items.map(h => ({ ...listOf(h.type)[h.i] }));
+function moveItems(items, base, dx, dy) {
+  items.forEach((h, j) => {
+    const o = listOf(h.type)[h.i], b = base[j]; if (!o) return;
+    if (h.type === 'wall') {
+      o.x1 = clamp(b.x1 + dx, 0, P.w); o.y1 = clamp(b.y1 + dy, 0, P.h); o.x2 = clamp(b.x2 + dx, 0, P.w); o.y2 = clamp(b.y2 + dy, 0, P.h);
+    } else { o.x = clamp(b.x + dx, 0, P.w); o.y = clamp(b.y + dy, 0, P.h); }
+  });
+}
+// Items fully inside a box: points for nodes and names, both ends for walls.
+function itemsInBox(x0, y0, x1, y1) {
+  const inside = (x, y) => x >= x0 && x <= x1 && y >= y0 && y <= y1, f = cur(), out = [];
+  f.walls.forEach((w, i) => { if (inside(w.x1, w.y1) && inside(w.x2, w.y2)) out.push({ type: 'wall', i }); });
+  f.nodes.forEach((n, i) => { if (inside(n.x, n.y)) out.push({ type: 'node', i }); });
+  f.labels.forEach((l, i) => { if (inside(l.x, l.y)) out.push({ type: 'label', i }); });
+  return out;
+}
+
+function applyPending() {
+  const f = cur(), pend = multiPending;
+  if (!pend || pend.key !== selKey()) { multiPending = null; renderPop(); return; }
+  pushHist();
+  selItems().forEach(x => {
+    if (pend.mat && x.type === 'wall' && f.walls[x.i]) f.walls[x.i].m = pend.mat;
+    if (pend.model && x.type === 'node' && f.nodes[x.i]) f.nodes[x.i].model = pend.model;
+  });
+  multiPending = null; dirty(); live(t('live.applied'));
+}
+// Deleting several items asks first; a single item is deleted at once (Undo brings it back).
+async function confirmDeleteSelection() {
+  const items = selItems(); if (!items.length) return;
+  if (items.length > 1 && !await ask({ title: t('sel.delConfirm', { n: items.length }), message: t('sel.delConfirmMsg'), ok: t('sel.delSelected'), danger: true })) return;
+  pushHist(); removeItems(items); sel = null; multiPending = null; dirty(); live(t('live.deleted'));
+}
+
 function cancelDrag() {
   if (!drag) return;
-  if ((drag.kind === 'node' || drag.kind === 'label' || drag.kind === 'wallEnd') && hist.length) {
+  if ((drag.kind === 'node' || drag.kind === 'label' || drag.kind === 'wallEnd' || drag.kind === 'group') && hist.length) {
     if (drag.moved) { P = restore(hist.pop()); ver++; } else hist.pop();
     fut = drag.fut || fut;
   }
@@ -454,7 +525,8 @@ cv.addEventListener('pointerdown', e => {
     drag = { kind: tool, x1: s.x, y1: s.y, x2: s.x, y2: s.y };
     if (tool === 'measure') { measure = null; if (sel && sel.type === 'measure') sel = null; }
   } else if (tool === 'select') {
-    const end = wallHandleAt(p);
+    const additive = e.shiftKey || e.ctrlKey || e.metaKey || multiMode;
+    const end = !additive && wallHandleAt(p);
     if (end) {
       const w = cur().walls[sel.i], x = w['x' + end], y = w['y' + end], f0 = fut;
       pushHist();
@@ -463,7 +535,20 @@ cv.addEventListener('pointerdown', e => {
       drag = { kind: 'wallEnd', i: sel.i, end, x, y, joined: [[sel.i, end], ...joined], moved: false, fut: f0 };
       return;
     }
-    const h = hitTest(p, true);
+    const h = hitTest(p, !additive);
+    if (additive) {
+      // Shift/Ctrl-click (or "Select several") toggles an item; on the background it draws a box.
+      if (h && ITEM_TYPES.includes(h.type)) { toggleInSelection(h); announceSelection(); renderPop(); schedule(); return; }
+      drag = { kind: 'box', x1: p.x, y1: p.y, x2: p.x, y2: p.y, keep: selItems() };
+      return;
+    }
+    if (h && sel && sel.type === 'multi' && isSel(h.type, h.i)) {
+      // Dragging any selected item moves the whole group.
+      const f0 = fut; pushHist();
+      drag = { kind: 'group', items: sel.items, base: snapshotOf(sel.items), sx: p.x, sy: p.y, dx: 0, dy: 0, moved: false, fut: f0 };
+      $('#pop').classList.add('away');
+      return;
+    }
     sel = h;
     if (h && (h.type === 'node' || h.type === 'label')) {
       // The popover opens on a plain click, not after dragging the object somewhere else.
@@ -503,6 +588,13 @@ cv.addEventListener('pointermove', e => {
       }
     }
     else if (drag.kind === 'measure') { const s = snapPt(p.x, p.y); drag.x2 = s.x; drag.y2 = s.y; }
+    else if (drag.kind === 'box') { drag.x2 = p.x; drag.y2 = p.y; }
+    else if (drag.kind === 'group') {
+      if (tap && tap.moved) {
+        const dx = Math.round((p.x - drag.sx) / GRID) * GRID, dy = Math.round((p.y - drag.sy) / GRID) * GRID;
+        if (dx !== drag.dx || dy !== drag.dy) { moveItems(drag.items, drag.base, dx, dy); drag.dx = dx; drag.dy = dy; drag.moved = true; ver++; suggestion = null; }
+      }
+    }
     else if (tap && tap.moved) {
       const o = drag.kind === 'node' ? cur().nodes[drag.i] : cur().labels[drag.i];
       const s = drag.kind === 'node' ? snapPt(p.x, p.y) : { x: clamp(p.x, 0, P.w), y: clamp(p.y, 0, P.h) };
@@ -542,6 +634,13 @@ function endPointer(e) {
 }
 function endDrag() {
   const d = drag; drag = null;
+  if (d.kind === 'box') {
+    const found = itemsInBox(Math.min(d.x1, d.x2), Math.min(d.y1, d.y2), Math.max(d.x1, d.x2), Math.max(d.y1, d.y2));
+    const items = [...d.keep];
+    found.forEach(h => { if (!items.some(x => x.type === h.type && x.i === h.i)) items.push(h); });
+    setSelection(items); if (found.length) announceSelection();
+    renderPop(); schedule(); return;
+  }
   if (d.kind === 'wall') {
     const len = Math.hypot(d.x2 - d.x1, d.y2 - d.y1);
     if (len >= 0.2) { pushHist(); cur().walls.push({ x1: d.x1, y1: d.y1, x2: d.x2, y2: d.y2, m: mat }); dirty(); live(t('live.wall', { len: fmt(len, 2) })); }
@@ -607,9 +706,10 @@ li.addEventListener('keydown', e => {
 li.addEventListener('blur', () => hideLabelInput(true));
 
 function nudge(dx, dy) {
-  if (!sel || (sel.type !== 'node' && sel.type !== 'label')) return false;
-  const o = (sel.type === 'node' ? cur().nodes : cur().labels)[sel.i]; if (!o) return false;
-  pushHist(); o.x = clamp(o.x + dx, 0, P.w); o.y = clamp(o.y + dy, 0, P.h); dirty();
+  // Moves the selected nodes and names, or a whole multiple selection (walls included).
+  const items = selItems().filter(h => sel.type === 'multi' || h.type !== 'wall');
+  if (!items.length) return false;
+  pushHist(); moveItems(items, snapshotOf(items), dx, dy); dirty();
   return true;
 }
 // Keyboard selection on the focused plan: [ and ] step through walls, nodes and names.
@@ -647,6 +747,9 @@ document.addEventListener('keydown', e => {
   const mod = e.ctrlKey || e.metaKey;
   if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
   if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
+  if (mod && e.key.toLowerCase() === 'a' && (e.target === cv || e.target === document.body)) {
+    e.preventDefault(); setSelection(itemsOnFloor()); announceSelection(); renderPop(); schedule(); return;
+  }
   if (mod || e.altKey) return;
   if (e.key === ' ') {
     if (overMap && !e.target.closest('button,summary,a')) { e.preventDefault(); spaceDown = true; cv.style.cursor = 'grab'; }
@@ -663,9 +766,7 @@ document.addEventListener('keydown', e => {
   if (e.key === '0') { fitView(); schedule(); return; }
   const arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
   if (arrows[e.key]) { const s = e.shiftKey ? 1 : GRID; if (nudge(arrows[e.key][0] * s, arrows[e.key][1] * s)) e.preventDefault(); return; }
-  if ((e.key === 'Delete' || e.key === 'Backspace') && sel && ['wall', 'node', 'label'].includes(sel.type)) {
-    e.preventDefault(); pushHist(); removeHit(sel); sel = null; dirty(); live(t('live.deleted')); return;
-  }
+  if ((e.key === 'Delete' || e.key === 'Backspace') && selItems().length) { e.preventDefault(); confirmDeleteSelection(); return; }
   if (e.key === 'Escape') { drag = null; sel = null; measure = null; renderPop(); schedule(); }
 });
 document.addEventListener('keyup', e => { if (e.key === ' ') { spaceDown = false; setCursor(); } });
@@ -677,7 +778,8 @@ function setTool(name) {
   document.querySelectorAll('#toolset [data-tool]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === name)));
   $('#matGroup').hidden = name !== 'wall';
   $('#modelGroup').hidden = name !== 'node';
-  $('#toolOpts').hidden = name !== 'wall' && name !== 'node';
+  $('#selGroup').hidden = name !== 'select';
+  $('#toolOpts').hidden = !['wall', 'node', 'select'].includes(name);
   if (sel && sel.type === 'measure' && name !== 'measure') { sel = null; measure = null; renderPop(); }
   setCursor(); readout(null);
   if (fitted && P) fitView(); // the phone's tool options take room above the rail
@@ -703,6 +805,7 @@ function fillModelSel() {
 $('#matSel').addEventListener('change', e => { mat = e.target.value; });
 $('#modelSel').addEventListener('change', e => { model = e.target.value; });
 $('#ortho').addEventListener('change', e => { ortho = e.target.checked; });
+$('#multiOn').addEventListener('change', e => { multiMode = e.target.checked; });
 $('#heatOn').addEventListener('change', e => { P.heat = e.target.checked; persist(); schedule(); });
 $('#alpha').addEventListener('input', e => { P.alpha = e.target.value / 100; persist(); schedule(); });
 $('#undoBtn').addEventListener('click', undo);
@@ -1010,6 +1113,25 @@ function renderPop() {
         : `<p class="small muted">${esc(t('sel.measureNoImage'))}</p>`);
   } else if (sel && sel.type === 'sug' && suggestion && !suggestion.none) {
     h = popHead(t('panel.suggestTitle')) + `<p class="small">${sugText()}</p>` + sugButtons();
+  } else if (sel && sel.type === 'multi') {
+    const items = sel.items.filter(x => listOf(x.type)[x.i]);
+    if (items.length < 2) setSelection(items);
+    if (sel && sel.type === 'multi') {
+      const walls = items.filter(x => x.type === 'wall'), nodes = items.filter(x => x.type === 'node'), labels = items.filter(x => x.type === 'label');
+      const counts = [walls.length && t('sel.countWalls', { n: walls.length }), nodes.length && t('sel.countNodes', { n: nodes.length }), labels.length && t('sel.countNames', { n: labels.length })].filter(Boolean).join(' · ');
+      const same = (arr, get) => (arr.length && arr.every(x => get(x) === get(arr[0])) ? get(arr[0]) : '');
+      if (multiPending && multiPending.key !== selKey()) multiPending = null;
+      const pend = multiPending || {};
+      const m = pend.mat || same(walls, x => f.walls[x.i].m), md = pend.model || same(nodes, x => f.nodes[x.i].model);
+      const mixed = `<option value="" selected disabled>${esc(t('sel.mixed'))}</option>`;
+      h = popHead(t('sel.multiTitle', { n: items.length })) + `<p class="small muted">${esc(counts)}</p>`
+        + (walls.length ? `<label class="field-label" for="multiMat">${esc(t('sel.multiMaterial'))}</label><select id="multiMat">${m ? '' : mixed}${Object.entries(MATERIALS).map(([key, mt]) => `<option value="${key}"${key === m ? ' selected' : ''}>${esc(matText(key, mt.db[BANDS[P.band].i]))}</option>`).join('')}</select>` : '')
+        + (nodes.length ? `<label class="field-label" for="multiModel">${esc(t('sel.multiModel'))}</label><select id="multiModel">${md ? '' : mixed}${modelOptions(md)}</select>` : '')
+        + (multiPending
+          ? `<p class="small pending">${[pend.mat && esc(t('sel.pendingMat', { n: walls.length, mat: matLabel(pend.mat) })), pend.model && esc(t('sel.pendingModel', { n: nodes.length, model: MODELS[pend.model].name }))].filter(Boolean).join('<br>')}</p>`
+            + `<div class="btnrow"><button type="button" class="primary" data-selact="applyAll">${esc(t('sel.applyAll'))}</button><button type="button" class="ghost" data-selact="cancelPending">${esc(t('panel.cancel'))}</button></div>`
+          : `<p class="hint">${esc(t('sel.multiHint'))}</p><div class="btnrow"><button type="button" class="ghost danger" data-selact="delAll">${esc(t('sel.delSelected'))}</button></div>`);
+    } else return renderPop();
   } else if (sel && sel.type !== 'wall' && sel.type !== 'node' && sel.type !== 'label') sel = null;
   pop.hidden = !h;
   if (h) {
@@ -1025,6 +1147,15 @@ function popAnchor() {
   const f = cur(), all = nodesAll(), sx = x => ox + x * k, sy = y => oy + y * k;
   const point = (x, y, r) => ({ x0: sx(x) - r, y0: sy(y) - r, x1: sx(x) + r, y1: sy(y) + r });
   const seg = (ax, ay, bx, by, pad) => ({ x0: Math.min(sx(ax), sx(bx)) - pad, y0: Math.min(sy(ay), sy(by)) - pad, x1: Math.max(sx(ax), sx(bx)) + pad, y1: Math.max(sy(ay), sy(by)) + pad });
+  if (sel.type === 'multi') {
+    // The rectangle around every selected item.
+    const rects = sel.items.map(x => {
+      const o = listOf(x.type)[x.i]; if (!o) return null;
+      return x.type === 'wall' ? seg(o.x1, o.y1, o.x2, o.y2, 10) : point(o.x, o.y, x.type === 'node' ? nodeR() + 4 : 24);
+    }).filter(Boolean);
+    if (!rects.length) return null;
+    return { x0: Math.min(...rects.map(r => r.x0)), y0: Math.min(...rects.map(r => r.y0)), x1: Math.max(...rects.map(r => r.x1)), y1: Math.max(...rects.map(r => r.y1)) };
+  }
   if (sel.type === 'node' && f.nodes[sel.i]) return point(f.nodes[sel.i].x, f.nodes[sel.i].y, nodeR() + 4);
   if (sel.type === 'label' && f.labels[sel.i]) return point(f.labels[sel.i].x, f.labels[sel.i].y, 24);
   if (sel.type === 'wall' && f.walls[sel.i]) { const w = f.walls[sel.i]; return seg(w.x1, w.y1, w.x2, w.y2, 10); }
@@ -1042,7 +1173,8 @@ function placePop() {
     pop.style.left = pop.style.top = '';
     // The popover docks above the rail; scroll the plan so the object stays visible above it.
     const a = popAnchor(), m = area.getBoundingClientRect(), limit = pop.getBoundingClientRect().top - m.top - 12;
-    if (a && a.y1 > limit) { oy -= a.y1 - limit; fitted = false; clampView(); schedule(); }
+    // Not while picking several: the plan would move under the finger between taps.
+    if (a && a.y1 > limit && !multiMode && sel.type !== 'multi') { oy -= a.y1 - limit; fitted = false; clampView(); schedule(); }
     return;
   }
   const a = popAnchor(); if (!a) return;
@@ -1055,7 +1187,7 @@ function placePop() {
   };
   // Lines prefer above/below, points prefer beside; the first side that fits without covering the
   // object wins, otherwise the one that covers the least of it.
-  const order = ['wall', 'link', 'measure'].includes(sel.type) ? ['above', 'below', 'right', 'left'] : ['right', 'left', 'above', 'below'];
+  const order = ['wall', 'link', 'measure', 'multi'].includes(sel.type) ? ['above', 'below', 'right', 'left'] : ['right', 'left', 'above', 'below'];
   let best = null;
   for (const side of order) {
     const [x0, y0] = sides[side];
@@ -1070,6 +1202,11 @@ function placePop() {
 pop.addEventListener('change', e => {
   const f = cur(), id = e.target.id;
   if (!sel || id === 'calLen') return;
+  if (id === 'multiMat' || id === 'multiModel') {
+    // With several items, a change waits for "Apply to all selected".
+    multiPending = { ...(multiPending && multiPending.key === selKey() ? multiPending : {}), key: selKey(), [id === 'multiMat' ? 'mat' : 'model']: e.target.value };
+    renderPop(); return;
+  }
   pushHist();
   if (id === 'selMat') f.walls[sel.i].m = e.target.value;
   else if (id === 'selLen') {
@@ -1086,6 +1223,9 @@ pop.addEventListener('click', e => {
   if (e.target.closest('#calApply')) { applyCalibration(); return; }
   const act = e.target.closest('[data-selact]')?.dataset.selact;
   if (!act || !sel) return;
+  if (act === 'cancelPending') { multiPending = null; renderPop(); return; }
+  if (act === 'applyAll') { applyPending(); return; }
+  if (act === 'delAll') { confirmDeleteSelection(); return; }
   if (act === 'close') { if (sel.type === 'measure') measure = null; sel = null; renderPop(); schedule(); cv.focus({ preventScroll: true }); return; }
   pushHist();
   if (act === 'del') { removeHit(sel); sel = null; live(t('live.deleted')); }

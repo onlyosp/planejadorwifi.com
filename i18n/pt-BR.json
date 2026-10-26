@@ -69,7 +69,8 @@
     "view": "Visualização",
     "history": "Histórico",
     "canvasKeys": "Com a planta em foco, use [ e ] para escolher paredes, nós e nomes, as setas para mover, Delete para apagar e Esc para soltar.",
-    "heatShort": "Calor"
+    "heatShort": "Calor",
+    "multi": "Selecionar vários"
   },
   "tools": {
     "select": "Selecionar",
@@ -196,7 +197,7 @@
   },
   "ui": {
     "hints": {
-      "select": "Clique numa parede, nó ou ligação para editar. Arraste nós e nomes para mover, ou o fundo para mover a planta. Ctrl + roda do mouse dá zoom.",
+      "select": "Clique numa parede, nó ou ligação para editar; Shift + clique ou Shift + arrastar seleciona vários. Arraste o fundo para mover a planta; Ctrl + roda dá zoom.",
       "wall": "Clique e arraste para desenhar uma parede. As pontas grudam na grade de 25 cm e nas paredes existentes. Para diagonais, desmarque “Travar em 90°”.",
       "node": "Clique onde fica o modem para pôr o roteador principal; depois, onde vai cada nó mesh.",
       "label": "Clique na planta e digite o nome do cômodo. Enter confirma.",
@@ -329,7 +330,21 @@
       "measureNoImage": "Para usar a medida como escala, carregue uma foto da planta em Arquivo › Planta e escala.",
       "length": "Comprimento (m)",
       "lengthHint": "Ou arraste os quadradinhos nas pontas, em qualquer ângulo.",
-      "matLoss": "{mat} · −{db} dB em {band}"
+      "matLoss": "{mat} · −{db} dB em {band}",
+      "multiTitle": "{n} itens selecionados",
+      "countWalls": "Paredes: {n}",
+      "countNodes": "Nós: {n}",
+      "countNames": "Nomes: {n}",
+      "multiMaterial": "Material das paredes",
+      "multiModel": "Modelo dos nós",
+      "mixed": "Vários",
+      "multiHint": "Arraste qualquer item marcado para mover todos juntos.",
+      "delSelected": "Apagar selecionados",
+      "applyAll": "Aplicar a todos os selecionados",
+      "pendingMat": "Paredes: {n} → {mat}",
+      "pendingModel": "Nós: {n} → {model}",
+      "delConfirm": "Apagar {n} itens selecionados?",
+      "delConfirmMsg": "Dá para trazer de volta com Desfazer (Ctrl+Z)."
     },
     "models": {
       "isp": "Roteador da operadora",
@@ -446,7 +461,7 @@
       ]
     },
     "hintsTouch": {
-      "select": "Toque numa parede, nó ou ligação para editar. Arraste nós e nomes para mover, ou o fundo para mover a planta. Use dois dedos para zoom.",
+      "select": "Toque numa parede, nó ou ligação para editar. Para escolher vários, marque “Selecionar vários”. Arraste o fundo para mover a planta; use dois dedos para zoom.",
       "wall": "Arraste para desenhar uma parede. Para diagonais, desmarque “Travar em 90°” nas opções da ferramenta.",
       "node": "Toque onde fica o modem para pôr o roteador principal; depois, onde vai cada nó mesh.",
       "label": "Toque na planta e digite o nome do cômodo.",
@@ -490,7 +505,8 @@
       "selected": "Selecionado: {item}.",
       "band": "Mapa em {band}.",
       "suggestDone": "Sugestão pronta: a cobertura vai de {from} para {to}.",
-      "suggestCancelled": "Sugestão cancelada."
+      "suggestCancelled": "Sugestão cancelada.",
+      "applied": "Alteração aplicada aos itens selecionados."
     }
   },
   "drawer": {

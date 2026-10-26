@@ -69,7 +69,8 @@
     "view": "Vista",
     "history": "Historial",
     "canvasKeys": "Con el plano enfocado, usa [ y ] para elegir paredes, nodos y nombres, las flechas para mover, Supr para borrar y Esc para soltar.",
-    "heatShort": "Calor"
+    "heatShort": "Calor",
+    "multi": "Seleccionar varios"
   },
   "tools": {
     "select": "Seleccionar",
@@ -196,7 +197,7 @@
   },
   "ui": {
     "hints": {
-      "select": "Haz clic en una pared, nodo o enlace para editarlo. Arrastra nodos y nombres para moverlos, o el fondo para mover el plano. Ctrl + rueda hace zoom.",
+      "select": "Haz clic en una pared, nodo o enlace para editarlo; Shift + clic o Shift + arrastrar selecciona varios. Arrastra el fondo para mover el plano; Ctrl + rueda hace zoom.",
       "wall": "Haz clic y arrastra para dibujar una pared. Los extremos se ajustan a la cuadrícula de 25 cm y a las paredes existentes. Para diagonales, desmarca “Fijar a 90°”.",
       "node": "Haz clic donde está el módem para poner el router principal y luego donde va cada nodo mesh.",
       "label": "Haz clic en el plano y escribe el nombre de la habitación. Enter confirma.",
@@ -329,7 +330,21 @@
       "measureNoImage": "Para usarla como escala, carga una foto del plano en Archivo › Plano y escala.",
       "length": "Longitud (m)",
       "lengthHint": "O arrastra los cuadraditos de los extremos, en cualquier ángulo.",
-      "matLoss": "{mat} · −{db} dB en {band}"
+      "matLoss": "{mat} · −{db} dB en {band}",
+      "multiTitle": "{n} elementos seleccionados",
+      "countWalls": "Paredes: {n}",
+      "countNodes": "Nodos: {n}",
+      "countNames": "Nombres: {n}",
+      "multiMaterial": "Material de las paredes",
+      "multiModel": "Modelo de los nodos",
+      "mixed": "Varios",
+      "multiHint": "Arrastra cualquier elemento marcado para moverlos todos juntos.",
+      "delSelected": "Borrar seleccionados",
+      "applyAll": "Aplicar a todos los seleccionados",
+      "pendingMat": "Paredes: {n} → {mat}",
+      "pendingModel": "Nodos: {n} → {model}",
+      "delConfirm": "¿Borrar {n} elementos seleccionados?",
+      "delConfirmMsg": "Puedes recuperarlos con Deshacer (Ctrl+Z)."
     },
     "models": {
       "isp": "Router del proveedor",
@@ -446,7 +461,7 @@
       ]
     },
     "hintsTouch": {
-      "select": "Toca una pared, nodo o enlace para editarlo. Arrastra nodos y nombres para moverlos, o el fondo para mover el plano. Pellizca para hacer zoom.",
+      "select": "Toca una pared, nodo o enlace para editarlo. Para elegir varios, marca “Seleccionar varios”. Arrastra el fondo para mover el plano; pellizca para hacer zoom.",
       "wall": "Arrastra para dibujar una pared. Para diagonales, desmarca “Fijar a 90°” en las opciones de la herramienta.",
       "node": "Toca donde está el módem para poner el router principal y luego donde va cada nodo mesh.",
       "label": "Toca el plano y escribe el nombre de la habitación.",
@@ -490,7 +505,8 @@
       "selected": "Seleccionado: {item}.",
       "band": "Mapa en {band}.",
       "suggestDone": "Sugerencia lista: la cobertura pasa de {from} a {to}.",
-      "suggestCancelled": "Sugerencia cancelada."
+      "suggestCancelled": "Sugerencia cancelada.",
+      "applied": "Cambio aplicado a los elementos seleccionados."
     }
   },
   "drawer": {

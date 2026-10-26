@@ -372,6 +372,7 @@ The settings of the selected wall, node, room label, link or measurement, opened
 - A 270px Plan Paper panel with 10px corners, a Hairline border and the floating-layer shadow; 10px 12px 12px padding, 8px between rows.
 - Head: a 16px display-face title (the object name, with its length for walls) and an icon-only close button.
 - Placement: beside points (nodes, labels), above or below the midpoint of lines (walls, links, measurements) so the object stays visible; kept 10px inside the map. It hides while the object is dragged. On phones it docks full width above the tool bar and the plan scrolls so the object stays in view.
+- **Several items:** Shift/Ctrl-click, Shift-drag (a dashed Drafting Blue box over a faint tint) or the "Select several" option of the Select tool gather walls, nodes and names. Each selected item keeps its own highlight; one popover covers the group ("3 items selected", counts per kind, one material for all walls, one model for all nodes, delete) and is placed off the rectangle around all of them. A change made with several items selected never applies on its own: the popover shows what will change on a Drafting Blue tint ("Walls: 2 → Glass") with "Apply to all selected" and Cancel, and deleting several items asks in a dialog first. Dragging any selected item moves the group on the grid; while picking several on a phone the plan does not scroll between taps.
 
 ### Results drawer and bottom sheet
 
