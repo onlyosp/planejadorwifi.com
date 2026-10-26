@@ -359,9 +359,9 @@ function snapPt(x, y) {
   }));
   return best || { x: clamp(Math.round(x / GRID) * GRID, 0, P.w), y: clamp(Math.round(y / GRID) * GRID, 0, P.h) };
 }
-function wallEnd(x1, y1, p, flip = false) {
+function wallEnd(x1, y1, p) {
   const s = snapPt(p.x, p.y);
-  if (ortho === flip) return s; // Shift flips the 90° lock for this wall
+  if (!ortho) return s;
 
   return Math.abs(s.x - x1) >= Math.abs(s.y - y1) ? { x: s.x, y: y1 } : { x: x1, y: s.y };
 }
@@ -474,10 +474,10 @@ cv.addEventListener('pointermove', e => {
   }
   const p = pos(e);
   if (drag) {
-    if (drag.kind === 'wall') { const s = wallEnd(drag.x1, drag.y1, p, e.shiftKey); drag.x2 = s.x; drag.y2 = s.y; }
+    if (drag.kind === 'wall') { const s = wallEnd(drag.x1, drag.y1, p); drag.x2 = s.x; drag.y2 = s.y; }
     else if (drag.kind === 'wallEnd') {
-      const w = cur().walls[drag.i], o = drag.end === 1 ? [w.x2, w.y2] : [w.x1, w.y1];
-      const s = wallEnd(o[0], o[1], p, e.shiftKey);
+      // Ends move freely (snapping to the grid and other walls), so an existing wall can be tilted.
+      const s = snapPt(p.x, p.y);
       if (s.x !== drag.x || s.y !== drag.y) {
         // Corners follow: other wall ends that met this one move with it.
         drag.joined.forEach(([j, end]) => { const v = cur().walls[j]; v['x' + end] = s.x; v['y' + end] = s.y; });
@@ -694,6 +694,13 @@ $('#zoomFit').addEventListener('click', () => { fitView(); schedule(); });
 $('#manageModels').addEventListener('click', openModels);
 
 const hasBandDevice = bk => nodesAll().some(a => MODELS[a.n.model].bands.includes(bk));
+// Devices that transmit on a band, when only some of them do (null when all or none do).
+function bandShare(bk) {
+  const all = nodesAll(), on = all.map((a, gi) => ({ a, gi })).filter(o => MODELS[o.a.n.model].bands.includes(bk));
+  if (!on.length || on.length === all.length) return null;
+  return { n: on.length, total: all.length, names: on.map(o => nodeName(o.gi)).join(', ') };
+}
+const partialText = bk => { const p = bandShare(bk); return p ? t('panel.bandPartial', { ...p, band: bandLabel(bk) }) : ''; };
 let bandsSig = '';
 function renderBands() {
   const sig = P.band + E.BAND_KEYS.map(bk => +hasBandDevice(bk)).join('') + nodesAll().length;
@@ -776,13 +783,16 @@ function renderVerdict(v) {
   h += `<dl class="v-dl"><dt>${esc(t('verdict.devices'))}</dt><dd>${esc(kitText)}</dd></dl>`;
   const line = v.status === 'short' ? 'verdict.shortLine' : 'verdict.okLine';
   h += `<p class="small">${esc(t(line, { band: bandLabel(v.mb), pct: pct(v.house[v.mb].good) }))}</p>`;
+  if (v.status === 'short' && partialText(v.mb)) h += `<p class="small">${esc(partialText(v.mb))}</p>`;
   if (v.weak.length) {
     const w = v.weak[0];
     h += `<p class="small">${esc(t('verdict.cableLine', { node: nodeName(w.child) }))}</p><div class="btnrow">${wireBtn(w.child, 'primary')}</div>`;
   }
   if (v.status === 'short' && !suggestion) h += `<div class="btnrow"><button type="button" data-sug="run"${v.weak.length ? '' : ' class="primary"'}>${esc(t('panel.suggestRun'))}</button></div>`;
   const six = v.house['6'];
-  h += `<p class="small muted">${esc(!six.hasBand ? t('verdict.sixNone') : six.good >= 0.9 ? t('verdict.sixGood') : t('verdict.sixNear', { pct: pct(six.good) }))}</p>`;
+  const sixShare = bandShare('6');
+  h += `<p class="small muted">${esc(!six.hasBand ? t('verdict.sixNone') : six.good >= 0.9 ? t('verdict.sixGood')
+    : sixShare ? t('verdict.sixPartial', { pct: pct(six.good), n: sixShare.n, total: sixShare.total }) : t('verdict.sixNear', { pct: pct(six.good) }))}</p>`;
   h += `<div class="v-bands"><span class="small muted">${esc(t('verdict.byBand'))}</span><div class="bands3">${E.BAND_KEYS.map(bk => {
     const s = v.house[bk];
     return `<button type="button" data-band="${bk}" aria-pressed="${bk === P.band}" aria-label="${esc(t('verdict.showBand', { band: bandLabel(bk) }))}: ${s.hasBand ? pct(s.good) : '—'}"><span class="v">${s.hasBand ? pct(s.good) : '—'}</span><span class="l">${bandLabel(bk)}</span></button>`;
@@ -790,6 +800,7 @@ function renderVerdict(v) {
   h += `<p class="hint">${esc(t('verdict.note'))}</p>`;
   $('#pVerdict').innerHTML = h;
 }
+$('#pCoverage').addEventListener('click', e => { const b = e.target.closest('[data-band]'); if (b) setBand(b.dataset.band); });
 $('#pVerdict').addEventListener('click', e => {
   const b = e.target.closest('[data-band]'); if (b) { setBand(b.dataset.band); return; }
   if (e.target.closest('[data-pick=node]')) { setTool('node'); if (sheetMode.matches) setDrawer(false); }
@@ -809,9 +820,15 @@ function renderPanel() {
 
   let h = `<h2>${esc(t('panel.coverage', { band: bl }))}${P.floors.length > 1 ? ' · ' + esc(f.name) : ''}</h2>`;
   if (!all.length) h += `<p class="small muted">${t('panel.needNode')}</p>`;
-  else if (!st.hasBand) h += `<p class="small muted">${esc(t('panel.noBand', { band: bl }))}</p>`;
+  else if (!st.hasBand) {
+    // A band no device has: say how to get it, and offer the map on a band the devices do have.
+    const alt = ['5', '2.4', '6'].find(bk => bk !== P.band && hasBandDevice(bk));
+    h += `<p class="small muted">${esc(t('panel.noBand', { band: bl }))}</p>`
+      + (alt ? `<div class="btnrow"><button type="button" data-band="${alt}">${esc(t('verdict.showBand', { band: bandLabel(alt) }))}</button></div>` : '');
+  }
   else {
     h += `<div><div class="big">${pct(st.good)}<small>${esc(t('panel.goodShare'))}</small></div><p class="small muted">${esc(t('panel.area', { area: fmt(st.area, 0) }))}</p></div>`;
+    if (partialText(P.band)) h += `<p class="small">${esc(partialText(P.band))}</p>`;
     h += `<div class="bar" aria-hidden="true">${st.counts.map((c, i) => (c ? `<span style="width:${c / st.n * 100}%;background:var(--q${i})"></span>` : '')).join('')}</div>`;
     h += `<div class="rows">${[0, 1, 2, 3, 4].map(i => `<div class="r"><i class="sw" style="background:var(--q${i})"></i><span>${esc(cat(i).name)} <em>${esc(cat(i).use)}</em></span><span class="n">${pct(st.n ? st.counts[i] / st.n : 0)}</span></div>`).join('')}</div>`;
   }
@@ -850,7 +867,10 @@ const linkPill = l => (l.wired ? `<span class="pill pill-wire">${esc(t('panel.ca
   : `<span class="pill"><i class="dot" style="background:var(--q${E.linkCat(l.v)})"></i>${dbm(l.v)} dBm · ${bandLabel(l.band)}</span>`);
 const noneText = s => t('panel.none.' + s.none, s.child != null ? { child: nodeName(s.child), parent: nodeName(s.parent) } : undefined);
 function sugText() {
-  const s = suggestion, extra = s.relaxed ? esc(t('panel.suggestRelaxed')) : s.link != null ? esc(t('panel.suggestLink', { v: dbm(s.link) })) : '';
+  const s = suggestion;
+  let extra = s.relaxed ? esc(t('panel.suggestRelaxed')) : s.link != null ? esc(t('panel.suggestLink', { v: dbm(s.link) })) : '';
+  // The search swaps in another model when the chosen one lacks the band; say so.
+  if (s.model !== model && MODELS[model]) extra += esc(t('panel.suggestOtherModel', { chosen: MODELS[model].name, band: bandLabel(P.band), model: MODELS[s.model].name }));
   return t('panel.suggestResult', { model: esc(MODELS[s.model].name), x: fmt(s.x, 1), y: fmt(s.y, 1), band: bandLabel(P.band), from: pct(s.from), to: pct(s.to) }) + extra;
 }
 const sugButtons = () => `<div class="btnrow"><button type="button" data-sug="add" class="primary">${esc(t('panel.addHere'))}</button><button type="button" data-sug="clear" class="ghost">${esc(t('panel.discard'))}</button></div>`;
@@ -941,18 +961,22 @@ function renderPop() {
   }
   placePop();
 }
+// Screen rectangle of the selected object (the whole segment for walls, links and measurements),
+// which the popover must not cover.
 function popAnchor() {
   if (!sel) return null;
-  const f = cur(), all = nodesAll(), at = (x, y, r) => ({ x: ox + x * k, y: oy + y * k, r });
-  if (sel.type === 'node' && f.nodes[sel.i]) return at(f.nodes[sel.i].x, f.nodes[sel.i].y, nodeR() + 4);
-  if (sel.type === 'label' && f.labels[sel.i]) return at(f.labels[sel.i].x, f.labels[sel.i].y, 24);
-  if (sel.type === 'wall' && f.walls[sel.i]) { const w = f.walls[sel.i]; return at((w.x1 + w.x2) / 2, (w.y1 + w.y2) / 2, 8); }
+  const f = cur(), all = nodesAll(), sx = x => ox + x * k, sy = y => oy + y * k;
+  const point = (x, y, r) => ({ x0: sx(x) - r, y0: sy(y) - r, x1: sx(x) + r, y1: sy(y) + r });
+  const seg = (ax, ay, bx, by, pad) => ({ x0: Math.min(sx(ax), sx(bx)) - pad, y0: Math.min(sy(ay), sy(by)) - pad, x1: Math.max(sx(ax), sx(bx)) + pad, y1: Math.max(sy(ay), sy(by)) + pad });
+  if (sel.type === 'node' && f.nodes[sel.i]) return point(f.nodes[sel.i].x, f.nodes[sel.i].y, nodeR() + 4);
+  if (sel.type === 'label' && f.labels[sel.i]) return point(f.labels[sel.i].x, f.labels[sel.i].y, 24);
+  if (sel.type === 'wall' && f.walls[sel.i]) { const w = f.walls[sel.i]; return seg(w.x1, w.y1, w.x2, w.y2, 10); }
   if (sel.type === 'link') {
     const l = E.topology(P, MODELS).find(x => x.child === sel.child); if (!l) return null;
-    const a = all[l.child].n, b = all[l.parent].n; return at((a.x + b.x) / 2, (a.y + b.y) / 2, 30);
+    const a = all[l.child].n, b = all[l.parent].n; return seg(a.x, a.y, b.x, b.y, 14);
   }
-  if (sel.type === 'measure' && measure) return at((measure.x1 + measure.x2) / 2, (measure.y1 + measure.y2) / 2, 12);
-  if (sel.type === 'sug' && suggestion) return at(suggestion.x, suggestion.y, nodeR() + 8);
+  if (sel.type === 'measure' && measure) return seg(measure.x1, measure.y1, measure.x2, measure.y2, 14);
+  if (sel.type === 'sug' && suggestion) return point(suggestion.x, suggestion.y, nodeR() + 8);
   return null;
 }
 function placePop() {
@@ -961,24 +985,30 @@ function placePop() {
     pop.style.left = pop.style.top = '';
     // The popover docks above the rail; scroll the plan so the object stays visible above it.
     const a = popAnchor(), m = area.getBoundingClientRect(), limit = pop.getBoundingClientRect().top - m.top - 12;
-    if (a && a.y + a.r > limit) { oy -= a.y + a.r - limit; fitted = false; clampView(); schedule(); }
+    if (a && a.y1 > limit) { oy -= a.y1 - limit; fitted = false; clampView(); schedule(); }
     return;
   }
   const a = popAnchor(); if (!a) return;
-  const mw = area.clientWidth, mh = area.clientHeight, pw = pop.offsetWidth, ph = pop.offsetHeight, g = 14, m = 10;
-  let x, y;
-  if (['wall', 'link', 'measure'].includes(sel.type)) {
-    // Lines: above or below the midpoint, so the line itself stays visible.
-    x = a.x - pw / 2; y = a.y - a.r - g - ph;
-    if (y < m) y = a.y + a.r + g;
-  } else {
-    // Points: beside the object.
-    x = a.x + a.r + g; y = a.y - ph / 2;
-    if (x + pw > mw - m) x = a.x - a.r - g - pw;
+  const mw = area.clientWidth, mh = area.clientHeight, pw = pop.offsetWidth, ph = pop.offsetHeight, g = 12, m = 10;
+  const top = Math.min(el('stageBar').getBoundingClientRect().bottom - area.getBoundingClientRect().top + 8, mh - ph - m); // below the top strip
+  const cx = (a.x0 + a.x1) / 2, cy = (a.y0 + a.y1) / 2;
+  const sides = {
+    right: [a.x1 + g, cy - ph / 2], left: [a.x0 - g - pw, cy - ph / 2],
+    above: [cx - pw / 2, a.y0 - g - ph], below: [cx - pw / 2, a.y1 + g],
+  };
+  // Lines prefer above/below, points prefer beside; the first side that fits without covering the
+  // object wins, otherwise the one that covers the least of it.
+  const order = ['wall', 'link', 'measure'].includes(sel.type) ? ['above', 'below', 'right', 'left'] : ['right', 'left', 'above', 'below'];
+  let best = null;
+  for (const side of order) {
+    const [x0, y0] = sides[side];
+    const x = clamp(x0, m, mw - pw - m), y = clamp(y0, top, mh - ph - m);
+    const overlap = Math.max(0, Math.min(x + pw, a.x1) - Math.max(x, a.x0)) * Math.max(0, Math.min(y + ph, a.y1) - Math.max(y, a.y0));
+    if (!best || overlap < best.overlap) best = { x, y, overlap };
+    if (!overlap) break;
   }
-  pop.style.left = clamp(x, m, mw - pw - m) + 'px';
-  const top = el('stageBar').getBoundingClientRect().bottom - area.getBoundingClientRect().top + 8; // stay below the top strip
-  pop.style.top = clamp(y, Math.min(top, mh - ph - m), mh - ph - m) + 'px';
+  pop.style.left = best.x + 'px';
+  pop.style.top = best.y + 'px';
 }
 pop.addEventListener('change', e => {
   const f = cur(), id = e.target.id;

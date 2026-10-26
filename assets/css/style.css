@@ -310,6 +310,8 @@ dialog::backdrop { background: rgba(10, 14, 20, .45) }
   .toolbar { top: auto; bottom: 0; left: 0; right: 0; width: auto; flex-direction: row; gap: 0; border-radius: 0; border-inline: 0; border-bottom: 0;
     padding: 3px 4px calc(3px + env(safe-area-inset-bottom, 0px)); box-shadow: none }
   .toolbar button { flex: 1 1 0; min-width: 0; font-size: 11px; padding: 6px 1px 5px }
+  .toolbar button span { font-size: 10.5px; overflow-wrap: normal; letter-spacing: -.01em }
+  .toolbar button[aria-pressed="true"] { font-weight: 500 }
   .drawer, .ws.drawer-closed .drawer { bottom: var(--tb-h, 56px); max-height: calc(100% - var(--tb-h, 56px) - var(--flt-h, 36px) - 20px); border-radius: 10px 10px 0 0; border-inline: 0 }
   .fl-view { right: 8px; bottom: calc(var(--tb-h, 56px) + var(--dh-h, 46px) + 8px) }
   .btngroup button { padding: 6px 8px }

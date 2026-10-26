@@ -49,9 +49,9 @@
     "floors": "Andares",
     "bands": "Faixa de frequência",
     "material": "Material",
-    "ortho": "Só 90°",
+    "ortho": "Travar em 90°",
     "model": "Modelo",
-    "otherModel": "Outro modelo…",
+    "otherModel": "Adicionar modelo…",
     "heatmap": "Mapa de calor",
     "heatOpacity": "Opacidade do mapa",
     "tools": "Ferramentas",
@@ -71,8 +71,8 @@
   "tools": {
     "select": "Selecionar",
     "wall": "Parede",
-    "node": "Nó mesh",
-    "label": "Cômodo",
+    "node": "Roteador",
+    "label": "Nome",
     "measure": "Medir",
     "erase": "Apagar",
     "undo": "Desfazer",
@@ -105,7 +105,7 @@
   },
   "guide": {
     "howToTitle": "Como usar o simulador",
-    "howToSteps": "<li>Clique em <b>Novo projeto</b> e informe a largura e a profundidade do terreno ou da casa.</li><li>Se tiver a planta em foto ou PDF convertido em imagem, carregue em <b>Planta e escala</b> e acerte a escala com <b>Medir</b>.</li><li>Com a ferramenta <b>Parede</b>, desenhe as paredes externas e internas escolhendo o material. Portas e janelas também são paredes, de madeira ou vidro.</li><li>Com <b>Nó mesh</b>, posicione o roteador principal onde fica o modem da operadora e depois os demais nós.</li><li>Troque entre 2,4, 5 e 6 GHz e veja o mapa de calor. Verde é sinal excelente, vermelho é sem sinal útil.</li><li>Use <b>Sugerir posição</b> para descobrir onde mais um nó traria o maior ganho, e <b>Arquivo › Exportar JSON</b> para guardar o projeto.</li>",
+    "howToSteps": "<li>Clique em <b>Novo projeto</b> e informe a largura e a profundidade do terreno ou da casa.</li><li>Se tiver a planta em foto ou PDF convertido em imagem, carregue em <b>Planta e escala</b> e acerte a escala com <b>Medir</b>.</li><li>Com a ferramenta <b>Parede</b>, desenhe as paredes externas e internas escolhendo o material. Portas e janelas também são paredes, de madeira ou vidro.</li><li>Com <b>Roteador</b>, posicione o roteador principal onde fica o modem da operadora e depois os demais nós.</li><li>Troque entre 2,4, 5 e 6 GHz e veja o mapa de calor. Verde é sinal excelente, vermelho é sem sinal útil.</li><li>Use <b>Sugerir posição</b> para descobrir onde mais um nó traria o maior ganho, e <b>Arquivo › Exportar JSON</b> para guardar o projeto.</li>",
     "wallsTitle": "Quanto cada parede tira do sinal",
     "wallsText": "Cada parede cruzada pelo sinal soma uma perda em decibéis (dB). A cada 10 dB a potência que chega cai para um décimo, por isso duas ou três paredes de alvenaria já fazem diferença. Os valores abaixo são médias usadas pelo simulador; a perda real varia com a espessura, a umidade e a armação de ferro.",
     "material": "Material",
@@ -168,8 +168,8 @@
     "intro": "Os modelos prontos usam valores médios de potência. Cadastre o seu roteador se ele não estiver na lista.",
     "name": "Nome",
     "namePlaceholder": "Ex.: Asus ZenWiFi BT8",
-    "power": "Potência em relação a um nó mesh comum (dB)",
-    "powerHint": "Use de −2 a −4 para roteadores de operadora ou modelos de entrada, e de +1 a +3 para modelos topo de linha.",
+    "power": "Ajuste de potência (dB)",
+    "powerHint": "0 é um nó mesh comum. Use de −2 a −4 para roteadores de operadora ou modelos de entrada, e de +1 a +3 para modelos topo de linha.",
     "cancelEdit": "Cancelar edição"
   },
   "privacy": {
@@ -192,9 +192,9 @@
   },
   "ui": {
     "hints": {
-      "select": "Clique numa parede, nó ou link para editar. Arraste nós e nomes para mover, ou o fundo para mover a planta. Ctrl + roda do mouse dá zoom.",
-      "wall": "Clique e arraste para desenhar uma parede. As pontas grudam na grade de 25 cm e nas paredes existentes. Segure Shift para desenhar na diagonal (ou desmarque “Só 90°”).",
-      "node": "Clique onde vai ficar cada roteador ou nó mesh. O primeiro é o principal, ligado ao modem.",
+      "select": "Clique numa parede, nó ou ligação para editar. Arraste nós e nomes para mover, ou o fundo para mover a planta. Ctrl + roda do mouse dá zoom.",
+      "wall": "Clique e arraste para desenhar uma parede. As pontas grudam na grade de 25 cm e nas paredes existentes. Para diagonais, desmarque “Travar em 90°”.",
+      "node": "Clique onde fica o modem para pôr o roteador principal; depois, onde vai cada nó mesh.",
       "label": "Clique na planta e digite o nome do cômodo. Enter confirma.",
       "measure": "Arraste para medir uma distância. Com imagem de fundo, use isso para acertar a escala.",
       "erase": "Clique numa parede, nó ou nome para apagar."
@@ -239,7 +239,7 @@
         "use": "conexão cai"
       }
     ],
-    "legendMain": "principal",
+    "legendMain": "nó principal",
     "readout": {
       "idle": "Passe o cursor sobre a planta para ler o sinal.",
       "noNodes": "nenhum roteador posicionado",
@@ -265,13 +265,13 @@
     },
     "panel": {
       "coverage": "Cobertura · {band}",
-      "needNode": "Posicione pelo menos um roteador com a ferramenta <b>Nó mesh</b>.",
-      "noBand": "Nenhum aparelho do projeto transmite em {band}.",
+      "needNode": "Coloque o roteador onde fica o modem, com a ferramenta <b>Roteador</b>.",
+      "noBand": "Nenhum aparelho do projeto transmite em {band}. Para usar essa faixa, selecione um nó e escolha um modelo com {band}.",
       "goodShare": "da casa com ≥ −67 dBm",
       "area": "Área considerada: {area} m², o retângulo em volta das paredes.",
       "wireIt": "Ligar {node} por cabo",
       "linksTitle": "Ligação entre nós",
-      "linksEmpty": "Com dois ou mais nós, aqui aparece a qualidade do backhaul, a ligação entre eles.",
+      "linksEmpty": "Com dois ou mais nós, aqui aparece a qualidade da ligação sem fio entre eles (o backhaul).",
       "otherFloor": "(outro andar)",
       "cable": "cabo",
       "linkQuality": "Ligação {q}.",
@@ -280,7 +280,7 @@
         "2": "ok",
         "4": "fraca, use cabo"
       },
-      "linksHint": "Sem fio, mire em −60 a −70 dBm entre nós. Abaixo disso, ligue por cabo de rede.",
+      "linksHint": "A seta mostra a qual nó cada um se liga. Sem fio, mire em −60 a −70 dBm; abaixo disso, ligue por cabo de rede.",
       "suggestTitle": "Onde pôr mais um nó?",
       "suggestIntro": "Testa cada ponto livre deste andar e escolhe o que mais aumenta a área com sinal bom em {band}.",
       "suggestRun": "Sugerir posição",
@@ -296,8 +296,10 @@
         "noSpot": "Não achei um ponto livre longe das paredes. Aumente a área ou ajuste o desenho.",
         "alreadyGood": "A cobertura já está boa em quase toda a casa. Outro nó não muda muito.",
         "noGain": "Nenhuma posição melhora a cobertura de forma relevante.",
-        "weakLink": "Nenhum ponto melhora muito a cobertura, mas o link entre {child} e {parent} está fraco. Ligue {child} por cabo ou aproxime os dois."
-      }
+        "weakLink": "Nenhum ponto melhora muito a cobertura, mas a ligação entre {child} e {parent} está fraca. Ligue {child} por cabo ou aproxime os dois."
+      },
+      "suggestOtherModel": " O modelo escolhido ({chosen}) não tem {band}, por isso a sugestão usa um {model}.",
+      "bandPartial": "Aparelhos com {band}: {n} de {total} ({names}). Os outros não ajudam nesta faixa."
     },
     "sel": {
       "wall": "Parede",
@@ -319,7 +321,7 @@
       "apply": "Ajustar imagem",
       "measureNoImage": "Para usar a medida como escala, carregue uma foto da planta em Planta e escala.",
       "length": "Comprimento (m)",
-      "lengthHint": "Ou arraste os quadradinhos nas pontas da parede."
+      "lengthHint": "Ou arraste os quadradinhos nas pontas, em qualquer ângulo."
     },
     "models": {
       "isp": "Roteador da operadora",
@@ -436,9 +438,9 @@
       ]
     },
     "hintsTouch": {
-      "select": "Toque numa parede, nó ou link para editar. Arraste nós e nomes para mover, ou o fundo para mover a planta. Use dois dedos para zoom.",
-      "wall": "Arraste para desenhar uma parede. Para diagonais, desmarque “Só 90°” nas opções da ferramenta.",
-      "node": "Toque onde vai ficar cada roteador ou nó mesh. O primeiro é o principal, ligado ao modem.",
+      "select": "Toque numa parede, nó ou ligação para editar. Arraste nós e nomes para mover, ou o fundo para mover a planta. Use dois dedos para zoom.",
+      "wall": "Arraste para desenhar uma parede. Para diagonais, desmarque “Travar em 90°” nas opções da ferramenta.",
+      "node": "Toque onde fica o modem para pôr o roteador principal; depois, onde vai cada nó mesh.",
       "label": "Toque na planta e digite o nome do cômodo.",
       "measure": "Arraste para medir uma distância. Com imagem de fundo, use isso para acertar a escala.",
       "erase": "Toque numa parede, nó ou nome para apagar."
@@ -453,18 +455,19 @@
       "short": "Ainda falta sinal",
       "okLine": "Em {band}, {pct} da casa tem sinal bom.",
       "shortLine": "Em {band}, só {pct} da casa tem sinal bom. Veja onde mais um nó ajuda.",
-      "cableLine": "O link de {node} está fraco: ligue-o por cabo ou aproxime-o de outro nó.",
+      "cableLine": "A ligação de {node} está fraca: ligue-o por cabo ou aproxime-o de outro nó.",
       "devices": "Aparelhos",
       "sixGood": "6 GHz também cobre a casa: dá para usar a faixa mais rápida.",
       "sixNear": "6 GHz chega a {pct} da casa: é a mais rápida perto dos nós.",
       "sixNone": "Nenhum aparelho tem 6 GHz. Para usar essa faixa, escolha um modelo com 6 GHz (Wi-Fi 6E ou 7).",
       "byBand": "Casa toda, por faixa",
       "showBand": "Ver o mapa em {band}",
-      "note": "Estimativa com erro típico de ±8 dB."
+      "note": "Estimativa com erro típico de ±8 dB.",
+      "sixPartial": "6 GHz chega a {pct} da casa; aparelhos com 6 GHz: {n} de {total}."
     },
     "hud": {
-      "weak1": "1 link fraco",
-      "weakN": "{n} links fracos",
+      "weak1": "1 ligação fraca",
+      "weakN": "{n} ligações fracas",
       "noNodes": "Sem roteador",
       "open": "Mostrar resultado",
       "close": "Recolher resultado"

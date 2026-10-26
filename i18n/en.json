@@ -49,9 +49,9 @@
     "floors": "Floors",
     "bands": "Frequency band",
     "material": "Material",
-    "ortho": "90° only",
+    "ortho": "Lock to 90°",
     "model": "Model",
-    "otherModel": "Other model…",
+    "otherModel": "Add a model…",
     "heatmap": "Heat map",
     "heatOpacity": "Heat map opacity",
     "tools": "Tools",
@@ -71,8 +71,8 @@
   "tools": {
     "select": "Select",
     "wall": "Wall",
-    "node": "Mesh node",
-    "label": "Room",
+    "node": "Router",
+    "label": "Label",
     "measure": "Measure",
     "erase": "Erase",
     "undo": "Undo",
@@ -105,7 +105,7 @@
   },
   "guide": {
     "howToTitle": "How to use the planner",
-    "howToSteps": "<li>Click <b>New project</b> and enter the width and depth of the lot or the house.</li><li>If you have the floor plan as a photo or an image, load it under <b>Plan and scale</b> and set the scale with <b>Measure</b>.</li><li>With the <b>Wall</b> tool, draw the outer and inner walls and pick the material. Doors and windows are walls too, made of wood or glass.</li><li>With <b>Mesh node</b>, place the main router where the ISP modem is, then the other nodes.</li><li>Switch between 2.4, 5 and 6 GHz and look at the heat map. Green is excellent signal; red is no usable signal.</li><li>Use <b>Suggest a spot</b> to find where one more node helps most, and <b>File › Export JSON</b> to keep the project.</li>",
+    "howToSteps": "<li>Click <b>New project</b> and enter the width and depth of the lot or the house.</li><li>If you have the floor plan as a photo or an image, load it under <b>Plan and scale</b> and set the scale with <b>Measure</b>.</li><li>With the <b>Wall</b> tool, draw the outer and inner walls and pick the material. Doors and windows are walls too, made of wood or glass.</li><li>With <b>Router</b>, place the main router where the ISP modem is, then the other nodes.</li><li>Switch between 2.4, 5 and 6 GHz and look at the heat map. Green is excellent signal; red is no usable signal.</li><li>Use <b>Suggest a spot</b> to find where one more node helps most, and <b>File › Export JSON</b> to keep the project.</li>",
     "wallsTitle": "How much each wall takes from the signal",
     "wallsText": "Every wall the signal crosses adds a loss in decibels (dB). Each 10 dB cuts the received power to one tenth, so two or three brick walls already make a difference. The values below are the averages the planner uses; real loss depends on thickness, moisture and steel reinforcement.",
     "material": "Material",
@@ -168,8 +168,8 @@
     "intro": "Built-in models use average power values. Add your router if it is not on the list.",
     "name": "Name",
     "namePlaceholder": "e.g. Asus ZenWiFi BT8",
-    "power": "Power compared with a typical mesh node (dB)",
-    "powerHint": "Use −2 to −4 for ISP routers or entry-level models, and +1 to +3 for high-end models.",
+    "power": "Power adjustment (dB)",
+    "powerHint": "0 is a typical mesh node. Use −2 to −4 for ISP routers or entry-level models, and +1 to +3 for high-end ones.",
     "cancelEdit": "Cancel editing"
   },
   "privacy": {
@@ -193,8 +193,8 @@
   "ui": {
     "hints": {
       "select": "Click a wall, node or link to edit it. Drag nodes and names to move them, or the background to move the plan. Ctrl + scroll zooms.",
-      "wall": "Click and drag to draw a wall. Ends snap to the 25 cm grid and to existing walls. Hold Shift to draw at an angle (or untick “90° only”).",
-      "node": "Click where each router or mesh node goes. The first one is the main node, connected to the modem.",
+      "wall": "Click and drag to draw a wall. Ends snap to the 25 cm grid and to existing walls. For angled walls, untick “Lock to 90°”.",
+      "node": "Click where the modem is to place the main router, then where each mesh node goes.",
       "label": "Click on the plan and type the room name. Enter confirms.",
       "measure": "Drag to measure a distance. With a background image, use this to set the scale.",
       "erase": "Click a wall, node or name to delete it."
@@ -239,7 +239,7 @@
         "use": "connection drops"
       }
     ],
-    "legendMain": "main",
+    "legendMain": "main node",
     "readout": {
       "idle": "Hover over the plan to read the signal.",
       "noNodes": "no router placed",
@@ -265,13 +265,13 @@
     },
     "panel": {
       "coverage": "Coverage · {band}",
-      "needNode": "Place at least one router with the <b>Mesh node</b> tool.",
-      "noBand": "No device in this project transmits on {band}.",
+      "needNode": "Place the router where the modem is, with the <b>Router</b> tool.",
+      "noBand": "No device in this project transmits on {band}. To use it, select a node and pick a model with {band}.",
       "goodShare": "of the house at ≥ −67 dBm",
       "area": "Area counted: {area} m², the rectangle around the walls.",
       "wireIt": "Connect {node} by cable",
       "linksTitle": "Links between nodes",
-      "linksEmpty": "With two or more nodes, the backhaul quality between them shows up here.",
+      "linksEmpty": "With two or more nodes, this shows how well they connect to each other (the backhaul).",
       "otherFloor": "(another floor)",
       "cable": "cable",
       "linkQuality": "Link {q}.",
@@ -280,7 +280,7 @@
         "2": "ok",
         "4": "weak, use a cable"
       },
-      "linksHint": "Wirelessly, aim for −60 to −70 dBm between nodes. Below that, connect them with a network cable.",
+      "linksHint": "The arrow shows which node each one connects to. Wirelessly, aim for −60 to −70 dBm; below that, connect them with a network cable.",
       "suggestTitle": "Where should another node go?",
       "suggestIntro": "Tests every free spot on this floor and picks the one that adds the most area with good signal on {band}.",
       "suggestRun": "Suggest a spot",
@@ -297,7 +297,9 @@
         "alreadyGood": "Coverage is already good in almost the whole house. Another node would not change much.",
         "noGain": "No position improves coverage significantly.",
         "weakLink": "No spot improves coverage much, but the link between {child} and {parent} is weak. Connect {child} with a cable or move the two closer."
-      }
+      },
+      "suggestOtherModel": " Your chosen model ({chosen}) has no {band}, so the suggestion uses a {model}.",
+      "bandPartial": "Devices with {band}: {n} of {total} ({names}). The others don’t help on this band."
     },
     "sel": {
       "wall": "Wall",
@@ -319,7 +321,7 @@
       "apply": "Adjust image",
       "measureNoImage": "To use it as a scale, load a floor plan photo under Plan and scale.",
       "length": "Length (m)",
-      "lengthHint": "Or drag the small squares at the ends of the wall."
+      "lengthHint": "Or drag the small squares at the ends, at any angle."
     },
     "models": {
       "isp": "ISP router",
@@ -437,8 +439,8 @@
     },
     "hintsTouch": {
       "select": "Tap a wall, node or link to edit it. Drag nodes and names to move them, or the background to move the plan. Pinch to zoom.",
-      "wall": "Drag to draw a wall. For angled walls, untick “90° only” in the tool options.",
-      "node": "Tap where each router or mesh node goes. The first one is the main node, connected to the modem.",
+      "wall": "Drag to draw a wall. For angled walls, untick “Lock to 90°” in the tool options.",
+      "node": "Tap where the modem is to place the main router, then where each mesh node goes.",
       "label": "Tap the plan and type the room name.",
       "measure": "Drag to measure a distance. With a background image, use it to set the scale.",
       "erase": "Tap a wall, node or name to delete it."
@@ -460,7 +462,8 @@
       "sixNone": "No device has 6 GHz. To use that band, pick a model with 6 GHz (Wi-Fi 6E or 7).",
       "byBand": "Whole house, by band",
       "showBand": "Show the map on {band}",
-      "note": "Estimate with a typical error of ±8 dB."
+      "note": "Estimate with a typical error of ±8 dB.",
+      "sixPartial": "6 GHz reaches {pct} of the house; devices with 6 GHz: {n} of {total}."
     },
     "hud": {
       "weak1": "1 weak link",

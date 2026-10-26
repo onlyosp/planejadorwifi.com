@@ -49,9 +49,9 @@
     "floors": "Pisos",
     "bands": "Banda de frecuencia",
     "material": "Material",
-    "ortho": "Solo 90°",
+    "ortho": "Fijar a 90°",
     "model": "Modelo",
-    "otherModel": "Otro modelo…",
+    "otherModel": "Agregar modelo…",
     "heatmap": "Mapa de calor",
     "heatOpacity": "Opacidad del mapa",
     "tools": "Herramientas",
@@ -71,8 +71,8 @@
   "tools": {
     "select": "Seleccionar",
     "wall": "Pared",
-    "node": "Nodo mesh",
-    "label": "Habitación",
+    "node": "Router",
+    "label": "Nombre",
     "measure": "Medir",
     "erase": "Borrar",
     "undo": "Deshacer",
@@ -105,7 +105,7 @@
   },
   "guide": {
     "howToTitle": "Cómo usar el simulador",
-    "howToSteps": "<li>Haz clic en <b>Nuevo proyecto</b> e indica el ancho y el fondo del terreno o de la casa.</li><li>Si tienes el plano en foto o en imagen, cárgalo en <b>Plano y escala</b> y ajusta la escala con <b>Medir</b>.</li><li>Con la herramienta <b>Pared</b>, dibuja las paredes exteriores e interiores eligiendo el material. Las puertas y ventanas también son paredes, de madera o vidrio.</li><li>Con <b>Nodo mesh</b>, coloca el router principal donde está el módem del proveedor y luego los demás nodos.</li><li>Cambia entre 2,4, 5 y 6 GHz y mira el mapa de calor. Verde es señal excelente; rojo es sin señal útil.</li><li>Usa <b>Sugerir posición</b> para saber dónde un nodo más aporta más, y <b>Archivo › Exportar JSON</b> para guardar el proyecto.</li>",
+    "howToSteps": "<li>Haz clic en <b>Nuevo proyecto</b> e indica el ancho y el fondo del terreno o de la casa.</li><li>Si tienes el plano en foto o en imagen, cárgalo en <b>Plano y escala</b> y ajusta la escala con <b>Medir</b>.</li><li>Con la herramienta <b>Pared</b>, dibuja las paredes exteriores e interiores eligiendo el material. Las puertas y ventanas también son paredes, de madera o vidrio.</li><li>Con <b>Router</b>, coloca el router principal donde está el módem del proveedor y luego los demás nodos.</li><li>Cambia entre 2,4, 5 y 6 GHz y mira el mapa de calor. Verde es señal excelente; rojo es sin señal útil.</li><li>Usa <b>Sugerir posición</b> para saber dónde un nodo más aporta más, y <b>Archivo › Exportar JSON</b> para guardar el proyecto.</li>",
     "wallsTitle": "Cuánta señal quita cada pared",
     "wallsText": "Cada pared que atraviesa la señal suma una pérdida en decibelios (dB). Cada 10 dB la potencia que llega baja a la décima parte, así que dos o tres paredes de ladrillo ya se notan. Los valores de abajo son los promedios que usa el simulador; la pérdida real varía con el grosor, la humedad y la armadura de acero.",
     "material": "Material",
@@ -168,8 +168,8 @@
     "intro": "Los modelos incluidos usan valores medios de potencia. Agrega tu router si no está en la lista.",
     "name": "Nombre",
     "namePlaceholder": "Ej.: Asus ZenWiFi BT8",
-    "power": "Potencia comparada con un nodo mesh típico (dB)",
-    "powerHint": "Usa de −2 a −4 para routers del proveedor o modelos básicos, y de +1 a +3 para modelos de gama alta.",
+    "power": "Ajuste de potencia (dB)",
+    "powerHint": "0 es un nodo mesh típico. Usa de −2 a −4 para routers del proveedor o modelos básicos, y de +1 a +3 para modelos de gama alta.",
     "cancelEdit": "Cancelar edición"
   },
   "privacy": {
@@ -193,8 +193,8 @@
   "ui": {
     "hints": {
       "select": "Haz clic en una pared, nodo o enlace para editarlo. Arrastra nodos y nombres para moverlos, o el fondo para mover el plano. Ctrl + rueda hace zoom.",
-      "wall": "Haz clic y arrastra para dibujar una pared. Los extremos se ajustan a la cuadrícula de 25 cm y a las paredes existentes. Mantén Shift para dibujar en diagonal (o desmarca “Solo 90°”).",
-      "node": "Haz clic donde irá cada router o nodo mesh. El primero es el principal, conectado al módem.",
+      "wall": "Haz clic y arrastra para dibujar una pared. Los extremos se ajustan a la cuadrícula de 25 cm y a las paredes existentes. Para diagonales, desmarca “Fijar a 90°”.",
+      "node": "Haz clic donde está el módem para poner el router principal y luego donde va cada nodo mesh.",
       "label": "Haz clic en el plano y escribe el nombre de la habitación. Enter confirma.",
       "measure": "Arrastra para medir una distancia. Con imagen de fondo, úsalo para ajustar la escala.",
       "erase": "Haz clic en una pared, nodo o nombre para borrarlo."
@@ -239,7 +239,7 @@
         "use": "la conexión se cae"
       }
     ],
-    "legendMain": "principal",
+    "legendMain": "nodo principal",
     "readout": {
       "idle": "Pasa el cursor sobre el plano para leer la señal.",
       "noNodes": "ningún router colocado",
@@ -265,13 +265,13 @@
     },
     "panel": {
       "coverage": "Cobertura · {band}",
-      "needNode": "Coloca al menos un router con la herramienta <b>Nodo mesh</b>.",
-      "noBand": "Ningún dispositivo del proyecto transmite en {band}.",
+      "needNode": "Coloca el router donde está el módem, con la herramienta <b>Router</b>.",
+      "noBand": "Ningún equipo del proyecto transmite en {band}. Para usarla, selecciona un nodo y elige un modelo con {band}.",
       "goodShare": "de la casa con ≥ −67 dBm",
       "area": "Área considerada: {area} m², el rectángulo alrededor de las paredes.",
       "wireIt": "Conectar {node} por cable",
       "linksTitle": "Enlace entre nodos",
-      "linksEmpty": "Con dos o más nodos, aquí aparece la calidad del backhaul, el enlace entre ellos.",
+      "linksEmpty": "Con dos o más nodos, aquí aparece la calidad del enlace entre ellos (el backhaul).",
       "otherFloor": "(otro piso)",
       "cable": "cable",
       "linkQuality": "Enlace {q}.",
@@ -280,7 +280,7 @@
         "2": "aceptable",
         "4": "débil, usa cable"
       },
-      "linksHint": "Inalámbrico, busca entre −60 y −70 dBm entre nodos. Por debajo de eso, conéctalos con cable de red.",
+      "linksHint": "La flecha muestra a qué nodo se conecta cada uno. Inalámbrico, busca entre −60 y −70 dBm; por debajo de eso, conéctalos con cable de red.",
       "suggestTitle": "¿Dónde poner otro nodo?",
       "suggestIntro": "Prueba cada punto libre de este piso y elige el que más área con buena señal añade en {band}.",
       "suggestRun": "Sugerir posición",
@@ -297,7 +297,9 @@
         "alreadyGood": "La cobertura ya es buena en casi toda la casa. Otro nodo no cambiaría mucho.",
         "noGain": "Ninguna posición mejora la cobertura de forma relevante.",
         "weakLink": "Ningún punto mejora mucho la cobertura, pero el enlace entre {child} y {parent} es débil. Conecta {child} con un cable o acerca los dos."
-      }
+      },
+      "suggestOtherModel": " El modelo elegido ({chosen}) no tiene {band}, por eso la sugerencia usa un {model}.",
+      "bandPartial": "Equipos con {band}: {n} de {total} ({names}). Los demás no ayudan en esta banda."
     },
     "sel": {
       "wall": "Pared",
@@ -319,7 +321,7 @@
       "apply": "Ajustar imagen",
       "measureNoImage": "Para usarla como escala, carga una foto del plano en Plano y escala.",
       "length": "Longitud (m)",
-      "lengthHint": "O arrastra los cuadraditos en los extremos de la pared."
+      "lengthHint": "O arrastra los cuadraditos de los extremos, en cualquier ángulo."
     },
     "models": {
       "isp": "Router del proveedor",
@@ -437,8 +439,8 @@
     },
     "hintsTouch": {
       "select": "Toca una pared, nodo o enlace para editarlo. Arrastra nodos y nombres para moverlos, o el fondo para mover el plano. Pellizca para hacer zoom.",
-      "wall": "Arrastra para dibujar una pared. Para diagonales, desmarca “Solo 90°” en las opciones de la herramienta.",
-      "node": "Toca donde irá cada router o nodo mesh. El primero es el principal, conectado al módem.",
+      "wall": "Arrastra para dibujar una pared. Para diagonales, desmarca “Fijar a 90°” en las opciones de la herramienta.",
+      "node": "Toca donde está el módem para poner el router principal y luego donde va cada nodo mesh.",
       "label": "Toca el plano y escribe el nombre de la habitación.",
       "measure": "Arrastra para medir una distancia. Con imagen de fondo, úsalo para ajustar la escala.",
       "erase": "Toca una pared, nodo o nombre para borrarlo."
@@ -460,7 +462,8 @@
       "sixNone": "Ningún equipo tiene 6 GHz. Para usar esa banda, elige un modelo con 6 GHz (Wi-Fi 6E o 7).",
       "byBand": "Toda la casa, por banda",
       "showBand": "Ver el mapa en {band}",
-      "note": "Estimación con error típico de ±8 dB."
+      "note": "Estimación con error típico de ±8 dB.",
+      "sixPartial": "6 GHz llega al {pct} de la casa; equipos con 6 GHz: {n} de {total}."
     },
     "hud": {
       "weak1": "1 enlace débil",
