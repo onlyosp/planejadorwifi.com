@@ -307,7 +307,8 @@
       "suggestOtherModel": " Your chosen model ({chosen}) has no {band}, so the suggestion uses a {model}.",
       "bandPartial": "Devices with {band}: {n} of {total} ({names}). The others don’t help on this band.",
       "computingPct": "Testing the free spots… {pct}",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "suggestShort": "Suggestion marked on the plan: coverage goes from {from} to {to}."
     },
     "sel": {
       "wall": "Wall",
@@ -329,7 +330,7 @@
       "apply": "Adjust image",
       "measureNoImage": "To use it as a scale, load a floor plan photo under File › Plan and scale.",
       "length": "Length (m)",
-      "lengthHint": "Or drag the small squares at the ends, at any angle.",
+      "lengthHint": "Drag the ends to change the length or angle, and the middle to move the wall.",
       "matLoss": "{mat} · −{db} dB at {band}",
       "multiTitle": "{n} items selected",
       "countWalls": "Walls: {n}",
@@ -344,7 +345,8 @@
       "pendingMat": "Walls: {n} → {mat}",
       "pendingModel": "Nodes: {n} → {model}",
       "delConfirm": "Delete {n} selected items?",
-      "delConfirmMsg": "You can bring them back with Undo (Ctrl+Z)."
+      "delConfirmMsg": "You can bring them back with Undo (Ctrl+Z).",
+      "duplicate": "Duplicate"
     },
     "models": {
       "isp": "ISP router",
@@ -486,7 +488,9 @@
       "byBand": "Whole house, by band",
       "showBand": "Show the map on {band}",
       "note": "Estimate with a typical error of ±8 dB.",
-      "sixPartial": "6 GHz reaches {pct} of the house; devices with 6 GHz: {n} of {total}."
+      "sixPartial": "6 GHz reaches {pct} of the house; devices with 6 GHz: {n} of {total}.",
+      "export": "Export",
+      "exportLabel": "Export the project (JSON)"
     },
     "hud": {
       "weak1": "1 weak link",
@@ -506,7 +510,12 @@
       "band": "Map on {band}.",
       "suggestDone": "Suggestion ready: coverage goes from {from} to {to}.",
       "suggestCancelled": "Suggestion cancelled.",
-      "applied": "Change applied to the selected items."
+      "applied": "Change applied to the selected items.",
+      "copied": "Copied. Press Ctrl+V to paste.",
+      "pasted": "Pasted and selected."
+    },
+    "stage": {
+      "zoomAt": "Fit to screen (current zoom {pct})"
     }
   },
   "drawer": {

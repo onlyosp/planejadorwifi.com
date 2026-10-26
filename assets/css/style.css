@@ -209,9 +209,13 @@ canvas { display: block; touch-action: none; cursor: crosshair }
 .foot { font-size: 12.5px; color: var(--muted) }
 /* Drawer footer: sharing and the model notes, quieter than the result cards. */
 .drawer-foot { display: flex; flex-direction: column; gap: 10px; padding: 4px 2px 2px; border-top: 1px solid var(--line); padding-top: 12px }
-.share-row { display: flex; align-items: center; gap: 10px }
-.share-row button { flex: none }
-.share-row p { min-width: 0 }
+.share-row { display: flex; flex-direction: column; gap: 6px }
+.card p, .drawer-foot p, .pop p { text-wrap: pretty }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px }
+.btn-sm { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px 3px 6px; font-size: 13px; color: var(--muted) }
+.btn-sm:hover { color: var(--ink) }
+.btn-sm .ic { width: 16px; height: 16px }
+.zoom-pct { font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; min-width: 36px }
 details.about summary { cursor: pointer; font-weight: 600; font-size: 14px }
 details.about[open] summary { margin-bottom: 8px }
 details.about .foot { margin-top: 8px }
@@ -383,7 +387,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .45) }
 }
 /* Touch screens: controls used with a finger get at least 40px of height. */
 @media (hover: none) {
-  .floors button, .seg button, .btngroup button, .fl-chip, .pop-x { min-height: 40px; min-width: 40px }
+  .floors button, .seg button, .btngroup button, .fl-chip, .pop-x, .btn-sm { min-height: 40px; min-width: 40px }
   .fl-chip { display: flex; align-items: center }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important } }

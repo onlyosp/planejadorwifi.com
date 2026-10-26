@@ -194,7 +194,17 @@ function resize() {
   draw();
 }
 let raf = 0;
-function schedule() { if (!raf) raf = requestAnimationFrame(() => { raf = 0; draw(); }); }
+// The fit button shows the current zoom once the plan is no longer fitted.
+let zoomShown = '';
+function showZoom() {
+  const z = fitted ? '' : Math.round(k / k0 * 100) + '%';
+  if (z === zoomShown) return;
+  zoomShown = z;
+  const b = $('#zoomFit');
+  b.innerHTML = z ? `<span class="zoom-pct">${z}</span>` : icon('fit');
+  b.setAttribute('aria-label', z ? t('stage.zoomAt', { pct: z }) : b.title.replace(/ \(0\)$/, ''));
+}
+function schedule() { showZoom(); if (!raf) raf = requestAnimationFrame(() => { raf = 0; draw(); }); }
 
 // Heights the CSS needs to stack the phone layers: rail, drawer head and top bar.
 function layoutVars() {
@@ -218,6 +228,7 @@ const nodeR = () => Math.max(9, 0.28 * k);
 
 function draw() {
   if (!P) return;
+  showZoom();
   readTokens();
   const W = cv.width / dpr, H = cv.height / dpr, f = cur(), all = nodesAll();
   const PW = P.w * k, PH = P.h * k;
@@ -237,7 +248,9 @@ function draw() {
     const cols = Math.min(180, Math.ceil(P.w / 0.1)), cs = P.w / cols, g = grid(P.floor, P.band, cs);
     const off = document.createElement('canvas'); off.width = g.cols; off.height = g.rows;
     const oc = off.getContext('2d'), id = oc.createImageData(g.cols, g.rows);
-    const pal = [0, 1, 2, 3, 4].map(i => rgb(C['q' + i])), a = Math.round(P.alpha * 255);
+    // Over the dark sheet the heat blends darker; lift it a little so the categories stay readable.
+    const boost = matchMedia('(prefers-color-scheme: dark)').matches ? 1.25 : 1;
+    const pal = [0, 1, 2, 3, 4].map(i => rgb(C['q' + i])), a = Math.round(Math.min(0.9, P.alpha * boost) * 255);
     for (let i = 0; i < g.v.length; i++) {
       const p = pal[E.catOf(g.v[i])];
       id.data[i * 4] = p[0]; id.data[i * 4 + 1] = p[1]; id.data[i * 4 + 2] = p[2]; id.data[i * 4 + 3] = g.v[i] === -Infinity ? 0 : a;
@@ -478,6 +491,24 @@ function itemsInBox(x0, y0, x1, y1) {
   return out;
 }
 
+// Copy, paste and duplicate: walls, nodes and names, pasted 1 m down and right and left selected.
+let clip = null;
+const copyOf = items => items.map(h => ({ type: h.type, o: JSON.parse(JSON.stringify(listOf(h.type)[h.i])) })).filter(c => c.o);
+function pasteItems(src) {
+  if (!src || !src.length) return;
+  pushHist();
+  const added = [];
+  src.forEach(({ type, o }) => {
+    const c = { ...o };
+    if (type === 'wall') { c.x1 = clamp(c.x1 + 1, 0, P.w); c.y1 = clamp(c.y1 + 1, 0, P.h); c.x2 = clamp(c.x2 + 1, 0, P.w); c.y2 = clamp(c.y2 + 1, 0, P.h); }
+    else { c.x = clamp(c.x + 1, 0, P.w); c.y = clamp(c.y + 1, 0, P.h); }
+    if (type === 'node') c.main = false;
+    listOf(type).push(c); added.push({ type, i: listOf(type).length - 1 });
+  });
+  if (!nodesAll().some(a => a.n.main) && nodesAll()[0]) nodesAll()[0].n.main = true;
+  setSelection(added); multiPending = null; dirty(); live(t('live.pasted'));
+}
+
 function applyPending() {
   const f = cur(), pend = multiPending;
   if (!pend || pend.key !== selKey()) { multiPending = null; renderPop(); return; }
@@ -497,7 +528,7 @@ async function confirmDeleteSelection() {
 
 function cancelDrag() {
   if (!drag) return;
-  if ((drag.kind === 'node' || drag.kind === 'label' || drag.kind === 'wallEnd' || drag.kind === 'group') && hist.length) {
+  if (['node', 'label', 'wallEnd', 'group', 'wallMove'].includes(drag.kind) && hist.length) {
     if (drag.moved) { P = restore(hist.pop()); ver++; } else hist.pop();
     fut = drag.fut || fut;
   }
@@ -549,6 +580,18 @@ cv.addEventListener('pointerdown', e => {
       $('#pop').classList.add('away');
       return;
     }
+    if (h && h.type === 'wall') {
+      // Dragging the body of a wall moves it; the ends of walls that meet it follow, so rooms stay closed.
+      const w = cur().walls[h.i], was = isSel('wall', h.i), f0 = fut, ends = [];
+      cur().walls.forEach((v, j) => {
+        if (j === h.i) return;
+        [1, 2].forEach(n => [1, 2].forEach(e => { if (Math.hypot(v['x' + n] - w['x' + e], v['y' + n] - w['y' + e]) < 0.01) ends.push([j, n, w['x' + e], w['y' + e]]); }));
+      });
+      sel = h; pushHist();
+      drag = { kind: 'wallMove', i: h.i, base: { ...w }, ends, sx: p.x, sy: p.y, dx: 0, dy: 0, moved: false, fut: f0, was };
+      renderPop(); schedule(); readout(p);
+      return;
+    }
     sel = h;
     if (h && (h.type === 'node' || h.type === 'label')) {
       // The popover opens on a plain click, not after dragging the object somewhere else.
@@ -559,7 +602,10 @@ cv.addEventListener('pointerdown', e => {
   }
 });
 cv.addEventListener('pointermove', e => {
-  if (!drag && !pan && tool === 'select' && e.pointerType === 'mouse') cv.style.cursor = wallHandleAt(pos(e)) ? 'move' : 'default';
+  if (!drag && !pan && tool === 'select' && e.pointerType === 'mouse') {
+    const q = pos(e), hov = !wallHandleAt(q) && hitTest(q);
+    cv.style.cursor = wallHandleAt(q) ? 'crosshair' : hov && hov.type === 'wall' && isSel('wall', hov.i) ? 'move' : 'default';
+  }
   if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (pinch && ptrs.size >= 2) {
     const [a, b] = [...ptrs.values()], r = cv.getBoundingClientRect();
@@ -589,6 +635,20 @@ cv.addEventListener('pointermove', e => {
     }
     else if (drag.kind === 'measure') { const s = snapPt(p.x, p.y); drag.x2 = s.x; drag.y2 = s.y; }
     else if (drag.kind === 'box') { drag.x2 = p.x; drag.y2 = p.y; }
+    else if (drag.kind === 'wallMove') {
+      if (tap && tap.moved) {
+        const b = drag.base;
+        // Snap the shift to the grid and keep the whole wall inside the plan.
+        const dx = clamp(Math.round((p.x - drag.sx) / GRID) * GRID, -Math.min(b.x1, b.x2), P.w - Math.max(b.x1, b.x2));
+        const dy = clamp(Math.round((p.y - drag.sy) / GRID) * GRID, -Math.min(b.y1, b.y2), P.h - Math.max(b.y1, b.y2));
+        if (dx !== drag.dx || dy !== drag.dy) {
+          const w = cur().walls[drag.i];
+          w.x1 = b.x1 + dx; w.y1 = b.y1 + dy; w.x2 = b.x2 + dx; w.y2 = b.y2 + dy;
+          drag.ends.forEach(([j, n, x, y]) => { const v = cur().walls[j]; v['x' + n] = x + dx; v['y' + n] = y + dy; });
+          drag.dx = dx; drag.dy = dy; drag.moved = true; ver++; suggestion = null; $('#pop').classList.add('away');
+        }
+      }
+    }
     else if (drag.kind === 'group') {
       if (tap && tap.moved) {
         const dx = Math.round((p.x - drag.sx) / GRID) * GRID, dy = Math.round((p.y - drag.sy) / GRID) * GRID;
@@ -651,7 +711,7 @@ function endDrag() {
     renderPop(); schedule();
   } else if (!d.moved) { hist.pop(); fut = d.fut || fut; renderPop(); }
   else {
-    if (d.kind === 'node' || d.kind === 'label') sel = null;
+    if (d.kind === 'node' || d.kind === 'label' || (d.kind === 'wallMove' && !d.was)) sel = null;
     dirty();
   }
 }
@@ -747,6 +807,12 @@ document.addEventListener('keydown', e => {
   const mod = e.ctrlKey || e.metaKey;
   if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
   if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
+  if (mod && (e.target === cv || e.target === document.body)) {
+    const key = e.key.toLowerCase();
+    if (key === 'c' && selItems().length) { e.preventDefault(); clip = copyOf(selItems()); live(t('live.copied')); return; }
+    if (key === 'v' && clip) { e.preventDefault(); pasteItems(clip); return; }
+    if (key === 'd' && selItems().length) { e.preventDefault(); pasteItems(copyOf(selItems())); return; }
+  }
   if (mod && e.key.toLowerCase() === 'a' && (e.target === cv || e.target === document.body)) {
     e.preventDefault(); setSelection(itemsOnFloor()); announceSelection(); renderPop(); schedule(); return;
   }
@@ -894,7 +960,8 @@ function summaryChip(v) {
   return `${statusIcon(v.status)}${esc(t('hud.mainBand', { band: bandLabel(v.mb) }))} · <b>${pct(v.house[v.mb].good)}</b>${weak}`;
 }
 function renderVerdict(v) {
-  let h = `<h2>${esc(t('verdict.title'))}</h2>`;
+  // The project's backup sits on the result it records: a small Export action in the card's corner.
+  let h = `<div class="card-head"><h2>${esc(t('verdict.title'))}</h2><button type="button" class="ghost btn-sm" data-export title="${esc(t('verdict.exportLabel'))}" aria-label="${esc(t('verdict.exportLabel'))}">${icon('download')}<span>${esc(t('verdict.export'))}</span></button></div>`;
   if (!v) {
     h += `<p class="small muted">${esc(t('verdict.empty'))}</p><div class="btnrow"><button type="button" class="primary" data-pick="node">${esc(t('verdict.placeNode'))}</button></div>`;
     $('#pVerdict').innerHTML = h; return;
@@ -930,7 +997,8 @@ $('#invite').addEventListener('click', e => {
 });
 $('#pCoverage').addEventListener('click', e => { const b = e.target.closest('[data-band]'); if (b) setBand(b.dataset.band); });
 $('#pVerdict').addEventListener('click', e => {
-  const b = e.target.closest('[data-band]'); if (b) { setBand(b.dataset.band); return; }
+  const b = e.target.closest('[data-band]'); if (b) { setBand(b.dataset.band); if (sheetMode.matches) setDrawer(false); return; }
+  if (e.target.closest('[data-export]')) { exportFile(); return; }
   if (e.target.closest('[data-pick=node]')) { setTool('node'); if (sheetMode.matches) setDrawer(false); }
 });
 
@@ -976,7 +1044,7 @@ function renderPanel() {
 
   let sh = `<h2>${esc(t('panel.suggestTitle'))}</h2>`;
   if (suggestion && suggestion.none) sh += `<p class="small">${esc(noneText(suggestion))}</p>${suggestion.none === 'weakLink' ? `<div class="btnrow">${wireBtn(suggestion.child, 'primary')}<button type="button" data-sug="clear" class="ghost">${esc(t('panel.ok'))}</button></div>` : `<button type="button" data-sug="clear" class="ghost">${esc(t('panel.ok'))}</button>`}`;
-  else if (suggestion) sh += `<p class="small">${sugText()}</p>` + sugButtons();
+  else if (suggestion) sh += `<p class="small">${esc(t('panel.suggestShort', { from: pct(suggestion.from), to: pct(suggestion.to) }))}</p>` + sugButtons();
   else if (suggestRun) {
     const v = Math.round(suggestRun.progress * 100);
     sh += `<p class="small" id="sugPct">${esc(t('panel.computingPct', { pct: v + '%' }))}</p>`
@@ -1085,17 +1153,17 @@ function renderPop() {
         <p class="hint">${esc(t('sel.lengthHint'))}</p>
         <label class="field-label" for="selMat">${esc(t('sel.material'))}</label>
         <select id="selMat">${Object.entries(MATERIALS).map(([key, m]) => `<option value="${key}"${key === item.m ? ' selected' : ''}>${esc(matText(key, m.db[BANDS[P.band].i]))}</option>`).join('')}</select>
-        <div class="btnrow"><button type="button" class="ghost danger" data-selact="del">${esc(t('sel.delWall'))}</button></div>`;
+        <div class="btnrow"><button type="button" data-selact="dup">${esc(t('sel.duplicate'))}</button><button type="button" class="ghost danger" data-selact="del">${esc(t('sel.delWall'))}</button></div>`;
     } else if (sel.type === 'node') {
       const gi = nodesAll().findIndex(a => a.n === item);
       h = popHead(nodeName(gi))
         + `<label class="field-label" for="selModel">${esc(t('sel.model'))}</label><select id="selModel">${modelOptions(item.model)}</select>
         ${item.main ? `<p class="small muted">${esc(t('sel.mainNote'))}</p>` : `<label class="check"><input type="checkbox" id="selWired"${item.wired ? ' checked' : ''}> ${esc(t('sel.wired'))}</label>`}
-        <div class="btnrow">${item.main ? '' : `<button type="button" data-selact="main">${esc(t('sel.makeMain'))}</button>`}<button type="button" class="ghost danger" data-selact="del">${esc(t('sel.delNode'))}</button></div>`;
+        <div class="btnrow">${item.main ? '' : `<button type="button" data-selact="main">${esc(t('sel.makeMain'))}</button>`}<button type="button" data-selact="dup">${esc(t('sel.duplicate'))}</button><button type="button" class="ghost danger" data-selact="del">${esc(t('sel.delNode'))}</button></div>`;
     } else {
       h = popHead(t('sel.room'))
         + `<label class="sr" for="selText">${esc(t('sel.text'))}</label><input type="text" id="selText" value="${esc(item.t)}" maxlength="40">
-        <div class="btnrow"><button type="button" class="ghost danger" data-selact="del">${esc(t('sel.delRoom'))}</button></div>`;
+        <div class="btnrow"><button type="button" data-selact="dup">${esc(t('sel.duplicate'))}</button><button type="button" class="ghost danger" data-selact="del">${esc(t('sel.delRoom'))}</button></div>`;
     }
   } else if (sel && sel.type === 'link') {
     const l = E.topology(P, MODELS).find(x => x.child === sel.child);
@@ -1130,7 +1198,7 @@ function renderPop() {
         + (multiPending
           ? `<p class="small pending">${[pend.mat && esc(t('sel.pendingMat', { n: walls.length, mat: matLabel(pend.mat) })), pend.model && esc(t('sel.pendingModel', { n: nodes.length, model: MODELS[pend.model].name }))].filter(Boolean).join('<br>')}</p>`
             + `<div class="btnrow"><button type="button" class="primary" data-selact="applyAll">${esc(t('sel.applyAll'))}</button><button type="button" class="ghost" data-selact="cancelPending">${esc(t('panel.cancel'))}</button></div>`
-          : `<p class="hint">${esc(t('sel.multiHint'))}</p><div class="btnrow"><button type="button" class="ghost danger" data-selact="delAll">${esc(t('sel.delSelected'))}</button></div>`);
+          : `<p class="hint">${esc(t('sel.multiHint'))}</p><div class="btnrow"><button type="button" data-selact="dup">${esc(t('sel.duplicate'))}</button><button type="button" class="ghost danger" data-selact="delAll">${esc(t('sel.delSelected'))}</button></div>`);
     } else return renderPop();
   } else if (sel && sel.type !== 'wall' && sel.type !== 'node' && sel.type !== 'label') sel = null;
   pop.hidden = !h;
@@ -1226,6 +1294,7 @@ pop.addEventListener('click', e => {
   if (act === 'cancelPending') { multiPending = null; renderPop(); return; }
   if (act === 'applyAll') { applyPending(); return; }
   if (act === 'delAll') { confirmDeleteSelection(); return; }
+  if (act === 'dup') { pasteItems(copyOf(selItems())); return; }
   if (act === 'close') { if (sel.type === 'measure') measure = null; sel = null; renderPop(); schedule(); cv.focus({ preventScroll: true }); return; }
   pushHist();
   if (act === 'del') { removeHit(sel); sel = null; live(t('live.deleted')); }

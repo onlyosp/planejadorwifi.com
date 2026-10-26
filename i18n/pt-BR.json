@@ -307,7 +307,8 @@
       "suggestOtherModel": " O modelo escolhido ({chosen}) não tem {band}, por isso a sugestão usa um {model}.",
       "bandPartial": "Aparelhos com {band}: {n} de {total} ({names}). Os outros não ajudam nesta faixa.",
       "computingPct": "Testando os pontos livres… {pct}",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "suggestShort": "Sugestão marcada na planta: a cobertura vai de {from} para {to}."
     },
     "sel": {
       "wall": "Parede",
@@ -329,7 +330,7 @@
       "apply": "Ajustar imagem",
       "measureNoImage": "Para usar a medida como escala, carregue uma foto da planta em Arquivo › Planta e escala.",
       "length": "Comprimento (m)",
-      "lengthHint": "Ou arraste os quadradinhos nas pontas, em qualquer ângulo.",
+      "lengthHint": "Arraste as pontas para mudar o tamanho ou o ângulo, e o meio para mover a parede.",
       "matLoss": "{mat} · −{db} dB em {band}",
       "multiTitle": "{n} itens selecionados",
       "countWalls": "Paredes: {n}",
@@ -344,7 +345,8 @@
       "pendingMat": "Paredes: {n} → {mat}",
       "pendingModel": "Nós: {n} → {model}",
       "delConfirm": "Apagar {n} itens selecionados?",
-      "delConfirmMsg": "Dá para trazer de volta com Desfazer (Ctrl+Z)."
+      "delConfirmMsg": "Dá para trazer de volta com Desfazer (Ctrl+Z).",
+      "duplicate": "Duplicar"
     },
     "models": {
       "isp": "Roteador da operadora",
@@ -486,7 +488,9 @@
       "byBand": "Casa toda, por faixa",
       "showBand": "Ver o mapa em {band}",
       "note": "Estimativa com erro típico de ±8 dB.",
-      "sixPartial": "6 GHz chega a {pct} da casa; aparelhos com 6 GHz: {n} de {total}."
+      "sixPartial": "6 GHz chega a {pct} da casa; aparelhos com 6 GHz: {n} de {total}.",
+      "export": "Exportar",
+      "exportLabel": "Exportar o projeto (JSON)"
     },
     "hud": {
       "weak1": "1 ligação fraca",
@@ -506,7 +510,12 @@
       "band": "Mapa em {band}.",
       "suggestDone": "Sugestão pronta: a cobertura vai de {from} para {to}.",
       "suggestCancelled": "Sugestão cancelada.",
-      "applied": "Alteração aplicada aos itens selecionados."
+      "applied": "Alteração aplicada aos itens selecionados.",
+      "copied": "Copiado. Use Ctrl+V para colar.",
+      "pasted": "Colado e selecionado."
+    },
+    "stage": {
+      "zoomAt": "Ajustar à tela (zoom atual {pct})"
     }
   },
   "drawer": {

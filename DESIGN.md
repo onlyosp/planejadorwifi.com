@@ -292,7 +292,7 @@ Earthy, material-like colors used only for walls on the plan: **Brick Terracotta
 
 - **Page:** maximum width 1440px, centered, with a 16px side gutter that respects device safe areas.
 - **Workspace:** one screen tall (viewport height minus the header, at least 520px). A short title row (H1, example-house chip, project bar) sits on top, 8px above the body. The body is a grid of the plan map (`minmax(0, 1fr)`) and a 340px results drawer, 12px apart. Collapsing the drawer gives the map the full width and leaves a summary chip in the map's top-right corner.
-- **Plan map:** a hairline-bordered 8px frame on Desk Gray; the plan sheet is drawn inside it and pans and zooms. Instruments float 10px from its edges: the top strip (floors, band segment, heat-map toggle) along the top, the tool rail on the left below it, the active tool's options to the right of the top strip, the readout at the bottom left beside the rail, and the history and view clusters at the bottom right.
+- **Plan map:** a hairline-bordered 8px frame on Desk Gray; the plan sheet is drawn inside it and pans and zooms. Instruments float 10px from its edges: the top strip (floors, band segment, heat-map toggle) along the top, the tool rail on the left below it, the active tool's options to the right of the top strip, the readout at the bottom left beside the rail, and the history and view clusters at the bottom right. Once the plan is zoomed away from its fitted size, the fit button shows the current zoom in monospace ("156%") instead of its icon. In dark mode the heat layer is drawn about a quarter more opaque, so the categories stay readable over the dark sheet.
 - **Sheet mode (up to 1099px):** the drawer becomes a bottom sheet over the plan (up to 72% of its height) whose head stays visible when collapsed, showing the status icon, the coverage percentage and the band. The readout and view clusters sit above that head.
 - **Phone (up to 719px):** the workspace runs edge to edge with no frame corners; the title takes its own line at 17px and the example chip hides. The tool rail becomes a full-width bar on the bottom edge (shortcut letters hidden), the sheet sits on top of it, the readout moves under the top strip and clamps to one line, and the tool options and the popover dock above the rail. The site menu takes its own scrollable row.
 - **Reading guide:** a single 720px column, 40px below the workspace; it opens with the lead paragraph that introduces the planner.
@@ -372,6 +372,8 @@ The settings of the selected wall, node, room label, link or measurement, opened
 - A 270px Plan Paper panel with 10px corners, a Hairline border and the floating-layer shadow; 10px 12px 12px padding, 8px between rows.
 - Head: a 16px display-face title (the object name, with its length for walls) and an icon-only close button.
 - Placement: beside points (nodes, labels), above or below the midpoint of lines (walls, links, measurements) so the object stays visible; kept 10px inside the map. It hides while the object is dragged. On phones it docks full width above the tool bar and the plan scrolls so the object stays in view.
+- **Duplicate:** every item popover (and the group popover) has a Duplicate button; Ctrl/Cmd+C, Ctrl/Cmd+V and Ctrl/Cmd+D copy, paste and duplicate, placing the copy 1 m down and right and selecting it.
+- **Walls:** dragging the ends of a selected wall resizes it at any angle; dragging its middle moves it on the grid, and the ends of walls that meet it follow so rooms stay closed.
 - **Several items:** Shift/Ctrl-click, Shift-drag (a dashed Drafting Blue box over a faint tint) or the "Select several" option of the Select tool gather walls, nodes and names. Each selected item keeps its own highlight; one popover covers the group ("3 items selected", counts per kind, one material for all walls, one model for all nodes, delete) and is placed off the rectangle around all of them. A change made with several items selected never applies on its own: the popover shows what will change on a Drafting Blue tint ("Walls: 2 → Glass") with "Apply to all selected" and Cancel, and deleting several items asks in a dialog first. Dragging any selected item moves the group on the grid; while picking several on a phone the plan does not scroll between taps.
 
 ### Results drawer and bottom sheet
@@ -384,6 +386,8 @@ The settings of the selected wall, node, room label, link or measurement, opened
 ### Verdict card (signature)
 
 The first card in the drawer, answering "is this enough, and what do I buy".
+
+- Header: the title with a small ghost "Export" action in the top-right corner (16px download icon plus label, 13px Pencil Gray, Graphite Ink on hover), the project backup next to the result it records.
 
 - Status line in the display face (700, 22px) led by a 22px status icon from the icon set: a check in Drafting Blue when the plan covers the house, an alert in Graphite Ink when a node needs a cable, an alert in Alert Red when signal is missing. Signal colors are not used for the verdict; the line always names the status in words.
 - A definition list of the devices to buy (Pencil Gray 13px term, semibold value), a coverage line, and, when a link is weak, a cable sentence with a primary button to wire that node.
