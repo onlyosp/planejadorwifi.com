@@ -24,7 +24,7 @@
     "faq": "FAQ",
     "tour": "Guided tour",
     "language": "Language",
-    "skip": "Skip to the guide"
+    "skip": "Skip to the planner"
   },
   "intro": {
     "h1": "Plan your Wi-Fi mesh on your floor plan",
@@ -90,7 +90,8 @@
     "image": "Floor plan photo or image",
     "imageOpacity": "Image opacity",
     "scaleHint": "To set the scale, use <b>Measure</b>, drag over a known length on the image and enter its real size.",
-    "removeImage": "Remove image"
+    "removeImage": "Remove image",
+    "chooseImage": "Choose image…"
   },
   "share": {
     "title": "Share",

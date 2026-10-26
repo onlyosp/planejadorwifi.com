@@ -24,7 +24,7 @@
     "faq": "Perguntas frequentes",
     "tour": "Tour guiado",
     "language": "Idioma",
-    "skip": "Pular para o guia"
+    "skip": "Ir para o simulador"
   },
   "intro": {
     "h1": "Simulador de Wi-Fi mesh na planta da sua casa",
@@ -90,7 +90,8 @@
     "image": "Foto ou imagem da planta",
     "imageOpacity": "Opacidade da imagem",
     "scaleHint": "Para acertar a escala, use <b>Medir</b>, arraste sobre uma medida conhecida da imagem e informe o tamanho real.",
-    "removeImage": "Remover imagem"
+    "removeImage": "Remover imagem",
+    "chooseImage": "Escolher imagem…"
   },
   "share": {
     "title": "Compartilhar",

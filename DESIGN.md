@@ -401,6 +401,7 @@ The first card in the drawer, answering "is this enough, and what do I buy".
 - **Focus:** the shared 2px Drafting Blue outline.
 - **Error:** Alert Red message text below the field.
 - **Checkboxes and ranges:** native controls tinted with Drafting Blue.
+- **File picker:** the native file input is visually hidden and a label styled as a default button carries the translated action ("Choose image…"); the input keeps keyboard focus and draws the focus ring on that button. The native control would speak the browser's language.
 
 ### Navigation
 
