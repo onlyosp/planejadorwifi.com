@@ -25,7 +25,10 @@
     --bg: #101419; --sheet: #171C23; --panel: #141920; --ink: #E5E9EF; --muted: #98A2B1; --line: #2C3440;
     --grid: #1F252E; --grid-strong: #2C3440; --accent: #8D9BFF; --accent-soft: rgba(141, 155, 255, .16); --on-accent: #10131A;
     --danger: #FF7A88; --shadow: 0 10px 30px rgba(0, 0, 0, .5); --shadow-float: 0 2px 12px rgba(0, 0, 0, .45);
-    --m-tijolo: #D27C59; --m-concreto: #A7AEB9; --m-gesso: #717A87; --m-madeira: #D4A35A; --m-vidro: #6BC6EA; --m-metal: #E3E7ED;
+    /* Brick stays terracotta but less saturated, so it never reads as the weak-signal orange. */
+    --m-tijolo: #CF9A86; --m-concreto: #A7AEB9; --m-gesso: #717A87; --m-madeira: #D4A35A; --m-vidro: #6BC6EA; --m-metal: #E3E7ED;
+    /* Over the dark sheet the two greens blend darker: spread them apart in lightness. */
+    --q0: #23B26D; --q1: #C8E66B;
     color-scheme: dark;
   }
 }
@@ -155,6 +158,14 @@ canvas { display: block; touch-action: none; cursor: crosshair }
   padding: 6px 8px 6px 12px; box-shadow: var(--shadow-float); font-size: 14px }
 .hud .ic { transform: rotate(180deg); width: 18px; height: 18px }
 .dot { display: inline-block; width: 9px; height: 9px; border-radius: 999px; margin-right: 7px; vertical-align: 1px; flex: none }
+/* Verdict status: an icon in interface colors, so signal colors stay on the signal. */
+.st-ic { width: 16px; height: 16px; margin-right: 6px; vertical-align: -3px; stroke-width: 2.2 }
+.v-status .st-ic { width: 22px; height: 22px; margin-right: 8px; vertical-align: 0 }
+.st-ok { color: var(--accent) }
+.st-warn { color: var(--ink) }
+.st-bad { color: var(--danger) }
+.logo .logo-accent { fill: var(--accent) }
+.logo .logo-arc { stroke: var(--accent) }
 .hud-sum b, .dh-sum b { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums }
 
 /* popover next to the selected object */

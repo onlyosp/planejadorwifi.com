@@ -34,6 +34,9 @@ colors:
   pencil-gray-dark: "#98A2B1"
   hairline-dark: "#2C3440"
   alert-red-dark: "#FF7A88"
+  signal-excellent-dark: "#23B26D"
+  signal-good-dark: "#C8E66B"
+  wall-brick-dark: "#CF9A86"
 typography:
   display:
     fontFamily: "Barlow Semi Condensed, Arial Narrow, Arial, sans-serif"
@@ -240,7 +243,7 @@ A cool drafting-room palette of paper, graphite and one blue ink, with all satur
 
 ### Signal scale (the heat map)
 
-Five fixed colors from a diverging green-to-red scale, identical in light and dark themes, drawn semi-transparent over the plan:
+Five colors from a diverging green-to-red scale, drawn semi-transparent over the plan. Fair, Weak and None are identical in both themes; over the dark sheet the two greens blend darker, so dark mode spreads them apart in lightness (Excellent `#23B26D`, Good `#C8E66B`):
 
 - **Signal Excellent** (`signal-excellent`): ≥ −60 dBm.
 - **Signal Good** (`signal-good`): −60 to −67 dBm.
@@ -250,7 +253,7 @@ Five fixed colors from a diverging green-to-red scale, identical in light and da
 
 ### Wall materials
 
-Earthy, material-like colors used only for walls on the plan: **Brick Terracotta** (`wall-brick`), **Concrete Slate** (`wall-concrete`), **Drywall Ash** (`wall-drywall`), **Door Oak** (`wall-wood`), **Glass Teal** (`wall-glass`, always dashed) and **Metal Black** (`wall-metal`). In dark mode each one is lightened so it stays visible on the dark sheet (brick `#D27C59`, concrete `#A7AEB9`, drywall `#717A87`, wood `#D4A35A`, glass `#6BC6EA`, metal `#E3E7ED`).
+Earthy, material-like colors used only for walls on the plan: **Brick Terracotta** (`wall-brick`), **Concrete Slate** (`wall-concrete`), **Drywall Ash** (`wall-drywall`), **Door Oak** (`wall-wood`), **Glass Teal** (`wall-glass`, always dashed) and **Metal Black** (`wall-metal`). In dark mode each one is lightened so it stays visible on the dark sheet (brick `#CF9A86`, kept less saturated so it never reads as the weak-signal orange, concrete `#A7AEB9`, drywall `#717A87`, wood `#D4A35A`, glass `#6BC6EA`, metal `#E3E7ED`).
 
 ### Named Rules
 
@@ -290,7 +293,7 @@ Earthy, material-like colors used only for walls on the plan: **Brick Terracotta
 - **Page:** maximum width 1440px, centered, with a 16px side gutter that respects device safe areas.
 - **Workspace:** one screen tall (viewport height minus the header, at least 520px). A short title row (H1, example-house chip, project bar) sits on top, 8px above the body. The body is a grid of the plan map (`minmax(0, 1fr)`) and a 340px results drawer, 12px apart. Collapsing the drawer gives the map the full width and leaves a summary chip in the map's top-right corner.
 - **Plan map:** a hairline-bordered 8px frame on Desk Gray; the plan sheet is drawn inside it and pans and zooms. Instruments float 10px from its edges: the top strip (floors, band segment, heat-map toggle) along the top, the tool rail on the left below it, the active tool's options to the right of the top strip, the readout at the bottom left beside the rail, and the history and view clusters at the bottom right.
-- **Sheet mode (up to 1099px):** the drawer becomes a bottom sheet over the plan (up to 72% of its height) whose head stays visible when collapsed, showing a status dot, the coverage percentage and the band. The readout and view clusters sit above that head.
+- **Sheet mode (up to 1099px):** the drawer becomes a bottom sheet over the plan (up to 72% of its height) whose head stays visible when collapsed, showing the status icon, the coverage percentage and the band. The readout and view clusters sit above that head.
 - **Phone (up to 719px):** the workspace runs edge to edge with no frame corners; the title takes its own line at 17px and the example chip hides. The tool rail becomes a full-width bar on the bottom edge (shortcut letters hidden), the sheet sits on top of it, the readout moves under the top strip and clamps to one line, and the tool options and the popover dock above the rail. The site menu takes its own scrollable row.
 - **Reading guide:** a single 720px column, 40px below the workspace; it opens with the lead paragraph that introduces the planner.
 - **Spacing rhythm:** small steps of 2, 4 and 6px inside instruments and button groups; 8–10px between floating instruments and the map edge; 12px between drawer cards and between the map and the drawer; 14px card padding.
@@ -340,7 +343,7 @@ Small paper panels resting on the plan: Plan Paper background, 1px Hairline bord
 - **Tool options:** the settings of the active tool (wall material and straight-lines check, or node model and the "other model" link) in one row beside the top strip; docked above the rail on phones.
 - **Readout:** the reading under the pointer and the tool hint, at the bottom left. Prose in Barlow 13px Pencil Gray with key words in Graphite Ink; only coordinates and dBm values switch to monospace.
 - **History and view clusters:** two button groups at the bottom right (undo/redo; zoom out, fit, zoom in). Icon-only buttons divided by hairlines inside one 8px capsule, Drafting Blue tint on hover; disabled history buttons drop to 35% opacity.
-- **Summary chip:** when the drawer is collapsed on wide screens, a fully rounded chip in the map's top-right corner shows a status dot, the coverage percentage in monospace, the band and the number of weak links, and reopens the drawer.
+- **Summary chip:** when the drawer is collapsed on wide screens, a fully rounded chip in the map's top-right corner shows the status icon, the coverage percentage in monospace, the band and the number of weak links, and reopens the drawer.
 
 ### Tool rail (signature)
 
@@ -371,14 +374,14 @@ The settings of the selected wall, node, room label, link or measurement, opened
 ### Results drawer and bottom sheet
 
 - **Drawer (wide screens):** a 340px Panel Mist column beside the map, 8px corners and a Hairline border, no shadow. A full-width head button (17px display-face title, summary at the right, chevron icon) collapses it into the summary chip. The body scrolls on its own with 12px padding and 12px between cards.
-- **Bottom sheet (up to 1099px):** the same drawer laid over the bottom of the map with 10px top corners and the floating-layer shadow. Collapsed, only the head shows: a status dot, the coverage percentage and the band.
+- **Bottom sheet (up to 1099px):** the same drawer laid over the bottom of the map with 10px top corners and the floating-layer shadow. Collapsed, only the head shows: the status icon, the coverage percentage and the band.
 - **Contents, in order:** the verdict card, coverage on the selected band (big metric, signal bar and category rows), links between nodes, the suggested next node, plan settings, sharing, and an "about the estimate" card with the signal legend and the model note.
 
 ### Verdict card (signature)
 
 The first card in the drawer, answering "is this enough, and what do I buy".
 
-- Status line in the display face (700, 22px) led by a 9px status dot; the line always names the status in words.
+- Status line in the display face (700, 22px) led by a 22px status icon from the icon set: a check in Drafting Blue when the plan covers the house, an alert in Graphite Ink when a node needs a cable, an alert in Alert Red when signal is missing. Signal colors are not used for the verdict; the line always names the status in words.
 - A definition list of the devices to buy (Pencil Gray 13px term, semibold value), a coverage line, and, when a link is weak, a cable sentence with a primary button to wire that node.
 - A 6 GHz note in small Pencil Gray text.
 - Whole-house tiles, one per band, as three equal buttons: Plan Paper, 6px corners, the percentage in 15px monospace over an 11.5px Pencil Gray band label. Pressing one switches the plan to that band.

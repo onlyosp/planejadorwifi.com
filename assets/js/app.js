@@ -763,11 +763,12 @@ function verdict() {
   const short = house[mb].good < 0.9;
   return { mb, house, weak, status: short ? 'short' : weak.length ? 'okCable' : 'ok' };
 }
+// Status icon: check when the plan covers the house, alert otherwise (red when signal is missing).
+const statusIcon = s => `<svg class="ic st-ic st-${s === 'ok' ? 'ok' : s === 'okCable' ? 'warn' : 'bad'}" aria-hidden="true"><use href="#i-${s === 'ok' ? 'check' : 'alert'}"/></svg>`;
 function summaryChip(v) {
   if (!v) return `<span class="dot" style="background:var(--muted)"></span>${esc(t('hud.noNodes'))}`;
-  const dot = v.status === 'ok' ? 'q0' : v.status === 'okCable' ? 'q2' : 'q4';
   const weak = v.weak.length ? ' · ' + esc(v.weak.length === 1 ? t('hud.weak1') : t('hud.weakN', { n: v.weak.length })) : '';
-  return `<span class="dot" style="background:var(--${dot})"></span><b>${pct(v.house[v.mb].good)}</b> · ${bandLabel(v.mb)}${weak}`;
+  return `${statusIcon(v.status)}<b>${pct(v.house[v.mb].good)}</b> · ${bandLabel(v.mb)}${weak}`;
 }
 function renderVerdict(v) {
   let h = `<h2>${esc(t('verdict.title'))}</h2>`;
@@ -778,8 +779,7 @@ function renderVerdict(v) {
   const kit = {};
   nodesAll().forEach(a => { kit[a.n.model] = (kit[a.n.model] || 0) + 1; });
   const kitText = Object.entries(kit).map(([id, n]) => `${n} × ${MODELS[id].name}`).join(' + ');
-  const dot = v.status === 'ok' ? 'q0' : v.status === 'okCable' ? 'q2' : 'q4';
-  h += `<p class="v-status"><span class="dot" style="background:var(--${dot})"></span>${esc(t('verdict.' + v.status))}</p>`;
+  h += `<p class="v-status">${statusIcon(v.status)}${esc(t('verdict.' + v.status))}</p>`;
   h += `<dl class="v-dl"><dt>${esc(t('verdict.devices'))}</dt><dd>${esc(kitText)}</dd></dl>`;
   const line = v.status === 'short' ? 'verdict.shortLine' : 'verdict.okLine';
   h += `<p class="small">${esc(t(line, { band: bandLabel(v.mb), pct: pct(v.house[v.mb].good) }))}</p>`;
