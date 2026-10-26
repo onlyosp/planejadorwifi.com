@@ -43,7 +43,9 @@
     "duplicate": "Duplicar",
     "export": "Exportar JSON",
     "import": "Importar JSON",
-    "delete": "Eliminar proyecto"
+    "delete": "Eliminar proyecto",
+    "plan": "Plano y escala…",
+    "openExample": "Abrir la casa de ejemplo"
   },
   "stage": {
     "label": "Simulador",
@@ -107,7 +109,7 @@
   },
   "guide": {
     "howToTitle": "Cómo usar el simulador",
-    "howToSteps": "<li>Haz clic en <b>Nuevo proyecto</b> e indica el ancho y el fondo del terreno o de la casa.</li><li>Si tienes el plano en foto o en imagen, cárgalo en <b>Plano y escala</b> y ajusta la escala con <b>Medir</b>.</li><li>Con la herramienta <b>Pared</b>, dibuja las paredes exteriores e interiores eligiendo el material. Las puertas y ventanas también son paredes, de madera o vidrio.</li><li>Con <b>Router</b>, coloca el router principal donde está el módem del proveedor y luego los demás nodos.</li><li>Cambia entre 2,4, 5 y 6 GHz y mira el mapa de calor. Verde es señal excelente; rojo es sin señal útil.</li><li>Usa <b>Sugerir posición</b> para saber dónde un nodo más aporta más, y <b>Archivo › Exportar JSON</b> para guardar el proyecto.</li>",
+    "howToSteps": "<li>Haz clic en <b>Nuevo proyecto</b> e indica el ancho y el fondo del terreno o de la casa.</li><li>Si tienes el plano en foto o en imagen, cárgalo en <b>Archivo › Plano y escala</b> y ajusta la escala con <b>Medir</b>.</li><li>Con la herramienta <b>Pared</b>, dibuja las paredes exteriores e interiores eligiendo el material. Las puertas y ventanas también son paredes, de madera o vidrio.</li><li>Con <b>Router</b>, coloca el router principal donde está el módem del proveedor y luego los demás nodos.</li><li>Cambia entre 2,4, 5 y 6 GHz y mira el mapa de calor. Verde es señal excelente; rojo es sin señal útil.</li><li>Usa <b>Sugerir posición</b> para saber dónde un nodo más aporta más, y <b>Archivo › Exportar JSON</b> para guardar el proyecto.</li>",
     "wallsTitle": "Cuánta señal quita cada pared",
     "wallsText": "Cada pared que atraviesa la señal suma una pérdida en decibelios (dB). Cada 10 dB la potencia que llega baja a la décima parte, así que dos o tres paredes de ladrillo ya se notan. Los valores de abajo son los promedios que usa el simulador; la pérdida real varía con el grosor, la humedad y la armadura de acero.",
     "material": "Material",
@@ -125,7 +127,7 @@
     "signal": "Señal",
     "level": "Nivel",
     "practice": "En la práctica",
-    "signalRows": "<tr><td class=\"num\">−60 dBm o mejor</td><td>Excelente</td><td>Streaming 4K, juegos en línea y la velocidad máxima de tu plan.</td></tr><tr><td class=\"num\">−60 a −67 dBm</td><td>Buena</td><td>Video HD y videollamadas estables. Es la meta para las habitaciones que usas.</td></tr><tr><td class=\"num\">−67 a −72 dBm</td><td>Regular</td><td>La navegación y los mensajes funcionan; el video puede cortarse.</td></tr><tr><td class=\"num\">−72 a −80 dBm</td><td>Débil</td><td>Lenta e inestable.</td></tr><tr><td class=\"num\">por debajo de −80 dBm</td><td>Sin señal útil</td><td>La conexión se cae a menudo.</td></tr>",
+    "signalRows": "<tr><td class=\"mono\">−60 dBm o mejor</td><td><i class=\"sw\" style=\"background:var(--q0)\"></i>Excelente</td><td>Streaming 4K, juegos en línea y la velocidad máxima de tu plan.</td></tr><tr><td class=\"mono\">−60 a −67 dBm</td><td><i class=\"sw\" style=\"background:var(--q1)\"></i>Buena</td><td>Video HD y videollamadas estables. Es la meta para las habitaciones que usas.</td></tr><tr><td class=\"mono\">−67 a −72 dBm</td><td><i class=\"sw\" style=\"background:var(--q2)\"></i>Regular</td><td>La navegación y los mensajes funcionan; el video puede cortarse.</td></tr><tr><td class=\"mono\">−72 a −80 dBm</td><td><i class=\"sw\" style=\"background:var(--q3)\"></i>Débil</td><td>Lenta e inestable.</td></tr><tr><td class=\"mono\">por debajo de −80 dBm</td><td><i class=\"sw\" style=\"background:var(--q4)\"></i>Sin señal útil</td><td>La conexión se cae a menudo.</td></tr>",
     "bandsTitle": "¿2,4, 5 o 6 GHz?",
     "bandsText": "<p><b>2,4 GHz</b> llega más lejos y atraviesa mejor las paredes, pero es lenta y se comparte con los vecinos. Sirve para dispositivos de casa inteligente y rincones lejanos.</p><p><b>5 GHz</b> es el equilibrio para el día a día: mucho más rápida, con alcance medio. Conviene mirar el mapa primero en esta banda.</p><p><b>6 GHz</b>, presente en routers Wi-Fi 6E y Wi-Fi 7 tribanda, es la más rápida y la menos congestionada, pero pierde más en cada pared. Rinde más en la misma habitación del router y en el enlace entre nodos mesh.</p>",
     "faqTitle": "Preguntas frecuentes"
@@ -241,7 +243,7 @@
         "use": "la conexión se cae"
       }
     ],
-    "legendMain": "nodo principal",
+    "legendMain": "router principal",
     "readout": {
       "idle": "Pasa el cursor sobre el plano para leer la señal.",
       "noNodes": "ningún router colocado",
@@ -250,11 +252,12 @@
       "idleTouch": "Toca el plano para leer la señal."
     },
     "node": {
-      "main": "Principal",
+      "main": "Router",
       "n": "Nodo {n}",
       "cable": "cable",
       "without": "sin {band}",
-      "suggestion": "sugerencia"
+      "suggestion": "sugerencia",
+      "mainShort": "R"
     },
     "floors": {
       "ground": "Planta baja",
@@ -282,7 +285,7 @@
         "2": "aceptable",
         "4": "débil, usa cable"
       },
-      "linksHint": "La flecha muestra a qué nodo se conecta cada uno. Inalámbrico, busca entre −60 y −70 dBm; por debajo de eso, conéctalos con cable de red.",
+      "linksHint": "Cada fila muestra a qué nodo se conecta cada uno (Nodo 2 → Router). Inalámbrico, busca entre −60 y −70 dBm; por debajo de eso, conéctalos con cable de red.",
       "suggestTitle": "¿Dónde poner otro nodo?",
       "suggestIntro": "Prueba cada punto libre de este piso y elige el que más área con buena señal añade en {band}.",
       "suggestRun": "Sugerir posición",
@@ -298,7 +301,8 @@
         "noSpot": "No encontré un punto libre lejos de las paredes. Amplía el área o ajusta el dibujo.",
         "alreadyGood": "La cobertura ya es buena en casi toda la casa. Otro nodo no cambiaría mucho.",
         "noGain": "Ninguna posición mejora la cobertura de forma relevante.",
-        "weakLink": "Ningún punto mejora mucho la cobertura, pero el enlace entre {child} y {parent} es débil. Conecta {child} con un cable o acerca los dos."
+        "weakLink": "Ningún punto mejora mucho la cobertura, pero el enlace entre {child} y {parent} es débil. Conecta {child} con un cable o acerca los dos.",
+        "noRouter": "Primero coloca el router donde está el módem, con la herramienta Router."
       },
       "suggestOtherModel": " El modelo elegido ({chosen}) no tiene {band}, por eso la sugerencia usa un {model}.",
       "bandPartial": "Equipos con {band}: {n} de {total} ({names}). Los demás no ayudan en esta banda."
@@ -308,7 +312,7 @@
       "material": "Material",
       "delWall": "Borrar pared",
       "model": "Modelo",
-      "mainNote": "Nodo principal: se conecta al módem del proveedor.",
+      "mainNote": "Router principal: se conecta al módem del proveedor.",
       "wired": "Conectado por cable de red",
       "makeMain": "Hacer principal",
       "delNode": "Borrar nodo",
@@ -321,9 +325,10 @@
       "measured": "Línea medida: {len} m",
       "realLength": "Longitud real de esta línea (m)",
       "apply": "Ajustar imagen",
-      "measureNoImage": "Para usarla como escala, carga una foto del plano en Plano y escala.",
+      "measureNoImage": "Para usarla como escala, carga una foto del plano en Archivo › Plano y escala.",
       "length": "Longitud (m)",
-      "lengthHint": "O arrastra los cuadraditos de los extremos, en cualquier ángulo."
+      "lengthHint": "O arrastra los cuadraditos de los extremos, en cualquier ángulo.",
+      "matLoss": "{mat} · −{db} dB en {band}"
     },
     "models": {
       "isp": "Router del proveedor",
@@ -420,7 +425,7 @@
         {
           "target": "[data-tool=node]",
           "title": "Coloca el router",
-          "body": "Marca dónde está el módem: ese es el nodo principal. Luego añade los demás nodos mesh y revisa el enlace entre ellos."
+          "body": "Marca dónde está el módem: ahí va el router principal. Luego añade los nodos mesh y revisa el enlace entre ellos."
         },
         {
           "target": "#bands",
@@ -472,7 +477,8 @@
       "weakN": "{n} enlaces débiles",
       "noNodes": "Sin router",
       "open": "Mostrar resultado",
-      "close": "Ocultar resultado"
+      "close": "Ocultar resultado",
+      "mainBand": "Banda principal {band}"
     },
     "live": {
       "wall": "Pared creada, {len} m.",
@@ -480,12 +486,20 @@
       "deleted": "Elemento borrado.",
       "wired": "{node} conectado por cable.",
       "unwired": "{node} ahora inalámbrico.",
-      "selected": "Seleccionado: {item}."
+      "selected": "Seleccionado: {item}.",
+      "band": "Mapa en {band}."
     }
   },
   "drawer": {
     "title": "Resultado",
     "hide": "Ocultar resultado",
     "about": "Sobre la estimación"
+  },
+  "invite": {
+    "title": "Empieza por el plano",
+    "text": "Arrastra en el plano para dibujar las paredes exteriores, o carga una foto del plano y dibuja encima.",
+    "draw": "Dibujar paredes",
+    "photo": "Cargar foto del plano",
+    "drop": "También puedes soltar la imagen aquí."
   }
 }

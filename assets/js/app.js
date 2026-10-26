@@ -16,6 +16,8 @@ const dbm = v => (v === -Infinity ? '—' : '−' + Math.round(-v));
 const pct = v => Math.round(v * 100) + '%';
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+// Reads a number typed in the page's format ("2,5" or "2.5").
+const parseNum = s => Number(String(s).trim().replace(/\s/g, '').replace(',', '.'));
 const icon = id => `<svg class="ic" aria-hidden="true"><use href="#i-${id}"/></svg>`;
 // Usage events (project_create, suggest_node...). Nothing listens in the public build; a build
 // extension may forward them to its own statistics tool.
@@ -109,7 +111,7 @@ function openProject(raw) {
   absorbModels(raw || {});
   P = St.normalizeProject(raw, new Set(Object.keys(MODELS)), NAMES);
   localizeDefaults(P);
-  hist = []; fut = []; sel = null; measure = null; suggestion = null; ver++; fitted = true;
+  hist = []; fut = []; sel = null; measure = null; suggestion = null; ver++; fitted = true; inviteOff = false;
   persistNow(); renderAll();
 }
 
@@ -248,8 +250,10 @@ function draw() {
   for (let y = 0; y <= P.h; y++) { ctx.strokeStyle = y % 5 === 0 ? C['grid-strong'] : C.grid; ctx.beginPath(); ctx.moveTo(0, Math.round(y * k) + 0.5); ctx.lineTo(PW, Math.round(y * k) + 0.5); ctx.stroke(); }
   ctx.fillStyle = C.muted; ctx.font = '10px "IBM Plex Mono", monospace'; ctx.textBaseline = 'top'; ctx.textAlign = 'start';
   const step = k < 18 ? 4 : 2;
-  for (let x = step; x < P.w; x += step) ctx.fillText(x + ' m', x * k + 3, 3);
-  for (let y = step; y < P.h; y += step) ctx.fillText(y + ' m', 3, y * k + 3);
+  ctx.save(); ctx.lineWidth = 3; ctx.strokeStyle = C.sheet; ctx.lineJoin = 'round';
+  for (let x = step; x < P.w; x += step) { ctx.strokeText(x + ' m', x * k + 3, 3); ctx.fillText(x + ' m', x * k + 3, 3); }
+  for (let y = step; y < P.h; y += step) { ctx.strokeText(y + ' m', 3, y * k + 3); ctx.fillText(y + ' m', 3, y * k + 3); }
+  ctx.restore();
   ctx.restore();
   ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.strokeRect(-0.5, -0.5, PW + 1, PH + 1);
 
@@ -279,14 +283,18 @@ function draw() {
 
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.font = '600 13px "Barlow Semi Condensed", "Arial Narrow", sans-serif';
-  f.labels.forEach((l, i) => halo(l.t, l.x * k, l.y * k, sel && sel.type === 'label' && sel.i === i ? C.accent : C.ink));
+  // Room names step above a node that sits on them, so both stay readable.
+  f.labels.forEach((l, i) => {
+    const near = f.nodes.some(n => Math.abs(n.x - l.x) * k < 46 && Math.abs(n.y - l.y) * k < 22);
+    halo(l.t, l.x * k, l.y * k - (near ? nodeR() + 16 : 0), sel && sel.type === 'label' && sel.i === i ? C.accent : C.ink);
+  });
 
   E.topology(P, MODELS).forEach(l => {
     const a = all[l.child], b = all[l.parent];
     if (a.fi !== P.floor || b.fi !== P.floor) return;
     const picked = sel && sel.type === 'link' && sel.child === l.child;
     ctx.save(); ctx.lineWidth = picked ? 3.5 : 2;
-    if (l.wired) { ctx.strokeStyle = C.ink; ctx.setLineDash([2, 4]); } else { ctx.strokeStyle = C['q' + E.linkCat(l.v)]; ctx.setLineDash([8, 5]); }
+    if (l.wired) { ctx.strokeStyle = C.ink; ctx.setLineDash([2, 4]); } else { ctx.strokeStyle = C[linkColor(l.v)]; ctx.setLineDash([8, 5]); }
     ctx.beginPath(); ctx.moveTo(a.n.x * k, a.n.y * k); ctx.lineTo(b.n.x * k, b.n.y * k); ctx.stroke(); ctx.restore();
     // The label is a target: a small tag that opens the link popover.
     const mx = (a.n.x + b.n.x) / 2 * k, my = (a.n.y + b.n.y) / 2 * k;
@@ -294,7 +302,7 @@ function draw() {
     ctx.font = '500 11px "IBM Plex Mono", monospace';
     const tw = ctx.measureText(text).width + 12;
     ctx.save();
-    ctx.fillStyle = C.sheet; ctx.strokeStyle = picked ? C.accent : (l.wired ? C.line : C['q' + E.linkCat(l.v)]); ctx.lineWidth = picked ? 2 : 1.25;
+    ctx.fillStyle = C.sheet; ctx.strokeStyle = picked ? C.accent : (l.wired ? C.line : C[linkColor(l.v)]); ctx.lineWidth = picked ? 2 : 1.25;
     roundRect(mx - tw / 2, my - 9, tw, 18, 9); ctx.fill(); ctx.stroke(); ctx.restore();
     ctx.fillStyle = C.ink; ctx.fillText(text, mx, my + 0.5);
   });
@@ -318,7 +326,7 @@ function draw() {
     else { ctx.fillStyle = C.sheet; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = C.muted; ctx.stroke(); }
     ctx.fillStyle = active ? (a.n.main ? C['on-accent'] : C.sheet) : C.muted;
     ctx.font = '600 ' + Math.round(r * 0.9) + 'px "Barlow Semi Condensed", sans-serif';
-    ctx.fillText(a.n.main ? 'P' : String(gi + 1), x, y + 1);
+    ctx.fillText(a.n.main ? t('node.mainShort') : String(gi + 1), x, y + 1);
     ctx.font = '500 11px "IBM Plex Mono", monospace';
     halo(m.short + (a.n.wired ? ' · ' + t('node.cable') : '') + (active ? '' : ' · ' + t('node.without', { band: bandLabel(P.band) })), x, y + r + 9, C.ink);
   });
@@ -416,6 +424,7 @@ function cancelDrag() {
   drag = null; schedule();
 }
 cv.addEventListener('pointerdown', e => {
+  if (!$('#invite').hidden) { inviteOff = true; $('#invite').hidden = true; }
   try { cv.setPointerCapture(e.pointerId); } catch { /* ignore */ }
   ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
   touched = true;
@@ -655,7 +664,7 @@ document.addEventListener('keyup', e => { if (e.key === ' ') { spaceDown = false
 /* ---------- tool rail and options ---------- */
 function setCursor() { cv.style.cursor = tool === 'select' ? 'default' : tool === 'erase' ? 'not-allowed' : 'crosshair'; }
 function setTool(name) {
-  tool = name;
+  tool = name; touched = false;
   document.querySelectorAll('#toolset [data-tool]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === name)));
   $('#matGroup').hidden = name !== 'wall';
   $('#modelGroup').hidden = name !== 'node';
@@ -667,10 +676,11 @@ function setTool(name) {
 }
 document.querySelectorAll('#toolset [data-tool]').forEach(b => b.addEventListener('click', () => setTool(b.dataset.tool)));
 
+const matText = (key, db) => t('sel.matLoss', { mat: matLabel(key), db, band: bandLabel(P.band) });
 function fillMatSel() {
   const bi = BANDS[P.band].i;
   $('#matSel').innerHTML = Object.entries(MATERIALS)
-    .map(([key, m]) => `<option value="${key}"${key === mat ? ' selected' : ''}>${esc(matLabel(key))} · −${m.db[bi]} dB</option>`).join('');
+    .map(([key, m]) => `<option value="${key}"${key === mat ? ' selected' : ''}>${esc(matText(key, m.db[bi]))}</option>`).join('');
 }
 function modelOptions(selected) {
   const opt = m => `<option value="${esc(m.id)}"${m.id === selected ? ' selected' : ''}>${esc(m.name)}</option>`;
@@ -714,7 +724,7 @@ function renderBands() {
 function setBand(bk) {
   if (!BANDS[bk] || bk === P.band) return;
   P.band = bk; suggestion = null; if (sel && sel.type === 'sug') sel = null;
-  persist(); fillMatSel(); renderPanel(); schedule();
+  persist(); fillMatSel(); renderPanel(); schedule(); live(t('live.band', { band: bandLabel(bk) }));
 }
 $('#bands').addEventListener('click', e => { const b = e.target.closest('[data-band]'); if (b) setBand(b.dataset.band); });
 
@@ -764,11 +774,12 @@ function verdict() {
   return { mb, house, weak, status: short ? 'short' : weak.length ? 'okCable' : 'ok' };
 }
 // Status icon: check when the plan covers the house, alert otherwise (red when signal is missing).
+const linkColor = v => ['q0', 'q0', 'q1', 'q1', 'q4'][E.linkCat(v)];
 const statusIcon = s => `<svg class="ic st-ic st-${s === 'ok' ? 'ok' : s === 'okCable' ? 'warn' : 'bad'}" aria-hidden="true"><use href="#i-${s === 'ok' ? 'check' : 'alert'}"/></svg>`;
 function summaryChip(v) {
   if (!v) return `<span class="dot" style="background:var(--muted)"></span>${esc(t('hud.noNodes'))}`;
   const weak = v.weak.length ? ' · ' + esc(v.weak.length === 1 ? t('hud.weak1') : t('hud.weakN', { n: v.weak.length })) : '';
-  return `${statusIcon(v.status)}<b>${pct(v.house[v.mb].good)}</b> · ${bandLabel(v.mb)}${weak}`;
+  return `${statusIcon(v.status)}${esc(t('hud.mainBand', { band: bandLabel(v.mb) }))} · <b>${pct(v.house[v.mb].good)}</b>${weak}`;
 }
 function renderVerdict(v) {
   let h = `<h2>${esc(t('verdict.title'))}</h2>`;
@@ -800,6 +811,11 @@ function renderVerdict(v) {
   h += `<p class="hint">${esc(t('verdict.note'))}</p>`;
   $('#pVerdict').innerHTML = h;
 }
+$('#invite').addEventListener('click', e => {
+  const act = e.target.closest('[data-invite]')?.dataset.invite;
+  if (act === 'draw') { inviteOff = true; $('#invite').hidden = true; setTool('wall'); cv.focus({ preventScroll: true }); }
+  else if (act === 'photo') $('#bgFile').click();
+});
 $('#pCoverage').addEventListener('click', e => { const b = e.target.closest('[data-band]'); if (b) setBand(b.dataset.band); });
 $('#pVerdict').addEventListener('click', e => {
   const b = e.target.closest('[data-band]'); if (b) { setBand(b.dataset.band); return; }
@@ -807,7 +823,7 @@ $('#pVerdict').addEventListener('click', e => {
 });
 
 const wireBtn = (gi, cls) => `<button type="button" class="${cls}" data-wire="${gi}">${esc(t('panel.wireIt', { node: nodeName(gi) }))}</button>`;
-let lastStatus = '';
+let lastStatus = '', inviteOff = false;
 function renderPanel() {
   const st = stats(P.floor, P.band), bl = bandLabel(P.band), f = cur(), all = nodesAll();
   const v = verdict();
@@ -856,6 +872,7 @@ function renderPanel() {
   renderPop();
   $('#undoBtn').disabled = !hist.length; $('#redoBtn').disabled = !fut.length;
   $('#exampleBar').hidden = !P.example || !!P.exampleEdited;
+  $('#invite').hidden = inviteOff || f.walls.length > 0 || f.labels.length > 0 || f.nodes.length > 0 || !!f.bg;
   $('#areaW').value = P.w; $('#areaH').value = P.h;
   $('#heatOn').checked = P.heat; $('#alpha').value = Math.round(P.alpha * 100);
   $('#bgCtl').hidden = !f.bg;
@@ -864,7 +881,7 @@ function renderPanel() {
   $('#delFloor').textContent = t('floors.remove', { name: f.name });
 }
 const linkPill = l => (l.wired ? `<span class="pill pill-wire">${esc(t('panel.cable'))}</span>`
-  : `<span class="pill"><i class="dot" style="background:var(--q${E.linkCat(l.v)})"></i>${dbm(l.v)} dBm · ${bandLabel(l.band)}</span>`);
+  : `<span class="pill"><i class="dot" style="background:var(--${linkColor(l.v)})"></i>${dbm(l.v)} dBm · ${bandLabel(l.band)}</span>`);
 const noneText = s => t('panel.none.' + s.none, s.child != null ? { child: nodeName(s.child), parent: nodeName(s.parent) } : undefined);
 function sugText() {
   const s = suggestion;
@@ -884,7 +901,7 @@ function setWired(gi, on) {
 function runSuggest(btn) {
   if (btn) { btn.textContent = t('panel.computing'); btn.disabled = true; }
   setTimeout(() => {
-    suggestion = E.suggest(P, MODELS, P.floor, P.band, model);
+    suggestion = nodesAll().length ? E.suggest(P, MODELS, P.floor, P.band, model) : { none: 'noRouter' };
     if (!suggestion.none) { sel = { type: 'sug' }; if (sheetMode.matches) setDrawer(false); }
     renderPanel(); schedule();
   }, 20);
@@ -921,10 +938,10 @@ function renderPop() {
     else if (sel.type === 'wall') {
       h = popHead(t('sel.wall'))
         + `<label class="field-label" for="selLen">${esc(t('sel.length'))}</label>
-        <input type="number" id="selLen" min="0.2" max="113" step="0.05" value="${Math.round(Math.hypot(item.x2 - item.x1, item.y2 - item.y1) * 100) / 100}">
+        <input type="text" inputmode="decimal" id="selLen" value="${fmt(Math.hypot(item.x2 - item.x1, item.y2 - item.y1), 2)}">
         <p class="hint">${esc(t('sel.lengthHint'))}</p>
         <label class="field-label" for="selMat">${esc(t('sel.material'))}</label>
-        <select id="selMat">${Object.entries(MATERIALS).map(([key, m]) => `<option value="${key}"${key === item.m ? ' selected' : ''}>${esc(matLabel(key))} · −${m.db.join('/')} dB</option>`).join('')}</select>
+        <select id="selMat">${Object.entries(MATERIALS).map(([key, m]) => `<option value="${key}"${key === item.m ? ' selected' : ''}>${esc(matText(key, m.db[BANDS[P.band].i]))}</option>`).join('')}</select>
         <div class="btnrow"><button type="button" class="ghost danger" data-selact="del">${esc(t('sel.delWall'))}</button></div>`;
     } else if (sel.type === 'node') {
       const gi = nodesAll().findIndex(a => a.n === item);
@@ -1017,7 +1034,7 @@ pop.addEventListener('change', e => {
   if (id === 'selMat') f.walls[sel.i].m = e.target.value;
   else if (id === 'selLen') {
     // Keeps the first end and the direction; the far end moves, clamped to the plan.
-    const w = f.walls[sel.i], len = clamp(+e.target.value || 0, 0.2, 113), L = Math.hypot(w.x2 - w.x1, w.y2 - w.y1) || 1;
+    const w = f.walls[sel.i], len = clamp(parseNum(e.target.value) || 0, 0.2, 113), L = Math.hypot(w.x2 - w.x1, w.y2 - w.y1) || 1;
     w.x2 = clamp(w.x1 + (w.x2 - w.x1) / L * len, 0, P.w); w.y2 = clamp(w.y1 + (w.y2 - w.y1) / L * len, 0, P.h);
   }
   else if (id === 'selModel') f.nodes[sel.i].model = e.target.value;
@@ -1043,8 +1060,8 @@ pop.addEventListener('keydown', e => {
 /* ---------- plan, area and background image ---------- */
 $('#areaW').addEventListener('change', e => { pushHist(); P.w = clamp(+e.target.value || 16, 4, 80); fitted = true; dirty(); resize(); });
 $('#areaH').addEventListener('change', e => { pushHist(); P.h = clamp(+e.target.value || 12, 4, 80); fitted = true; dirty(); resize(); });
-$('#bgFile').addEventListener('change', e => {
-  const file = e.target.files[0]; if (!file) return;
+function loadBackground(file) {
+  if (!file || !/^image\//.test(file.type)) { if (file) toast(t('toast.imageError')); return; }
   const rd = new FileReader();
   rd.onload = () => {
     const im = new Image();
@@ -1061,8 +1078,13 @@ $('#bgFile').addEventListener('change', e => {
     im.onerror = () => toast(t('toast.imageError'));
     im.src = rd.result;
   };
-  rd.readAsDataURL(file); e.target.value = '';
-});
+  rd.readAsDataURL(file);
+}
+$('#bgFile').addEventListener('change', e => { loadBackground(e.target.files[0]); e.target.value = ''; });
+// A floor-plan image dropped on the map becomes the background of the floor on screen.
+area.addEventListener('dragover', e => { if ([...e.dataTransfer.types].includes('Files')) { e.preventDefault(); area.classList.add('dropping'); } });
+area.addEventListener('dragleave', e => { if (!area.contains(e.relatedTarget)) area.classList.remove('dropping'); });
+area.addEventListener('drop', e => { e.preventDefault(); area.classList.remove('dropping'); loadBackground(e.dataTransfer.files[0]); });
 $('#bgAlpha').addEventListener('input', e => { if (cur().bg) { cur().bg.alpha = e.target.value / 100; persist(); schedule(); } });
 $('#bgRemove').addEventListener('click', () => { pushHist(); cur().bg = null; dirty(); });
 function applyCalibration() {
@@ -1104,6 +1126,8 @@ $('#projMenu').addEventListener('click', async e => {
   if (!act) return;
   $('#projMenu').open = false;
   if (act === 'new') $('#newProject').click();
+  else if (act === 'plan') $('#planDlg').showModal();
+  else if (act === 'example') openExample();
   else if (act === 'rename') {
     const name = await ask({ title: t('project.renameTitle'), input: { label: t('project.nameLabel'), value: P.name }, ok: t('project.save') });
     if (name) { P.name = name; persistNow(); }
@@ -1126,6 +1150,19 @@ $('#projMenu').addEventListener('click', async e => {
 document.addEventListener('click', e => {
   const m = $('#projMenu'); if (m.open && !m.contains(e.target)) m.open = false;
 });
+
+// Reopens an untouched example house if there is one; otherwise adds a fresh copy with a free name.
+function openExample() {
+  persistNow();
+  const list = St.listProjects();
+  const kept = list.map(x => St.loadProject(x.id)).find(p => p && p.example && !p.exampleEdited);
+  if (kept) { openProject(kept); setTool('select'); return; }
+  const base = t('project.exampleName'), names = new Set(list.map(x => x.name));
+  let name = base;
+  for (let n = 2; names.has(name); n++) name = `${base} (${n})`;
+  openProject(St.exampleProject({ name, ground: NAMES.ground, rooms: raw('project.exampleRooms') }));
+  setTool('select');
+}
 
 function slug(s) {
   return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || t('project.fileSlug');

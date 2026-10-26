@@ -64,11 +64,13 @@
             <summary>{{project.file}} <svg class="ic ic-sm" aria-hidden="true"><use href="#i-chev"/></svg></summary>
             <div class="menu-list">
               <button type="button" data-act="new" class="menu-new">{{project.new}}</button>
+              <button type="button" data-act="plan">{{project.plan}}</button>
               <button type="button" data-act="rename">{{project.rename}}</button>
               <button type="button" data-act="duplicate">{{project.duplicate}}</button>
               <hr>
               <button type="button" data-act="export">{{project.export}}</button>
               <button type="button" data-act="import">{{project.import}}</button>
+              <button type="button" data-act="example">{{project.openExample}}</button>
               <hr>
               <button type="button" data-act="delete" class="danger">{{project.delete}}</button>
             </div>
@@ -113,6 +115,12 @@
             <input type="text" id="labelInput" placeholder="{{stage.roomPlaceholder}}" aria-label="{{stage.roomName}}" hidden>
           </div>
 
+          <div class="invite" id="invite" hidden>
+            <h2>{{invite.title}}</h2>
+            <p>{{invite.text}}</p>
+            <div class="btnrow"><button type="button" class="primary" data-invite="draw">{{invite.draw}}</button><button type="button" data-invite="photo">{{invite.photo}}</button></div>
+            <p class="hint">{{invite.drop}}</p>
+          </div>
           <div class="fl fl-read">
             <div class="readout" id="readout"></div>
             <p class="hint" id="toolHint"></p>
@@ -147,33 +155,18 @@
             <section class="card" id="pCoverage"></section>
             <section class="card" id="pLinks"></section>
             <section class="card" id="pSuggest"></section>
-            <section class="card" id="pPlan">
-              <h2>{{plan.title}}</h2>
-              <div class="fields">
-                <label for="areaW">{{plan.width}}<input type="number" id="areaW" min="4" max="80" step="0.5"></label>
-                <label for="areaH">{{plan.depth}}<input type="number" id="areaH" min="4" max="80" step="0.5"></label>
+            <section class="drawer-foot" aria-label="{{share.title}}">
+              <div class="share-row">
+                <button type="button" id="copySummary">{{share.copy}}</button>
+                <p class="small muted">{{share.text}}</p>
               </div>
-              <label class="field-row" for="alpha"><span>{{stage.heatOpacity}}</span><input type="range" id="alpha" min="15" max="85" step="5"></label>
-              <p class="field-label">{{plan.image}}</p>
-              <div class="filepick"><input type="file" id="bgFile" class="sr" accept="image/*"><label class="filebtn" for="bgFile">{{plan.chooseImage}}</label></div>
-              <div id="bgCtl" class="group" hidden>
-                <label class="field-row" for="bgAlpha"><span>{{plan.imageOpacity}}</span><input type="range" id="bgAlpha" min="10" max="100" step="5"></label>
-                <p class="hint">{{{plan.scaleHint}}}</p>
-                <button type="button" id="bgRemove" class="ghost">{{plan.removeImage}}</button>
-              </div>
-              <button type="button" id="delFloor" class="ghost danger" hidden></button>
-            </section>
-            <section class="card">
-              <h2>{{share.title}}</h2>
-              <p class="small muted">{{share.text}}</p>
-              <div class="btnrow"><button type="button" id="copySummary">{{share.copy}}</button></div>
               <label class="sr" for="copyFallback">{{share.fallback}}</label>
               <textarea id="copyFallback" readonly hidden></textarea>
-            </section>
-            <section class="card about">
-              <h2>{{drawer.about}}</h2>
-              <div class="legend" id="legend"></div>
-              <p class="foot">{{stage.foot}}</p>
+              <details class="about">
+                <summary>{{drawer.about}}</summary>
+                <div class="legend" id="legend"></div>
+                <p class="foot">{{stage.foot}}</p>
+              </details>
             </section>
             {{{@slot.inResults}}}
           </div>
@@ -233,6 +226,26 @@
       <button value="ok" id="dlgOk" class="primary">OK</button>
       <button value="cancel" formnovalidate>{{dialog.cancel}}</button>
     </div>
+  </form>
+</dialog>
+
+<dialog id="planDlg">
+  <form method="dialog" class="dlg">
+    <h2>{{plan.title}}</h2>
+    <div class="fields">
+      <label for="areaW">{{plan.width}}<input type="number" id="areaW" min="4" max="80" step="0.5"></label>
+      <label for="areaH">{{plan.depth}}<input type="number" id="areaH" min="4" max="80" step="0.5"></label>
+    </div>
+    <label class="field-row" for="alpha"><span>{{stage.heatOpacity}}</span><input type="range" id="alpha" min="15" max="85" step="5"></label>
+    <p class="field-label">{{plan.image}}</p>
+    <div class="filepick"><input type="file" id="bgFile" class="sr" accept="image/*"><label class="filebtn" for="bgFile">{{plan.chooseImage}}</label></div>
+    <div id="bgCtl" class="group" hidden>
+      <label class="field-row" for="bgAlpha"><span>{{plan.imageOpacity}}</span><input type="range" id="bgAlpha" min="10" max="100" step="5"></label>
+      <p class="hint">{{{plan.scaleHint}}}</p>
+      <button type="button" id="bgRemove" class="ghost">{{plan.removeImage}}</button>
+    </div>
+    <button type="button" id="delFloor" class="ghost danger" hidden></button>
+    <div class="btnrow end"><button value="close">{{dialog.close}}</button></div>
   </form>
 </dialog>
 

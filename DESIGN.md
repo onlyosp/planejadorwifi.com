@@ -353,6 +353,8 @@ The vertical rail floating at the left of the map: Select, Wall, Mesh node, Room
 - Each tool is a stacked button: a 20px line icon above a 12px label, with its shortcut letter in 10px monospace Pencil Gray in the top-right corner.
 - Tools are borderless; hover tints with Drafting Blue soft. The pressed tool fills with Graphite Ink, Plan Paper text and icon, semibold.
 - On phones the rail becomes a full-width bar flush with the bottom edge (no shadow, no corners), the tools share the width equally, labels drop to 11px and the shortcut letters hide.
+- On touch screens the floor tabs, band segments, view and history buttons and the heat-map chip are at least 40px tall.
+- **Empty plan invitation:** a floor with nothing on it shows a centered card on the sheet (floating-layer shadow, 10px corners) with "Draw walls" and "Load floor plan photo"; an image can also be dropped on the map, which shows a dashed Drafting Blue outline while dragging. The card goes away on the first touch of the plan.
 
 ### Pressed state
 
@@ -375,7 +377,8 @@ The settings of the selected wall, node, room label, link or measurement, opened
 
 - **Drawer (wide screens):** a 340px Panel Mist column beside the map, 8px corners and a Hairline border, no shadow. A full-width head button (17px display-face title, summary at the right, chevron icon) collapses it into the summary chip. The body scrolls on its own with 12px padding and 12px between cards.
 - **Bottom sheet (up to 1099px):** the same drawer laid over the bottom of the map with 10px top corners and the floating-layer shadow. Collapsed, only the head shows: the status icon, the coverage percentage and the band.
-- **Contents, in order:** the verdict card, coverage on the selected band (big metric, signal bar and category rows), links between nodes, the suggested next node, plan settings, sharing, and an "about the estimate" card with the signal legend and the model note.
+- **Contents, in order:** the verdict card, coverage on the selected band (big metric, signal bar and category rows), links between nodes and the suggested next node. Below them a quieter footer, separated by a Hairline instead of a card: the "Copy summary" button with its one-line explanation, and a collapsed "About the estimate" disclosure holding the signal legend and the model note. Setup does not live in the results: plan size, the floor-plan photo, opacities and floor removal sit in a "Plan and scale…" dialog opened from the File menu.
+- **Summary head:** names what it reports ("Main band 5 GHz · 97%") so it never reads as the band on screen.
 
 ### Verdict card (signature)
 
@@ -410,13 +413,13 @@ The first card in the drawer, answering "is this enough, and what do I buy".
 
 ### Pills and legend
 
-- **dBm pills:** fully rounded, monospace 12px, a neutral Plan Paper pill with a Hairline border and Graphite Ink text, led by an 8px dot in the signal color of the link quality; the "cable" pill fills with Grid Faint and has no dot. Signal color never sits behind text.
+- **dBm pills:** fully rounded, monospace 12px, a neutral Plan Paper pill with a Hairline border and Graphite Ink text, led by an 8px dot for the link quality (great: Signal Excellent, ok: Signal Good, weak: Signal None; the Fair yellow is not used for links); the "cable" pill fills with Grid Faint and has no dot. Signal color never sits behind text.
 - **Example chip:** a fully rounded Drafting Blue soft chip in the title row that says the example house is loaded, with rounded buttons to start a project; hidden on phones.
 - **Legend swatches:** 12px squares with 3px corners, always followed by the category name and range.
 
 ### Plan sheet (signature)
 
-The canvas: Plan Paper with a 1 m grid (every fifth line stronger), axis labels in monospace Pencil Gray every 2 m, walls at their material color and real thickness (glass dashed), the heat map at the opacity the visitor chooses, nodes as filled circles (Drafting Blue for the main node, Graphite Ink for the others, numbered), labels with a paper-colored halo so they stay legible over any heat color, and dashed backhaul lines colored by link quality (wired links dotted in Graphite Ink). Each link carries a small fully rounded tag at its midpoint: Plan Paper fill, a border in the link's signal color (Hairline for cable), and the dBm value in 11px monospace Graphite Ink; the tag is a click target that opens the link's popover, and the selected link and tag switch to Drafting Blue. The sheet is a square-cornered rectangle on the Desk Gray map area, which pans and zooms.
+The canvas: Plan Paper with a 1 m grid (every fifth line stronger), axis labels in monospace Pencil Gray every 2 m, walls at their material color and real thickness (glass dashed), the heat map at the opacity the visitor chooses, nodes as filled circles (Drafting Blue for the main router, marked "R", Graphite Ink for the other nodes, numbered), room names that step above a node sitting on them, labels with a paper-colored halo so they stay legible over any heat color, and dashed backhaul lines colored by link quality (wired links dotted in Graphite Ink). Each link carries a small fully rounded tag at its midpoint: Plan Paper fill, a border in the link's signal color (Hairline for cable), and the dBm value in 11px monospace Graphite Ink; the tag is a click target that opens the link's popover, and the selected link and tag switch to Drafting Blue. The sheet is a square-cornered rectangle on the Desk Gray map area, which pans and zooms.
 
 ## Do's and Don'ts
 

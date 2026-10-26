@@ -43,7 +43,9 @@
     "duplicate": "Duplicate",
     "export": "Export JSON",
     "import": "Import JSON",
-    "delete": "Delete project"
+    "delete": "Delete project",
+    "plan": "Plan and scale…",
+    "openExample": "Open the example house"
   },
   "stage": {
     "label": "Planner",
@@ -107,7 +109,7 @@
   },
   "guide": {
     "howToTitle": "How to use the planner",
-    "howToSteps": "<li>Click <b>New project</b> and enter the width and depth of the lot or the house.</li><li>If you have the floor plan as a photo or an image, load it under <b>Plan and scale</b> and set the scale with <b>Measure</b>.</li><li>With the <b>Wall</b> tool, draw the outer and inner walls and pick the material. Doors and windows are walls too, made of wood or glass.</li><li>With <b>Router</b>, place the main router where the ISP modem is, then the other nodes.</li><li>Switch between 2.4, 5 and 6 GHz and look at the heat map. Green is excellent signal; red is no usable signal.</li><li>Use <b>Suggest a spot</b> to find where one more node helps most, and <b>File › Export JSON</b> to keep the project.</li>",
+    "howToSteps": "<li>Click <b>New project</b> and enter the width and depth of the lot or the house.</li><li>If you have the floor plan as a photo or an image, load it under <b>File › Plan and scale</b> and set the scale with <b>Measure</b>.</li><li>With the <b>Wall</b> tool, draw the outer and inner walls and pick the material. Doors and windows are walls too, made of wood or glass.</li><li>With <b>Router</b>, place the main router where the ISP modem is, then the other nodes.</li><li>Switch between 2.4, 5 and 6 GHz and look at the heat map. Green is excellent signal; red is no usable signal.</li><li>Use <b>Suggest a spot</b> to find where one more node helps most, and <b>File › Export JSON</b> to keep the project.</li>",
     "wallsTitle": "How much each wall takes from the signal",
     "wallsText": "Every wall the signal crosses adds a loss in decibels (dB). Each 10 dB cuts the received power to one tenth, so two or three brick walls already make a difference. The values below are the averages the planner uses; real loss depends on thickness, moisture and steel reinforcement.",
     "material": "Material",
@@ -125,7 +127,7 @@
     "signal": "Signal",
     "level": "Level",
     "practice": "In practice",
-    "signalRows": "<tr><td class=\"num\">−60 dBm or better</td><td>Excellent</td><td>4K streaming, online gaming and the full speed of your plan.</td></tr><tr><td class=\"num\">−60 to −67 dBm</td><td>Good</td><td>Stable HD video and video calls. The target for rooms you use.</td></tr><tr><td class=\"num\">−67 to −72 dBm</td><td>Fair</td><td>Browsing and messaging work; video may stutter.</td></tr><tr><td class=\"num\">−72 to −80 dBm</td><td>Weak</td><td>Slow and unstable.</td></tr><tr><td class=\"num\">below −80 dBm</td><td>No usable signal</td><td>The connection drops often.</td></tr>",
+    "signalRows": "<tr><td class=\"mono\">−60 dBm or better</td><td><i class=\"sw\" style=\"background:var(--q0)\"></i>Excellent</td><td>4K streaming, online gaming and the full speed of your plan.</td></tr><tr><td class=\"mono\">−60 to −67 dBm</td><td><i class=\"sw\" style=\"background:var(--q1)\"></i>Good</td><td>Stable HD video and video calls. The target for rooms you use.</td></tr><tr><td class=\"mono\">−67 to −72 dBm</td><td><i class=\"sw\" style=\"background:var(--q2)\"></i>Fair</td><td>Browsing and messaging work; video may stutter.</td></tr><tr><td class=\"mono\">−72 to −80 dBm</td><td><i class=\"sw\" style=\"background:var(--q3)\"></i>Weak</td><td>Slow and unstable.</td></tr><tr><td class=\"mono\">below −80 dBm</td><td><i class=\"sw\" style=\"background:var(--q4)\"></i>No usable signal</td><td>The connection drops often.</td></tr>",
     "bandsTitle": "2.4, 5 or 6 GHz?",
     "bandsText": "<p><b>2.4 GHz</b> reaches farther and goes through walls better, but it is slow and shared with your neighbors. Good for smart-home devices and far corners.</p><p><b>5 GHz</b> is the everyday balance: much faster, with medium range. Check the map on this band first.</p><p><b>6 GHz</b>, found on Wi-Fi 6E and tri-band Wi-Fi 7 routers, is the fastest and least crowded, but loses more at every wall. It shines in the router's own room and on the link between mesh nodes.</p>",
     "faqTitle": "Frequently asked questions"
@@ -241,7 +243,7 @@
         "use": "connection drops"
       }
     ],
-    "legendMain": "main node",
+    "legendMain": "main router",
     "readout": {
       "idle": "Hover over the plan to read the signal.",
       "noNodes": "no router placed",
@@ -250,11 +252,12 @@
       "idleTouch": "Tap the plan to read the signal."
     },
     "node": {
-      "main": "Main",
+      "main": "Router",
       "n": "Node {n}",
       "cable": "cable",
       "without": "no {band}",
-      "suggestion": "suggestion"
+      "suggestion": "suggestion",
+      "mainShort": "R"
     },
     "floors": {
       "ground": "Ground floor",
@@ -282,7 +285,7 @@
         "2": "ok",
         "4": "weak, use a cable"
       },
-      "linksHint": "The arrow shows which node each one connects to. Wirelessly, aim for −60 to −70 dBm; below that, connect them with a network cable.",
+      "linksHint": "Each row shows which node each one connects to (Node 2 → Router). Wirelessly, aim for −60 to −70 dBm; below that, connect them with a network cable.",
       "suggestTitle": "Where should another node go?",
       "suggestIntro": "Tests every free spot on this floor and picks the one that adds the most area with good signal on {band}.",
       "suggestRun": "Suggest a spot",
@@ -298,7 +301,8 @@
         "noSpot": "No free spot away from the walls. Enlarge the area or adjust the drawing.",
         "alreadyGood": "Coverage is already good in almost the whole house. Another node would not change much.",
         "noGain": "No position improves coverage significantly.",
-        "weakLink": "No spot improves coverage much, but the link between {child} and {parent} is weak. Connect {child} with a cable or move the two closer."
+        "weakLink": "No spot improves coverage much, but the link between {child} and {parent} is weak. Connect {child} with a cable or move the two closer.",
+        "noRouter": "First place the router where the modem is, with the Router tool."
       },
       "suggestOtherModel": " Your chosen model ({chosen}) has no {band}, so the suggestion uses a {model}.",
       "bandPartial": "Devices with {band}: {n} of {total} ({names}). The others don’t help on this band."
@@ -308,7 +312,7 @@
       "material": "Material",
       "delWall": "Delete wall",
       "model": "Model",
-      "mainNote": "Main node: connects to the ISP modem.",
+      "mainNote": "Main router: connects to the ISP modem.",
       "wired": "Connected by network cable",
       "makeMain": "Make main",
       "delNode": "Delete node",
@@ -321,9 +325,10 @@
       "measured": "Measured line: {len} m",
       "realLength": "Real length of this line (m)",
       "apply": "Adjust image",
-      "measureNoImage": "To use it as a scale, load a floor plan photo under Plan and scale.",
+      "measureNoImage": "To use it as a scale, load a floor plan photo under File › Plan and scale.",
       "length": "Length (m)",
-      "lengthHint": "Or drag the small squares at the ends, at any angle."
+      "lengthHint": "Or drag the small squares at the ends, at any angle.",
+      "matLoss": "{mat} · −{db} dB at {band}"
     },
     "models": {
       "isp": "ISP router",
@@ -420,7 +425,7 @@
         {
           "target": "[data-tool=node]",
           "title": "Place the router",
-          "body": "Mark where the modem is: that is the main node. Then add the other mesh nodes and check the link between them."
+          "body": "Mark where the modem is: the main router goes there. Then add the mesh nodes and check the link between them."
         },
         {
           "target": "#bands",
@@ -472,7 +477,8 @@
       "weakN": "{n} weak links",
       "noNodes": "No router",
       "open": "Show result",
-      "close": "Hide result"
+      "close": "Hide result",
+      "mainBand": "Main band {band}"
     },
     "live": {
       "wall": "Wall added, {len} m.",
@@ -480,12 +486,20 @@
       "deleted": "Item deleted.",
       "wired": "{node} connected by cable.",
       "unwired": "{node} is now wireless.",
-      "selected": "Selected: {item}."
+      "selected": "Selected: {item}.",
+      "band": "Map on {band}."
     }
   },
   "drawer": {
     "title": "Result",
     "hide": "Hide result",
     "about": "About the estimate"
+  },
+  "invite": {
+    "title": "Start with the floor plan",
+    "text": "Drag on the sheet to draw the outer walls, or load a photo of your floor plan and trace over it.",
+    "draw": "Draw walls",
+    "photo": "Load floor plan photo",
+    "drop": "You can also drop the image here."
   }
 }

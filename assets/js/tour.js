@@ -47,9 +47,22 @@ export function startTour() {
 
 function onKey(e) {
   if (!state) return;
+  const card = state.root.querySelector('.tour-card');
   if (e.key === 'Escape') { e.preventDefault(); close(); }
   else if (e.key === 'ArrowRight') go(state.i + 1);
   else if (e.key === 'ArrowLeft') go(state.i - 1);
+  // Enter on the card itself moves on; on a button it presses that button as usual.
+  else if (e.key === 'Enter' && e.target === card) { e.preventDefault(); go(state.i + 1); }
+  else if (e.key === 'Tab') {
+    // Keep keyboard focus inside the tour card while it is open.
+    const items = [...card.querySelectorAll('button')].filter(b => !b.hidden);
+    const first = items[0], last = items[items.length - 1];
+    if (!card.contains(document.activeElement) || document.activeElement === card) { e.preventDefault(); (e.shiftKey ? last : first).focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    return;
+  }
+  // The planner's single-key shortcuts stay quiet while the tour is open; buttons still work.
   e.stopPropagation();
 }
 
@@ -64,12 +77,25 @@ function go(i) {
   card.querySelector('[data-tour=back]').hidden = state.i === 0;
   card.querySelector('[data-tour=next]').textContent = state.i === state.steps.length - 1 ? t('tour.done') : t('tour.next');
   const target = step.target && document.querySelector(step.target);
-  // Targets inside the planner bring the whole workspace into view, not just themselves.
+  // Targets inside the planner bring the whole workspace into view, not just themselves. A target
+  // further down a scrolling panel (the results drawer) is first scrolled into that panel's view.
   const host = target && target.closest('.ws');
+  if (target && host) revealInside(target, host);
   if (target) (host || target).scrollIntoView({ block: host ? 'end' : 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   place();
   setTimeout(place, 350);
+  setTimeout(place, 800);
   card.focus({ preventScroll: true });
+}
+
+function revealInside(target, host) {
+  for (let el = target.parentElement; el && el !== host; el = el.parentElement) {
+    const oy = getComputedStyle(el).overflowY;
+    if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight) {
+      const t = target.getBoundingClientRect(), r = el.getBoundingClientRect();
+      if (t.top < r.top || t.bottom > r.bottom) el.scrollTop += t.top - r.top - 12;
+    }
+  }
 }
 
 function place() {
@@ -94,7 +120,7 @@ function place() {
   let left = r.left;
   if (r.right + gap + cw < vw - 16 && (r.bottom + gap + ch > vh - 16) && r.top - gap - ch < 16) left = r.right + gap;
   card.style.left = Math.min(Math.max(16, left), vw - cw - 16) + 'px';
-  card.style.top = top + 'px';
+  card.style.top = Math.max(16, Math.min(top, vh - ch - 16)) + 'px'; // never off screen
 }
 
 function close() {

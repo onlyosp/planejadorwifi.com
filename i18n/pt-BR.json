@@ -43,7 +43,9 @@
     "duplicate": "Duplicar",
     "export": "Exportar JSON",
     "import": "Importar JSON",
-    "delete": "Excluir projeto"
+    "delete": "Excluir projeto",
+    "plan": "Planta e escala…",
+    "openExample": "Abrir casa de exemplo"
   },
   "stage": {
     "label": "Simulador",
@@ -107,7 +109,7 @@
   },
   "guide": {
     "howToTitle": "Como usar o simulador",
-    "howToSteps": "<li>Clique em <b>Novo projeto</b> e informe a largura e a profundidade do terreno ou da casa.</li><li>Se tiver a planta em foto ou PDF convertido em imagem, carregue em <b>Planta e escala</b> e acerte a escala com <b>Medir</b>.</li><li>Com a ferramenta <b>Parede</b>, desenhe as paredes externas e internas escolhendo o material. Portas e janelas também são paredes, de madeira ou vidro.</li><li>Com <b>Roteador</b>, posicione o roteador principal onde fica o modem da operadora e depois os demais nós.</li><li>Troque entre 2,4, 5 e 6 GHz e veja o mapa de calor. Verde é sinal excelente, vermelho é sem sinal útil.</li><li>Use <b>Sugerir posição</b> para descobrir onde mais um nó traria o maior ganho, e <b>Arquivo › Exportar JSON</b> para guardar o projeto.</li>",
+    "howToSteps": "<li>Clique em <b>Novo projeto</b> e informe a largura e a profundidade do terreno ou da casa.</li><li>Se tiver a planta em foto ou PDF convertido em imagem, carregue em <b>Arquivo › Planta e escala</b> e acerte a escala com <b>Medir</b>.</li><li>Com a ferramenta <b>Parede</b>, desenhe as paredes externas e internas escolhendo o material. Portas e janelas também são paredes, de madeira ou vidro.</li><li>Com <b>Roteador</b>, posicione o roteador principal onde fica o modem da operadora e depois os demais nós.</li><li>Troque entre 2,4, 5 e 6 GHz e veja o mapa de calor. Verde é sinal excelente, vermelho é sem sinal útil.</li><li>Use <b>Sugerir posição</b> para descobrir onde mais um nó traria o maior ganho, e <b>Arquivo › Exportar JSON</b> para guardar o projeto.</li>",
     "wallsTitle": "Quanto cada parede tira do sinal",
     "wallsText": "Cada parede cruzada pelo sinal soma uma perda em decibéis (dB). A cada 10 dB a potência que chega cai para um décimo, por isso duas ou três paredes de alvenaria já fazem diferença. Os valores abaixo são médias usadas pelo simulador; a perda real varia com a espessura, a umidade e a armação de ferro.",
     "material": "Material",
@@ -125,7 +127,7 @@
     "signal": "Sinal",
     "level": "Nível",
     "practice": "Na prática",
-    "signalRows": "<tr><td class=\"num\">−60 dBm ou melhor</td><td>Excelente</td><td>Streaming 4K, jogos online e velocidade máxima do plano.</td></tr><tr><td class=\"num\">−60 a −67 dBm</td><td>Bom</td><td>Vídeo HD e videochamadas estáveis. É a meta para os cômodos usados.</td></tr><tr><td class=\"num\">−67 a −72 dBm</td><td>Razoável</td><td>Navegação e mensagens funcionam; vídeo pode oscilar.</td></tr><tr><td class=\"num\">−72 a −80 dBm</td><td>Fraco</td><td>Lento e instável.</td></tr><tr><td class=\"num\">abaixo de −80 dBm</td><td>Sem sinal útil</td><td>A conexão cai com frequência.</td></tr>",
+    "signalRows": "<tr><td class=\"mono\">−60 dBm ou melhor</td><td><i class=\"sw\" style=\"background:var(--q0)\"></i>Excelente</td><td>Streaming 4K, jogos online e velocidade máxima do plano.</td></tr><tr><td class=\"mono\">−60 a −67 dBm</td><td><i class=\"sw\" style=\"background:var(--q1)\"></i>Bom</td><td>Vídeo HD e videochamadas estáveis. É a meta para os cômodos usados.</td></tr><tr><td class=\"mono\">−67 a −72 dBm</td><td><i class=\"sw\" style=\"background:var(--q2)\"></i>Razoável</td><td>Navegação e mensagens funcionam; vídeo pode oscilar.</td></tr><tr><td class=\"mono\">−72 a −80 dBm</td><td><i class=\"sw\" style=\"background:var(--q3)\"></i>Fraco</td><td>Lento e instável.</td></tr><tr><td class=\"mono\">abaixo de −80 dBm</td><td><i class=\"sw\" style=\"background:var(--q4)\"></i>Sem sinal útil</td><td>A conexão cai com frequência.</td></tr>",
     "bandsTitle": "2,4, 5 ou 6 GHz?",
     "bandsText": "<p><b>2,4 GHz</b> vai mais longe e atravessa melhor as paredes, mas é lenta e disputada com os vizinhos. Serve para aparelhos de casa inteligente e cantos distantes.</p><p><b>5 GHz</b> é o equilíbrio para o dia a dia: bem mais rápida, com alcance médio. É nessa faixa que vale olhar o mapa primeiro.</p><p><b>6 GHz</b>, presente em roteadores Wi-Fi 6E e Wi-Fi 7 tri-band, é a mais rápida e a menos congestionada, mas perde mais em cada parede. Rende mais no mesmo cômodo do roteador e na ligação entre os nós mesh.</p>",
     "faqTitle": "Perguntas frequentes"
@@ -241,7 +243,7 @@
         "use": "conexão cai"
       }
     ],
-    "legendMain": "nó principal",
+    "legendMain": "roteador principal",
     "readout": {
       "idle": "Passe o cursor sobre a planta para ler o sinal.",
       "noNodes": "nenhum roteador posicionado",
@@ -250,11 +252,12 @@
       "idleTouch": "Toque na planta para ler o sinal."
     },
     "node": {
-      "main": "Principal",
+      "main": "Roteador",
       "n": "Nó {n}",
       "cable": "cabo",
       "without": "sem {band}",
-      "suggestion": "sugestão"
+      "suggestion": "sugestão",
+      "mainShort": "R"
     },
     "floors": {
       "ground": "Térreo",
@@ -282,7 +285,7 @@
         "2": "ok",
         "4": "fraca, use cabo"
       },
-      "linksHint": "A seta mostra a qual nó cada um se liga. Sem fio, mire em −60 a −70 dBm; abaixo disso, ligue por cabo de rede.",
+      "linksHint": "Cada linha mostra a qual nó cada um se liga (Nó 2 → Roteador). Sem fio, mire em −60 a −70 dBm; abaixo disso, ligue por cabo de rede.",
       "suggestTitle": "Onde pôr mais um nó?",
       "suggestIntro": "Testa cada ponto livre deste andar e escolhe o que mais aumenta a área com sinal bom em {band}.",
       "suggestRun": "Sugerir posição",
@@ -298,7 +301,8 @@
         "noSpot": "Não achei um ponto livre longe das paredes. Aumente a área ou ajuste o desenho.",
         "alreadyGood": "A cobertura já está boa em quase toda a casa. Outro nó não muda muito.",
         "noGain": "Nenhuma posição melhora a cobertura de forma relevante.",
-        "weakLink": "Nenhum ponto melhora muito a cobertura, mas a ligação entre {child} e {parent} está fraca. Ligue {child} por cabo ou aproxime os dois."
+        "weakLink": "Nenhum ponto melhora muito a cobertura, mas a ligação entre {child} e {parent} está fraca. Ligue {child} por cabo ou aproxime os dois.",
+        "noRouter": "Coloque primeiro o roteador onde fica o modem, com a ferramenta Roteador."
       },
       "suggestOtherModel": " O modelo escolhido ({chosen}) não tem {band}, por isso a sugestão usa um {model}.",
       "bandPartial": "Aparelhos com {band}: {n} de {total} ({names}). Os outros não ajudam nesta faixa."
@@ -308,7 +312,7 @@
       "material": "Material",
       "delWall": "Apagar parede",
       "model": "Modelo",
-      "mainNote": "Nó principal: liga no modem da operadora.",
+      "mainNote": "Roteador principal: liga no modem da operadora.",
       "wired": "Ligado por cabo de rede",
       "makeMain": "Tornar principal",
       "delNode": "Apagar nó",
@@ -321,9 +325,10 @@
       "measured": "Linha medida: {len} m",
       "realLength": "Tamanho real dessa linha (m)",
       "apply": "Ajustar imagem",
-      "measureNoImage": "Para usar a medida como escala, carregue uma foto da planta em Planta e escala.",
+      "measureNoImage": "Para usar a medida como escala, carregue uma foto da planta em Arquivo › Planta e escala.",
       "length": "Comprimento (m)",
-      "lengthHint": "Ou arraste os quadradinhos nas pontas, em qualquer ângulo."
+      "lengthHint": "Ou arraste os quadradinhos nas pontas, em qualquer ângulo.",
+      "matLoss": "{mat} · −{db} dB em {band}"
     },
     "models": {
       "isp": "Roteador da operadora",
@@ -420,7 +425,7 @@
         {
           "target": "[data-tool=node]",
           "title": "Posicione o roteador",
-          "body": "Marque onde fica o modem: esse é o nó principal. Depois adicione os demais nós mesh e veja a ligação entre eles."
+          "body": "Marque onde fica o modem: ali vai o roteador principal. Depois adicione os nós mesh e veja a ligação entre eles."
         },
         {
           "target": "#bands",
@@ -472,7 +477,8 @@
       "weakN": "{n} ligações fracas",
       "noNodes": "Sem roteador",
       "open": "Mostrar resultado",
-      "close": "Recolher resultado"
+      "close": "Recolher resultado",
+      "mainBand": "Faixa principal {band}"
     },
     "live": {
       "wall": "Parede criada, {len} m.",
@@ -480,12 +486,20 @@
       "deleted": "Item apagado.",
       "wired": "{node} ligado por cabo.",
       "unwired": "{node} agora sem fio.",
-      "selected": "Selecionado: {item}."
+      "selected": "Selecionado: {item}.",
+      "band": "Mapa em {band}."
     }
   },
   "drawer": {
     "title": "Resultado",
     "hide": "Recolher resultado",
     "about": "Sobre a estimativa"
+  },
+  "invite": {
+    "title": "Comece pela planta",
+    "text": "Arraste na planta para desenhar as paredes externas, ou carregue uma foto da planta e desenhe por cima.",
+    "draw": "Desenhar paredes",
+    "photo": "Carregar foto da planta",
+    "drop": "Você também pode soltar a imagem aqui."
   }
 }
