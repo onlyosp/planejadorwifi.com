@@ -161,6 +161,25 @@ export function bbox(p, fi) {
   return x1 - x0 < 0.5 || y1 - y0 < 0.5 ? full : { x0, y0, x1, y1 };
 }
 
+// Whether the walls of a floor outline the house: the rectangle around them is at least 2 m on each
+// side and walls run along at least half of its perimeter (walls whose ends both touch the
+// rectangle's edges count, so cut corners and angled facades still close it).
+export function outlineClosed(p, fi) {
+  const ws = p.floors[fi].walls;
+  if (ws.length < 3) return false;
+  const b = bbox(p, fi), w = b.x1 - b.x0, h = b.y1 - b.y0;
+  if (w < 2 || h < 2 || (b.x0 === 0 && b.y0 === 0 && b.x1 === p.w && b.y1 === p.h && ws.length < 4)) return false;
+  const onEdge = (x, y) => Math.min(Math.abs(x - b.x0), Math.abs(x - b.x1), Math.abs(y - b.y0), Math.abs(y - b.y1)) < 0.3;
+  const sameEdge = wl => (Math.abs(wl.x1 - wl.x2) < 0.01 && (Math.abs(wl.x1 - b.x0) < 0.3 || Math.abs(wl.x1 - b.x1) < 0.3))
+    || (Math.abs(wl.y1 - wl.y2) < 0.01 && (Math.abs(wl.y1 - b.y0) < 0.3 || Math.abs(wl.y1 - b.y1) < 0.3));
+  let along = 0;
+  for (const wl of ws) {
+    const len = Math.hypot(wl.x2 - wl.x1, wl.y2 - wl.y1);
+    if (sameEdge(wl) || (onEdge(wl.x1, wl.y1) && onEdge(wl.x2, wl.y2) && !(Math.abs(wl.x1 - wl.x2) < 0.01 || Math.abs(wl.y1 - wl.y2) < 0.01))) along += len;
+  }
+  return along >= 0.5 * 2 * (w + h);
+}
+
 export function stats(p, models, fi, bk, g = computeGrid(p, models, fi, bk, 0.25)) {
   const bb = bbox(p, fi), counts = [0, 0, 0, 0, 0];
   let n = 0;

@@ -113,6 +113,15 @@ test('link quality follows the rounded dBm shown to the user', () => {
   assert.equal(E.linkCat(-70.6), 4);
 });
 
+test('outlineClosed tells a drawn house from a few loose walls', () => {
+  const box = [[1, 1, 15, 1], [15, 1, 15, 11], [15, 11, 1, 11], [1, 11, 1, 1]].map(([x1, y1, x2, y2]) => ({ x1, y1, x2, y2, m: 'tijolo' }));
+  assert.equal(E.outlineClosed(room(box), 0), true);
+  assert.equal(E.outlineClosed(room(box.slice(0, 2)), 0), false, 'two walls do not close a house');
+  assert.equal(E.outlineClosed(room([{ x1: 2, y1: 2, x2: 8, y2: 2, m: 'tijolo' }]), 0), false);
+  const cut = [[1, 1, 13, 1], [13, 1, 15, 3], [15, 3, 15, 11], [15, 11, 1, 11], [1, 11, 1, 1]].map(([x1, y1, x2, y2]) => ({ x1, y1, x2, y2, m: 'tijolo' }));
+  assert.equal(E.outlineClosed(room(cut), 0), true, 'a cut corner still closes the outline');
+});
+
 test('normalizeProject repairs bad input', () => {
   const p = normalizeProject({ w: 999, band: 'x', floors: [{ walls: [{ x1: 0, y1: 0, x2: 1, y2: 1, m: 'lava' }], nodes: [{ x: 1, y: 1, model: 'nope' }, { x: 2, y: 2, model: 'be65', main: true }, { x: 3, y: 3, model: 'be65', main: true }] }] }, IDS);
   assert.equal(p.w, 80);
