@@ -24,7 +24,8 @@
     "faq": "FAQ",
     "tour": "Guided tour",
     "language": "Language",
-    "skip": "Skip to the planner"
+    "skip": "Skip to the planner",
+    "toTop": "Back to the planner"
   },
   "intro": {
     "h1": "Plan your Wi-Fi mesh on your floor plan",

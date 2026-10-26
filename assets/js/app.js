@@ -1281,5 +1281,13 @@ setTool(P.example ? 'select' : 'wall');
 renderLegend();
 
 $('#tourBtn')?.addEventListener('click', startTour);
+
+// "Back to the planner" shows once less than half of the workspace is on screen.
+new IntersectionObserver(([e]) => { $('#toTop').hidden = e.intersectionRatio >= 0.5; }, { threshold: [0, 0.5] }).observe(ws);
+$('#toTop').addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  $('#toTop').hidden = true;
+  setTimeout(() => cv.focus({ preventScroll: true }), 400);
+});
 const isBot = /bot|crawl|spider|slurp|mediapartners|lighthouse|headless/i.test(navigator.userAgent);
 if (!tourSeen() && !isBot) setTimeout(startTour, 700);

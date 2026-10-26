@@ -257,6 +257,10 @@ td.num, th.num { text-align: right; font-family: var(--font-mono); font-variant-
 
 .site-foot { margin-top: 56px; padding-block: 20px 32px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13.5px; color: var(--muted) }
 .site-foot a, .site-foot .linkbtn { color: var(--muted) }
+/* Back to the planner: only while the workspace is off screen (reading the guide or FAQ). */
+.has-ws .site-foot { padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)) } /* room for the button below the last links */
+.totop { position: fixed; z-index: 30; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: 6px; border-radius: 999px; padding: 8px 14px 8px 10px; box-shadow: var(--shadow-float) }
 
 /* dialogs, banner, toast */
 dialog { border: 1px solid var(--line); border-radius: 10px; padding: 0; background: var(--sheet); color: var(--ink); box-shadow: var(--shadow); width: min(460px, calc(100vw - 32px)) }

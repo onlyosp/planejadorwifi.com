@@ -24,7 +24,8 @@
     "faq": "Perguntas frequentes",
     "tour": "Tour guiado",
     "language": "Idioma",
-    "skip": "Ir para o simulador"
+    "skip": "Ir para o simulador",
+    "toTop": "Voltar ao simulador"
   },
   "intro": {
     "h1": "Simulador de Wi-Fi mesh na planta da sua casa",
