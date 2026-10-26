@@ -178,7 +178,10 @@ export function stats(p, models, fi, bk, g = computeGrid(p, models, fi, bk, 0.25
 // area at or above GOOD, requiring a wireless link of at least -70 dBm when possible.
 // Failures return { none: code } with code noWalls | noSpot | alreadyGood | noGain, or
 // { none: 'weakLink', child, parent } when no spot helps but a backhaul link is too weak.
-export function suggest(p, models, fi, bk, modelId) {
+// Same search as suggest(), as a generator: it yields the share of work done (0 to 1) after each
+// candidate spot, so a caller can run it in slices, show progress and stop early. The return value
+// is the same result object suggest() returns.
+export function* suggestSteps(p, models, fi, bk, modelId) {
   const nodes = nodesAll(p), bb = bbox(p, fi), cs = 0.5;
   let mk = modelId;
   if (!modelOf(models, mk).bands.includes(bk)) mk = Object.keys(models).find(id => models[id].bands.includes(bk)) || mk;
@@ -189,9 +192,11 @@ export function suggest(p, models, fi, bk, modelId) {
   if (!cells.length) return { none: 'noWalls' };
   const base = cells.filter(c => c.v >= GOOD).length / cells.length;
   const walls = p.floors[fi].walls;
-  const search = requireLink => {
+  const search = function* (requireLink, from, span) {
     let best = null;
-    for (const c of cells) {
+    for (let ci = 0; ci < cells.length; ci++) {
+      const c = cells[ci];
+      yield from + span * ci / cells.length;
       if (walls.some(w => distSeg(c.x, c.y, w) < 0.3)) continue;
       const cand = { n: { x: c.x, y: c.y, model: mk }, fi };
       let lv = null;
@@ -210,8 +215,10 @@ export function suggest(p, models, fi, bk, modelId) {
     }
     return best;
   };
-  let best = search(true), relaxed = false;
-  if (!best && nodes.length) { best = search(false); relaxed = true; }
+  // The relaxed second pass (no link requirement) is rare, so the first pass takes most of the bar.
+  const first = nodes.length ? 0.85 : 1;
+  let best = yield* search(true, 0, first), relaxed = false;
+  if (!best && nodes.length) { best = yield* search(false, first, 1 - first); relaxed = true; }
   if (!best) return { none: 'noSpot' };
   const to = best.cov / cells.length;
   if (to - base < 0.01) {
@@ -224,4 +231,11 @@ export function suggest(p, models, fi, bk, modelId) {
     x: Math.round(best.x / GRID) * GRID, y: Math.round(best.y / GRID) * GRID,
     model: mk, fi, from: base, to, link: best.lv, relaxed,
   };
+}
+
+export function suggest(p, models, fi, bk, modelId) {
+  const it = suggestSteps(p, models, fi, bk, modelId);
+  let r = it.next();
+  while (!r.done) r = it.next();
+  return r.value;
 }

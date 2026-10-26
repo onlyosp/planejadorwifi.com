@@ -227,6 +227,8 @@ details.about .foot { margin-top: 8px }
 .big { font-family: var(--font-display); font-size: 40px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums }
 .big small { font-size: 15px; font-weight: 600; color: var(--muted); margin-left: 6px }
 .bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--grid) }
+.progress { height: 6px; border-radius: 999px; overflow: hidden; background: var(--grid) }
+.progress span { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width .12s linear }
 .rows { display: flex; flex-direction: column; gap: 5px; font-size: 13.5px }
 .r { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 8px; align-items: center }
 .r .n { font-family: var(--font-mono); font-variant-numeric: tabular-nums }

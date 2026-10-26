@@ -42,6 +42,7 @@ rebuildModels();
 let P = null;
 let tool = 'wall', mat = 'tijolo', model = 'be25', ortho = true;
 let sel = null, drag = null, measure = null, suggestion = null;
+let suggestRun = null; // the Suggest search in progress: { it, progress, fi }
 // View: k pixels per meter, (ox, oy) the plan's top-left corner inside the map, k0 the fitted scale.
 let k = 40, k0 = 40, ox = 0, oy = 0, fitted = true, dpr = 1, ver = 0;
 let hist = [], fut = [];
@@ -62,7 +63,7 @@ function redo() {
   sel = null; ver++; persist(); renderAll();
 }
 function dirty() {
-  ver++; suggestion = null;
+  ver++; suggestion = null; suggestRun = null;
   if (sel && sel.type === 'sug') sel = null;
   if (P.example) P.exampleEdited = true;
   persist(); schedule(); renderPanel();
@@ -331,6 +332,14 @@ function draw() {
     halo(m.short + (a.n.wired ? ' · ' + t('node.cable') : '') + (active ? '' : ' · ' + t('node.without', { band: bandLabel(P.band) })), x, y + r + 9, C.ink);
   });
 
+  if (suggestRun && suggestRun.fi === P.floor) {
+    // Candidates are tested row by row, so the line shows how far down the floor the search is.
+    const bb = E.bbox(P, P.floor), share = Math.min(1, suggestRun.progress / (nodesAll().length ? 0.85 : 1));
+    const y = (bb.y0 + share * (bb.y1 - bb.y0)) * k;
+    ctx.save(); ctx.fillStyle = C.accent; ctx.globalAlpha = 0.08; ctx.fillRect(bb.x0 * k, bb.y0 * k, (bb.x1 - bb.x0) * k, y - bb.y0 * k);
+    ctx.globalAlpha = 1; ctx.strokeStyle = C.accent; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+    ctx.beginPath(); ctx.moveTo(bb.x0 * k, y); ctx.lineTo(bb.x1 * k, y); ctx.stroke(); ctx.restore();
+  }
   if (suggestion && suggestion.fi === P.floor && !suggestion.none) {
     const x = suggestion.x * k, y = suggestion.y * k;
     ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = C.accent; ctx.lineWidth = 2.5;
@@ -723,7 +732,7 @@ function renderBands() {
 }
 function setBand(bk) {
   if (!BANDS[bk] || bk === P.band) return;
-  P.band = bk; suggestion = null; if (sel && sel.type === 'sug') sel = null;
+  P.band = bk; suggestion = null; suggestRun = null; if (sel && sel.type === 'sug') sel = null;
   persist(); fillMatSel(); renderPanel(); schedule(); live(t('live.band', { band: bandLabel(bk) }));
 }
 $('#bands').addEventListener('click', e => { const b = e.target.closest('[data-band]'); if (b) setBand(b.dataset.band); });
@@ -799,7 +808,7 @@ function renderVerdict(v) {
     const w = v.weak[0];
     h += `<p class="small">${esc(t('verdict.cableLine', { node: nodeName(w.child) }))}</p><div class="btnrow">${wireBtn(w.child, 'primary')}</div>`;
   }
-  if (v.status === 'short' && !suggestion) h += `<div class="btnrow"><button type="button" data-sug="run"${v.weak.length ? '' : ' class="primary"'}>${esc(t('panel.suggestRun'))}</button></div>`;
+  if (v.status === 'short' && !suggestion && !suggestRun) h += `<div class="btnrow"><button type="button" data-sug="run"${v.weak.length ? '' : ' class="primary"'}>${esc(t('panel.suggestRun'))}</button></div>`;
   const six = v.house['6'];
   const sixShare = bandShare('6');
   h += `<p class="small muted">${esc(!six.hasBand ? t('verdict.sixNone') : six.good >= 0.9 ? t('verdict.sixGood')
@@ -865,6 +874,12 @@ function renderPanel() {
   let sh = `<h2>${esc(t('panel.suggestTitle'))}</h2>`;
   if (suggestion && suggestion.none) sh += `<p class="small">${esc(noneText(suggestion))}</p>${suggestion.none === 'weakLink' ? `<div class="btnrow">${wireBtn(suggestion.child, 'primary')}<button type="button" data-sug="clear" class="ghost">${esc(t('panel.ok'))}</button></div>` : `<button type="button" data-sug="clear" class="ghost">${esc(t('panel.ok'))}</button>`}`;
   else if (suggestion) sh += `<p class="small">${sugText()}</p>` + sugButtons();
+  else if (suggestRun) {
+    const v = Math.round(suggestRun.progress * 100);
+    sh += `<p class="small" id="sugPct">${esc(t('panel.computingPct', { pct: v + '%' }))}</p>`
+      + `<div class="progress" role="progressbar" aria-label="${esc(t('panel.suggestTitle'))}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${v}"><span id="sugBar" style="width:${v}%"></span></div>`
+      + `<div class="btnrow"><button type="button" data-sug="cancel" class="ghost">${esc(t('panel.cancel'))}</button></div>`;
+  }
   else sh += `<p class="small muted">${esc(t('panel.suggestIntro', { band: bl }))}</p><button type="button" data-sug="run">${esc(t('panel.suggestRun'))}</button>`;
   $('#pSuggest').innerHTML = sh;
 
@@ -898,14 +913,38 @@ function setWired(gi, on) {
   if (on) track('wire_node');
   dirty(); live(t(on ? 'live.wired' : 'live.unwired', { node: nodeName(gi) }));
 }
-function runSuggest(btn) {
-  if (btn) { btn.textContent = t('panel.computing'); btn.disabled = true; }
-  setTimeout(() => {
-    suggestion = nodesAll().length ? E.suggest(P, MODELS, P.floor, P.band, model) : { none: 'noRouter' };
-    if (!suggestion.none) { sel = { type: 'sug' }; if (sheetMode.matches) setDrawer(false); }
-    renderPanel(); schedule();
-  }, 20);
+// The search runs in short slices so the page stays responsive, shows how far it got (a bar in the
+// card and a scan line on the plan) and can be cancelled. Any edit cancels it: the answer would be stale.
+function runSuggest() {
   track('suggest_node', { band: P.band });
+  if (!nodesAll().length) { suggestion = { none: 'noRouter' }; renderPanel(); return; }
+  const run = suggestRun = { it: E.suggestSteps(P, MODELS, P.floor, P.band, model), progress: 0, fi: P.floor };
+  suggestion = null; renderPanel(); schedule();
+  const tick = () => {
+    if (suggestRun !== run) return;
+    const t0 = performance.now();
+    let r;
+    do r = run.it.next(); while (!r.done && performance.now() - t0 < 14);
+    if (!r.done) { run.progress = r.value; showProgress(); setTimeout(tick, 0); return; }
+    suggestRun = null; suggestion = r.value;
+    if (!suggestion.none) {
+      sel = { type: 'sug' }; if (sheetMode.matches) setDrawer(false);
+      live(t('live.suggestDone', { from: pct(suggestion.from), to: pct(suggestion.to) }));
+    } else live(noneText(suggestion));
+    renderPanel(); schedule();
+  };
+  setTimeout(tick, 0);
+}
+function cancelSuggest() {
+  if (!suggestRun) return;
+  suggestRun = null; renderPanel(); schedule(); live(t('live.suggestCancelled'));
+}
+function showProgress() {
+  const v = Math.round((suggestRun?.progress || 0) * 100);
+  const bar = $('#sugBar'), txt = $('#sugPct');
+  if (bar) { bar.style.width = v + '%'; bar.parentElement.setAttribute('aria-valuenow', v); }
+  if (txt) txt.textContent = t('panel.computingPct', { pct: v + '%' });
+  schedule();
 }
 // Actions shared by the drawer cards and the popover on the plan.
 ws.addEventListener('click', e => {
@@ -914,14 +953,15 @@ ws.addEventListener('click', e => {
   if (unwire) { setWired(+unwire.dataset.unwire, false); return; }
   if (!sug) return;
   const act = sug.dataset.sug;
-  if (act === 'run') runSuggest(sug);
+  if (act === 'run') runSuggest();
   else if (act === 'add' && suggestion) {
     pushHist();
     const fl = P.floors[suggestion.fi] || cur();
     fl.nodes.push({ x: suggestion.x, y: suggestion.y, model: suggestion.model, main: !nodesAll().length, wired: !!suggestion.relaxed });
     sel = { type: 'node', i: fl.nodes.length - 1 };
     dirty(); live(t('live.node', { node: nodeName(nodesAll().length - 1) }));
-  } else if (act === 'clear') { suggestion = null; if (sel && sel.type === 'sug') sel = null; renderPanel(); schedule(); }
+  } else if (act === 'cancel') cancelSuggest();
+  else if (act === 'clear') { suggestion = null; if (sel && sel.type === 'sug') sel = null; renderPanel(); schedule(); }
 });
 
 /* ---------- popover next to the selected object ---------- */
@@ -1298,7 +1338,7 @@ function toast(msg) {
 }
 
 /* ---------- boot ---------- */
-function afterFloor() { suggestion = null; renderFloors(); renderPanel(); resize(); }
+function afterFloor() { suggestion = null; suggestRun = null; renderFloors(); renderPanel(); resize(); }
 function renderAll() { renderProjects(); bandsSig = ''; renderBands(); fillMatSel(); fillModelSel(); afterFloor(); }
 
 St.migrateLegacy();

@@ -289,7 +289,6 @@
       "suggestTitle": "Where should another node go?",
       "suggestIntro": "Tests every free spot on this floor and picks the one that adds the most area with good signal on {band}.",
       "suggestRun": "Suggest a spot",
-      "computing": "Computing…",
       "suggestResult": "A <b>{model}</b> at the marked spot (x {x}, y {y} m) takes {band} coverage from <b>{from}</b> to <b>{to}</b>.",
       "suggestRelaxed": " No useful spot has a good wireless link to the other nodes: connect this one with a cable.",
       "suggestLink": " Estimated wireless link: {v} dBm.",
@@ -305,7 +304,9 @@
         "noRouter": "First place the router where the modem is, with the Router tool."
       },
       "suggestOtherModel": " Your chosen model ({chosen}) has no {band}, so the suggestion uses a {model}.",
-      "bandPartial": "Devices with {band}: {n} of {total} ({names}). The others don’t help on this band."
+      "bandPartial": "Devices with {band}: {n} of {total} ({names}). The others don’t help on this band.",
+      "computingPct": "Testing the free spots… {pct}",
+      "cancel": "Cancel"
     },
     "sel": {
       "wall": "Wall",
@@ -487,7 +488,9 @@
       "wired": "{node} connected by cable.",
       "unwired": "{node} is now wireless.",
       "selected": "Selected: {item}.",
-      "band": "Map on {band}."
+      "band": "Map on {band}.",
+      "suggestDone": "Suggestion ready: coverage goes from {from} to {to}.",
+      "suggestCancelled": "Suggestion cancelled."
     }
   },
   "drawer": {

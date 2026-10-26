@@ -289,7 +289,6 @@
       "suggestTitle": "¿Dónde poner otro nodo?",
       "suggestIntro": "Prueba cada punto libre de este piso y elige el que más área con buena señal añade en {band}.",
       "suggestRun": "Sugerir posición",
-      "computing": "Calculando…",
       "suggestResult": "Un <b>{model}</b> en el punto marcado (x {x}, y {y} m) lleva la cobertura en {band} de <b>{from}</b> a <b>{to}</b>.",
       "suggestRelaxed": " Ningún punto útil tiene buen enlace inalámbrico con los otros nodos: conecta este por cable.",
       "suggestLink": " Enlace inalámbrico estimado: {v} dBm.",
@@ -305,7 +304,9 @@
         "noRouter": "Primero coloca el router donde está el módem, con la herramienta Router."
       },
       "suggestOtherModel": " El modelo elegido ({chosen}) no tiene {band}, por eso la sugerencia usa un {model}.",
-      "bandPartial": "Equipos con {band}: {n} de {total} ({names}). Los demás no ayudan en esta banda."
+      "bandPartial": "Equipos con {band}: {n} de {total} ({names}). Los demás no ayudan en esta banda.",
+      "computingPct": "Probando los puntos libres… {pct}",
+      "cancel": "Cancelar"
     },
     "sel": {
       "wall": "Pared",
@@ -487,7 +488,9 @@
       "wired": "{node} conectado por cable.",
       "unwired": "{node} ahora inalámbrico.",
       "selected": "Seleccionado: {item}.",
-      "band": "Mapa en {band}."
+      "band": "Mapa en {band}.",
+      "suggestDone": "Sugerencia lista: la cobertura pasa de {from} a {to}.",
+      "suggestCancelled": "Sugerencia cancelada."
     }
   },
   "drawer": {

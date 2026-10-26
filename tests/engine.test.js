@@ -64,6 +64,19 @@ test('suggest finds a point that improves a long house', () => {
   assert.ok(s.x > 7, 'should land beyond the first concrete wall');
 });
 
+test('suggestSteps reports rising progress and ends with the same result as suggest', () => {
+  const walls = [{ x1: 6, y1: 0, x2: 6, y2: 10, m: 'concreto' }, { x1: 12, y1: 0, x2: 12, y2: 10, m: 'concreto' }];
+  const p = room(walls, [node(2, 5)]);
+  const it = E.suggestSteps(p, MODELS, 0, '5', 'be25');
+  let r = it.next(), last = -1, steps = 0;
+  while (!r.done) {
+    assert.ok(r.value >= last && r.value <= 1, 'progress stays between 0 and 1 and never goes back');
+    last = r.value; steps++; r = it.next();
+  }
+  assert.ok(steps > 10);
+  assert.deepEqual(r.value, E.suggest(p, MODELS, 0, '5', 'be25'));
+});
+
 test('topology marks wired nodes and links the rest to a neighbour', () => {
   const p = room([], [node(2, 5), { x: 10, y: 5, model: 'be25', wired: true }, { x: 18, y: 5, model: 'be25' }]);
   const t = E.topology(p, MODELS);
