@@ -294,7 +294,7 @@ Earthy, material-like colors used only for walls on the plan: **Brick Terracotta
 - **Workspace:** one screen tall (viewport height minus the header, at least 520px). A short title row (H1, example-house chip, project bar) sits on top, 8px above the body. The body is a grid of the plan map (`minmax(0, 1fr)`) and a 340px results drawer, 12px apart. Collapsing the drawer gives the map the full width and leaves a summary chip in the map's top-right corner.
 - **Plan map:** a hairline-bordered 8px frame on Desk Gray; the plan sheet is drawn inside it and pans and zooms. Instruments float 10px from its edges: the top strip (floors, band segment, heat-map toggle) along the top, the tool rail on the left below it, the active tool's options to the right of the top strip, the readout at the bottom left beside the rail, and the history and view clusters at the bottom right. Once the plan is zoomed away from its fitted size, the fit button shows the current zoom in monospace ("156%") instead of its icon. In dark mode the heat layer is drawn about a quarter more opaque, so the categories stay readable over the dark sheet.
 - **Sheet mode (up to 1099px):** the drawer becomes a bottom sheet over the plan (up to 72% of its height) whose head stays visible when collapsed, showing the status icon, the coverage percentage and the band. The readout and view clusters sit above that head.
-- **Phone (up to 719px):** the workspace runs edge to edge with no frame corners; the title takes its own line at 17px and the example chip hides. The tool rail becomes a full-width bar on the bottom edge (shortcut letters hidden), the sheet sits on top of it, the readout moves under the top strip and clamps to one line, and the tool options and the popover dock above the rail. The site menu takes its own scrollable row.
+- **Phone (up to 719px):** the workspace runs edge to edge with no frame corners; the title takes its own line at 17px and the example chip hides. The tool rail becomes a full-width bar on the bottom edge (shortcut letters hidden), the sheet sits on top of it, the readout moves under the top strip and clamps to one line, and the tool options and the popover dock above the rail. The top strip stays on one row: the add-floor button shows only "+", band buttons drop "GHz" (kept for screen readers) and long floor names end in an ellipsis. The open sheet takes at most 55% of the map. The site menu folds behind a Menu button.
 - **Reading guide:** a single 720px column, 40px below the workspace; it opens with the lead paragraph that introduces the planner.
 - **Spacing rhythm:** small steps of 2, 4 and 6px inside instruments and button groups; 8–10px between floating instruments and the map edge; 12px between drawer cards and between the map and the drawer; 14px card padding.
 
@@ -340,7 +340,7 @@ Precise and restrained: thin hairline borders, paper background, medium weight.
 Small paper panels resting on the plan: Plan Paper background, 1px Hairline border, 8px corners (6px for the band segment and heat-map chip, 10px for the tool rail) and the faint floating-instrument shadow. They hold the controls the visitor needs while drawing, so the map never has to scroll away from them.
 
 - **Top strip:** floor tabs in one paper group, the band segment, and the heat-map toggle as a bordered chip, wrapping along the top edge of the map.
-- **Tool options:** the settings of the active tool (wall material and straight-lines check, or node model and the "other model" link) in one row beside the top strip; docked above the rail on phones.
+- **Tool options:** the settings of the active tool (wall material, "Lock to 90°" and "Rectangle", or node model and the "other model" link) beside the top strip, wrapping to a second row when the map is narrow; docked above the rail on phones, in a band the plan fit always leaves free, so changing tools never moves the plan.
 - **Readout:** the reading under the pointer and the tool hint, at the bottom left. Prose in Barlow 13px Pencil Gray with key words in Graphite Ink; only coordinates and dBm values switch to monospace.
 - **History and view clusters:** two button groups at the bottom right (undo/redo; zoom out, fit, zoom in). Icon-only buttons divided by hairlines inside one 8px capsule, Drafting Blue tint on hover; disabled history buttons drop to 35% opacity.
 - **Summary chip:** when the drawer is collapsed on wide screens, a fully rounded chip in the map's top-right corner shows the status icon, the coverage percentage in monospace, the band and the number of weak links, and reopens the drawer.
@@ -373,6 +373,7 @@ The settings of the selected wall, node, room label, link or measurement, opened
 - Head: a 16px display-face title (the object name, with its length for walls) and an icon-only close button.
 - Placement: beside points (nodes, labels), above or below the midpoint of lines (walls, links, measurements) so the object stays visible; kept 10px inside the map. It hides while the object is dragged. On phones it docks full width above the tool bar and the plan scrolls so the object stays in view.
 - **Duplicate:** every item popover (and the group popover) has a Duplicate button; Ctrl/Cmd+C, Ctrl/Cmd+V and Ctrl/Cmd+D copy, paste and duplicate, placing the copy 1 m down and right and selecting it.
+- **Drawing walls:** the Wall tool draws corner by corner. Each click or tap adds a wall from the last end; a Drafting Blue ring marks the first corner and tapping it closes the room. Double-click, Enter or Esc finish; on touch screens a small primary "Done" button appears in the tool options while a chain is open. With a mouse, the next wall previews at 60% opacity with its length. Dragging still draws a single wall, which also continues the chain. The "Rectangle" option draws four walls from one corner to the opposite one (drag, or tap two corners).
 - **Walls:** dragging the ends of a selected wall resizes it at any angle; dragging its middle moves it on the grid, and the ends of walls that meet it follow so rooms stay closed.
 - **Several items:** Shift/Ctrl-click, Shift-drag (a dashed Drafting Blue box over a faint tint) or the "Select several" option of the Select tool gather walls, nodes and names. Each selected item keeps its own highlight; one popover covers the group ("3 items selected", counts per kind, one material for all walls, one model for all nodes, delete) and is placed off the rectangle around all of them. A change made with several items selected never applies on its own: the popover shows what will change on a Drafting Blue tint ("Walls: 2 → Glass") with "Apply to all selected" and Cancel, and deleting several items asks in a dialog first. Dragging any selected item moves the group on the grid; while picking several on a phone the plan does not scroll between taps.
 
@@ -382,6 +383,8 @@ The settings of the selected wall, node, room label, link or measurement, opened
 - **Bottom sheet (up to 1099px):** the same drawer laid over the bottom of the map with 10px top corners and the floating-layer shadow. Collapsed, only the head shows: the status icon, the coverage percentage and the band.
 - **Contents, in order:** the verdict card, coverage on the selected band (big metric, signal bar and category rows), links between nodes and the suggested next node. Below them a quieter footer, separated by a Hairline instead of a card: the "Copy summary" button with its one-line explanation, and a collapsed "About the estimate" disclosure holding the signal legend and the model note. Setup does not live in the results: plan size, the floor-plan photo, opacities and floor removal sit in a "Plan and scale…" dialog opened from the File menu.
 - **Summary head:** names what it reports ("Main band 5 GHz · 97%") so it never reads as the band on screen.
+- **Suggested next node:** when the house already has good signal the card says another node is probably not needed and offers a ghost "Suggest anyway"; a finished suggestion keeps its single primary action on the plan popover, so the card's buttons stay quiet.
+- **Plan and scale dialog:** width and depth never go below what is drawn (a toast names the minimum); the scale hint is always visible; "Done" keeps the changes and Cancel or Esc puts back everything the dialog changed.
 
 ### Verdict card (signature)
 
@@ -390,7 +393,8 @@ The first card in the drawer, answering "is this enough, and what do I buy".
 - Header: the title with a small ghost "Export" action in the top-right corner (16px download icon plus label, 13px Pencil Gray, Graphite Ink on hover), the project backup next to the result it records.
 
 - Status line in the display face (700, 22px) led by a 22px status icon from the icon set: a check in Drafting Blue when the plan covers the house, an alert in Graphite Ink when a node needs a cable, an alert in Alert Red when signal is missing. Signal colors are not used for the verdict; the line always names the status in words.
-- A definition list of the devices to buy (Pencil Gray 13px term, semibold value), a coverage line, and, when a link is weak, a cable sentence with a primary button to wire that node.
+- **Draft first:** until the outer walls close the house on every floor that has walls, the card shows a muted dot, "Draft" and one sentence saying the result appears once the outline is closed. No coverage claim, no button; the summary head reads "Draft" too.
+- A definition list: "To buy" in semibold (how many nodes and which kind: one dual-band router; dual-band nodes when every link is wired; tri-band nodes when any link is wireless, because the extra radio carries the backhaul; "At least n + 1" when signal is missing), a regular-weight cable line naming the nodes that need one, then "On the plan" in Pencil Gray with the models placed. A coverage line follows, and, when a link is weak, a cable sentence with a primary button to wire that node.
 - A 6 GHz note in small Pencil Gray text.
 - Whole-house tiles, one per band, as three equal buttons: Plan Paper, 6px corners, the percentage in 15px monospace over an 11.5px Pencil Gray band label. Pressing one switches the plan to that band.
 - Closes with the ±8 dB estimate note as a hint.
@@ -413,8 +417,9 @@ The first card in the drawer, answering "is this enough, and what do I buy".
 
 ### Navigation
 
-- **Site menu:** text links in Graphite Ink, weight 500, with a soft Drafting Blue tint on hover; scrolls horizontally on its own row on phones.
+- **Site menu:** text links in Graphite Ink, weight 500, with a soft Drafting Blue tint on hover. On phones the links and the language switcher fold behind one "Menu" button at the right of the logo, so the header is a single row; opening it shows them on their own rows.
 - **Language switcher:** a plain select at the right of the header.
+- **Shortcuts on Apple keyboards:** texts and tooltips written with Ctrl show ⌘ (and ⇧⌘ for Ctrl+Shift) on macOS and iOS.
 
 ### Pills and legend
 

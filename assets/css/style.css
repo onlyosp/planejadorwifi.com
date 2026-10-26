@@ -137,8 +137,8 @@ canvas { display: block; touch-action: none; cursor: crosshair }
 .tool-opts { top: 10px; left: var(--opt-left, 360px); max-width: calc(100% - var(--opt-left, 360px) - 10px); background: var(--sheet); border: 1px solid var(--line);
   border-radius: 8px; padding: 4px 10px; min-height: 36px; display: flex; align-items: center; box-shadow: var(--shadow-float) }
 .ws.drawer-closed .tool-opts { max-width: calc(100% - var(--opt-left, 360px) - 230px) }
-.tool-opts .opts { flex-wrap: nowrap; white-space: nowrap }
-.tool-opts select { min-width: 0; flex: 0 1 auto }
+.tool-opts .opts { flex-wrap: wrap; white-space: nowrap }
+.tool-opts select { min-width: 150px; flex: 0 1 auto }
 .opts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-width: 0 }
 .opts select { width: auto; max-width: 240px; padding-block: 4px }
 .opt-label { font-size: 13px; color: var(--muted) }
@@ -247,6 +247,9 @@ details.about .foot { margin-top: 8px }
 .v-dl { margin: 0; display: flex; flex-direction: column; gap: 1px }
 .v-dl dt { font-size: 13px; color: var(--muted) }
 .v-dl dd { margin: 0; font-weight: 600 }
+.v-dl dd.small, .v-dl dd.v-onplan { font-weight: 400 }
+.v-dl dt + dd + dt, .v-dl dd + dd + dt { margin-top: 6px }
+.v-dl dd.v-onplan { color: var(--muted) }
 .v-bands { display: flex; flex-direction: column; gap: 5px }
 .link { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 8px; font-size: 13.5px; align-items: baseline }
 .link .full { grid-column: 1 / -1 }
@@ -273,6 +276,8 @@ table { border-collapse: collapse; width: 100%; font-size: 14.5px }
 th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top }
 tr:last-child td { border-bottom: 0 }
 th { font-family: var(--font-display); font-weight: 600; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted) }
+th.num { text-transform: none; letter-spacing: .02em }
+.balance { text-wrap: balance }
 td.num, th.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap }
 td.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap }
 td .sw { vertical-align: -1px; margin-right: 8px }
@@ -314,6 +319,8 @@ dialog::backdrop { background: rgba(10, 14, 20, .45) }
 .sitenav { display: flex; align-items: center; gap: 4px; flex: 1 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none }
 .sitenav a, .navbtn { white-space: nowrap; color: var(--ink); text-decoration: none; font-weight: 500; padding: 6px 10px; border-radius: 6px; border: 0; background: transparent; font-size: 15px }
 .sitenav a:hover, .navbtn:hover { background: var(--accent-soft) }
+.navtoggle { display: none; align-items: center; gap: 6px; font-weight: 500 }
+.navtoggle .ic-sm { width: 16px; height: 16px }
 .langsw select { width: auto; font-weight: 500 }
 .projbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0 }
 .projbar select { width: auto; max-width: 240px; font-weight: 500 }
@@ -353,9 +360,10 @@ dialog::backdrop { background: rgba(10, 14, 20, .45) }
   .ws-top { padding-inline: 16px; gap: 6px 8px }
   .ws-top h1 { font-size: 17px; flex-basis: 100% }
   .ws-map { border-radius: 0; border-inline: 0 }
-  .fl-top { top: 8px; left: 8px; right: 8px; gap: 4px }
-  .floors { padding: 2px }
-  .floors button { padding: 3px 6px; font-size: 13px }
+  .fl-top { top: 8px; left: 8px; right: 8px; gap: 4px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none }
+  .fl-top > * { flex: none }
+  .floors { padding: 2px; flex-wrap: nowrap }
+  .floors button { padding: 3px 6px; font-size: 13px; max-width: 108px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
   .example-chip { display: none }
   .seg button { padding: 6px 6px; font-size: 12px }
   .fl-chip { padding: 5px 6px; font-size: 13px; gap: 4px }
@@ -364,7 +372,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .45) }
   .toolbar button { flex: 1 1 0; min-width: 0; font-size: 11px; padding: 6px 1px 5px }
   .toolbar button span { font-size: 11px; overflow-wrap: normal; letter-spacing: -.02em }
   .toolbar button[aria-pressed="true"] { font-weight: 500 }
-  .drawer, .ws.drawer-closed .drawer { bottom: var(--tb-h, 56px); max-height: calc(100% - var(--tb-h, 56px) - var(--flt-h, 36px) - 20px); border-radius: 10px 10px 0 0; border-inline: 0 }
+  .drawer, .ws.drawer-closed .drawer { bottom: var(--tb-h, 56px); max-height: min(55%, calc(100% - var(--tb-h, 56px) - var(--flt-h, 36px) - 20px)); border-radius: 10px 10px 0 0; border-inline: 0 }
   .fl-view { right: 8px; bottom: calc(var(--tb-h, 56px) + var(--dh-h, 46px) + 8px) }
   .btngroup button { padding: 6px 8px }
   .toolbar kbd { display: none }
@@ -381,6 +389,12 @@ dialog::backdrop { background: rgba(10, 14, 20, .45) }
   .pop { left: 8px !important; right: 8px; top: auto !important; width: auto; bottom: calc(var(--tb-h, 56px) + var(--dh-h, 46px) + 8px); z-index: 6 }
   .toast { bottom: calc(128px + env(safe-area-inset-bottom, 0px)) }
   .sitenav { order: 3; flex-basis: 100%; flex-wrap: wrap; overflow: visible; gap: 0 2px }
+  .site.has-toggle { padding-block: 10px 4px }
+  .site.has-toggle .navtoggle { display: inline-flex; margin-left: auto; padding: 6px 10px }
+  .site.has-toggle .sitenav { display: none }
+  .site.has-toggle.nav-open .sitenav { display: flex }
+  .site.has-toggle .langsw { display: none; order: 4 }
+  .site.has-toggle.nav-open .langsw { display: block; margin-left: 0 }
   .sitenav a, .navbtn { padding: 5px 8px; font-size: 14px }
   .langsw { margin-left: auto }
   .guide { font-size: 16px }

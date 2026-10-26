@@ -25,14 +25,15 @@
     "tour": "Guided tour",
     "language": "Language",
     "skip": "Skip to the planner",
-    "toTop": "Back to the planner"
+    "toTop": "Back to the planner",
+    "menu": "Menu"
   },
   "intro": {
     "h1": "Plan your Wi-Fi mesh on your floor plan",
     "p": "Planejador WiFi shows where the signal reaches before you buy a router: draw the walls, place the router and mesh nodes, and see the coverage on 2.4, 5 and 6 GHz. Free, no sign-up, and your projects stay in your browser."
   },
   "example": {
-    "blank": "Blank project",
+    "blank": "Start my project",
     "chip": "You're looking at the example house."
   },
   "project": {
@@ -70,7 +71,9 @@
     "history": "History",
     "canvasKeys": "With the plan focused, press [ and ] to pick walls, nodes and names, the arrows to move, Delete to remove and Esc to let go.",
     "heatShort": "Heat",
-    "multi": "Select several"
+    "multi": "Select several",
+    "rect": "Rectangle",
+    "chainDone": "Done"
   },
   "tools": {
     "select": "Select",
@@ -95,7 +98,8 @@
     "imageOpacity": "Image opacity",
     "scaleHint": "To set the scale, use <b>Measure</b>, drag over a known length on the image and enter its real size.",
     "removeImage": "Remove image",
-    "chooseImage": "Choose image…"
+    "chooseImage": "Choose image…",
+    "done": "Done"
   },
   "share": {
     "title": "Share",
@@ -110,7 +114,7 @@
   },
   "guide": {
     "howToTitle": "How to use the planner",
-    "howToSteps": "<li>Click <b>New project</b> and enter the width and depth of the lot or the house.</li><li>If you have the floor plan as a photo or an image, load it under <b>File › Plan and scale</b> and set the scale with <b>Measure</b>.</li><li>With the <b>Wall</b> tool, draw the outer and inner walls and pick the material. Doors and windows are walls too, made of wood or glass.</li><li>With <b>Router</b>, place the main router where the ISP modem is, then the other nodes.</li><li>Switch between 2.4, 5 and 6 GHz and look at the heat map. Green is excellent signal; red is no usable signal.</li><li>Use <b>Suggest a spot</b> to find where one more node helps most, and <b>File › Export JSON</b> to keep the project.</li>",
+    "howToSteps": "<li>Click <b>Start my project</b> (or <b>New project</b>) and give it a name. The sheet opens at 16 × 12 m; change its size under <b>File › Plan and scale</b> if needed.</li><li>If you have the floor plan as a photo or an image, load it under <b>File › Plan and scale</b> and set the scale with <b>Measure</b>.</li><li>With the <b>Wall</b> tool, click each corner: walls follow one another, and clicking the first point closes the room. <b>Rectangle</b> draws a whole room at once. Pick the material; doors and windows are walls too, made of wood or glass.</li><li>With <b>Router</b>, place the main router where the ISP modem is, then the other nodes.</li><li>Switch between 2.4, 5 and 6 GHz and look at the heat map. Green is excellent signal; red is no usable signal.</li><li>Use <b>Suggest a spot</b> to find where one more node helps most, and <b>File › Export JSON</b> to keep the project.</li>",
     "wallsTitle": "How much each wall takes from the signal",
     "wallsText": "Every wall the signal crosses adds a loss in decibels (dB). Each 10 dB cuts the received power to one tenth, so two or three brick walls already make a difference. The values below are the averages the planner uses; real loss depends on thickness, moisture and steel reinforcement.",
     "material": "Material",
@@ -198,7 +202,7 @@
   "ui": {
     "hints": {
       "select": "Click a wall, node or link to edit it; Shift-click or Shift-drag selects several. Drag the background to move the plan; Ctrl + scroll zooms.",
-      "wall": "Click and drag to draw a wall. Ends snap to the 25 cm grid and to existing walls. For angled walls, untick “Lock to 90°”.",
+      "wall": "Click each corner: walls follow one another. Click the first point to close the room; double-click, Enter or Esc finishes. With “Rectangle”, drag from one corner to the opposite one.",
       "node": "Click where the modem is to place the main router, then where each mesh node goes.",
       "label": "Click on the plan and type the room name. Enter confirms.",
       "measure": "Drag to measure a distance. With a background image, use this to set the scale.",
@@ -273,7 +277,7 @@
       "coverage": "Coverage · {band}",
       "needNode": "Place the router where the modem is, with the <b>Router</b> tool.",
       "noBand": "No device in this project transmits on {band}. To use it, select a node and pick a model with {band}.",
-      "goodShare": "of the house at ≥ −67 dBm",
+      "goodShare": "of the house with good signal",
       "area": "Area counted: {area} m², the rectangle around the walls.",
       "wireIt": "Connect {node} by cable",
       "linksTitle": "Links between nodes",
@@ -308,20 +312,21 @@
       "bandPartial": "Devices with {band}: {n} of {total} ({names}). The others don’t help on this band.",
       "computingPct": "Testing the free spots… {pct}",
       "cancel": "Cancel",
-      "suggestShort": "Suggestion marked on the plan: coverage goes from {from} to {to}."
+      "suggestShort": "Suggestion marked on the plan: coverage goes from {from} to {to}.",
+      "noNeed": "The house already has good signal. Another node is probably not needed.",
+      "suggestAnyway": "Suggest anyway",
+      "areaWhole": "Area counted: {area} m², the whole sheet (no walls yet).",
+      "linkPopHint": "Wirelessly, aim for −60 to −70 dBm; below that, connect it with a network cable."
     },
     "sel": {
       "wall": "Wall",
       "material": "Material",
-      "delWall": "Delete wall",
       "model": "Model",
       "mainNote": "Main router: connects to the ISP modem.",
       "wired": "Connected by network cable",
       "makeMain": "Make main",
-      "delNode": "Delete node",
       "room": "Room name",
       "text": "Text",
-      "delRoom": "Delete name",
       "close": "Close",
       "unwire": "Use wireless",
       "measureTitle": "Measurement",
@@ -346,7 +351,8 @@
       "pendingModel": "Nodes: {n} → {model}",
       "delConfirm": "Delete {n} selected items?",
       "delConfirmMsg": "You can bring them back with Undo (Ctrl+Z).",
-      "duplicate": "Duplicate"
+      "duplicate": "Duplicate",
+      "del": "Delete"
     },
     "models": {
       "isp": "ISP router",
@@ -402,7 +408,8 @@
       "imported": "Project “{name}” imported.",
       "importError": "This file is not a Planejador WiFi project. Choose a JSON exported from here.",
       "copied": "Summary copied.",
-      "copyFail": "Could not copy automatically. The text is selected: press Ctrl+C or Cmd+C."
+      "copyFail": "Could not copy automatically. The text is selected: press Ctrl+C.",
+      "planMin": "The plan can't be smaller than the drawing: at least {w} × {h} m."
     },
     "summary": {
       "area": "Area: {w} × {h} m, {floors} floor(s). Coordinates in meters from the top-left corner.",
@@ -433,7 +440,7 @@
         {
           "target": "#projectBar",
           "title": "Your projects",
-          "body": "Start a <b>New project</b> for your home. The example house stays saved for reference. Under <b>File</b> you export and import projects as JSON."
+          "body": "For your home, open <b>File › New project</b>. The example house stays saved for reference, and <b>File</b> also exports and imports projects as JSON."
         },
         {
           "target": "[data-tool=wall]",
@@ -464,7 +471,7 @@
     },
     "hintsTouch": {
       "select": "Tap a wall, node or link to edit it. To pick several, tick “Select several”. Drag the background to move the plan; pinch to zoom.",
-      "wall": "Drag to draw a wall. For angled walls, untick “Lock to 90°” in the tool options.",
+      "wall": "Tap each corner: walls follow one another. Tap the first point to close the room, or tap Done. With “Rectangle”, drag from one corner to the opposite one.",
       "node": "Tap where the modem is to place the main router, then where each mesh node goes.",
       "label": "Tap the plan and type the room name.",
       "measure": "Drag to measure a distance. With a background image, use it to set the scale.",
@@ -481,16 +488,24 @@
       "okLine": "On {band}, {pct} of the house gets good signal.",
       "shortLine": "On {band}, only {pct} of the house gets good signal. See where one more node helps.",
       "cableLine": "The link of {node} is weak: wire it with a cable or move it closer to another node.",
-      "devices": "Devices",
+      "devices": "On the plan",
       "sixGood": "6 GHz covers the house too: you can use the fastest band.",
       "sixNear": "6 GHz reaches {pct} of the house: fastest near the nodes.",
-      "sixNone": "No device has 6 GHz. To use that band, pick a model with 6 GHz (Wi-Fi 6E or 7).",
+      "sixNone": "No device has 6 GHz. To use that band, pick a model that lists 6 GHz (not every Wi-Fi 7 model does).",
       "byBand": "Whole house, by band",
       "showBand": "Show the map on {band}",
       "note": "Estimate with a typical error of ±8 dB.",
       "sixPartial": "6 GHz reaches {pct} of the house; devices with 6 GHz: {n} of {total}.",
       "export": "Export",
-      "exportLabel": "Export the project (JSON)"
+      "exportLabel": "Export the project (JSON)",
+      "draft": "Draft",
+      "draftLine": "The result appears once the outer walls close the house. Until then the numbers are only a draft.",
+      "buy": "To buy",
+      "buySingle": "1 Wi-Fi router (dual-band is enough)",
+      "buyDual": "{n} dual-band mesh nodes (all wired)",
+      "buyTri": "{n} tri-band mesh nodes: one radio stays free for the link between them",
+      "atLeast": "At least {what}",
+      "buyCable": "Plus a network cable for {names}."
     },
     "hud": {
       "weak1": "1 weak link",
@@ -498,7 +513,8 @@
       "noNodes": "No router",
       "open": "Show result",
       "close": "Hide result",
-      "mainBand": "Main band {band}"
+      "mainBand": "Main band {band}",
+      "draft": "Draft"
     },
     "live": {
       "wall": "Wall added, {len} m.",
@@ -510,9 +526,12 @@
       "band": "Map on {band}.",
       "suggestDone": "Suggestion ready: coverage goes from {from} to {to}.",
       "suggestCancelled": "Suggestion cancelled.",
-      "applied": "Change applied to the selected items.",
+      "applied": "Change applied to {n} items.",
       "copied": "Copied. Press Ctrl+V to paste.",
-      "pasted": "Pasted and selected."
+      "pasted": "Pasted and selected.",
+      "closed": "Room closed.",
+      "rect": "{w} × {h} m room drawn.",
+      "chainDone": "Walls done."
     },
     "stage": {
       "zoomAt": "Fit to screen (current zoom {pct})"
@@ -525,7 +544,7 @@
   },
   "invite": {
     "title": "Start with the floor plan",
-    "text": "Drag on the sheet to draw the outer walls, or load a photo of your floor plan and trace over it.",
+    "text": "Click or tap each corner to draw the outer walls, or load a photo of your floor plan and trace over it.",
     "draw": "Draw walls",
     "photo": "Load floor plan photo",
     "drop": "You can also drop the image here."

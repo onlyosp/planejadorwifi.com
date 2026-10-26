@@ -1,6 +1,6 @@
 import * as E from './engine.js';
 import * as St from './store.js';
-import { t, raw, locale, defaults } from './i18n.js';
+import { t, raw, locale, defaults, mac, keys } from './i18n.js';
 import { startTour, tourSeen } from './tour.js';
 
 const { BANDS, MATERIALS, GRID } = E;
@@ -40,13 +40,17 @@ function rebuildModels() {
 rebuildModels();
 
 let P = null;
-let tool = 'wall', mat = 'tijolo', model = 'be25', ortho = true;
+let tool = 'wall', mat = 'tijolo', model = 'be25', ortho = true, rectMode = false;
+// Walls drawn corner by corner: each tap adds a wall from the last end. { x, y } is that end,
+// { sx, sy } the first corner (tapping it again closes the room), { hx, hy } the mouse preview.
+let chain = null;
 let sel = null, drag = null, measure = null, suggestion = null;
 let suggestRun = null; // the Suggest search in progress: { it, progress, fi }
 // View: k pixels per meter, (ox, oy) the plan's top-left corner inside the map, k0 the fitted scale.
 let k = 40, k0 = 40, ox = 0, oy = 0, fitted = true, dpr = 1, ver = 0;
 let hist = [], fut = [];
 const cur = () => P.floors[P.floor];
+if (mac) document.querySelectorAll('[title*="Ctrl"]').forEach(el => { el.title = keys(el.title); });
 const nodesAll = () => E.nodesAll(P);
 const nodeName = gi => { const a = nodesAll()[gi]; return a && a.n.main ? t('node.main') : t('node.n', { n: gi + 1 }); };
 const restore = json => St.normalizeProject(JSON.parse(json), new Set(Object.keys(MODELS)), NAMES);
@@ -54,11 +58,13 @@ const restore = json => St.normalizeProject(JSON.parse(json), new Set(Object.key
 function pushHist() { hist.push(JSON.stringify(P)); if (hist.length > 80) hist.shift(); fut = []; }
 function undo() {
   if (!hist.length) return;
+  chain = null; chainUI();
   fut.push(JSON.stringify(P)); P = restore(hist.pop());
   sel = null; ver++; persist(); renderAll();
 }
 function redo() {
   if (!fut.length) return;
+  chain = null; chainUI();
   hist.push(JSON.stringify(P)); P = restore(fut.pop());
   sel = null; ver++; persist(); renderAll();
 }
@@ -155,7 +161,8 @@ function viewPad() {
   const top = r('stageBar').bottom - m.top + 10;
   let bottom = Math.min(m.bottom, sheetMode.matches ? r('drawer').top : m.bottom);
   if (compact.matches) {
-    bottom = Math.min(bottom, r('toolset').top, fv.top, el('toolOpts').hidden ? m.bottom : r('toolOpts').top);
+    // A fixed band above the view buttons stays free for the tool options, so changing tools never moves the plan.
+    bottom = Math.min(bottom, r('toolset').top, fv.top - 52);
     return { l: 8, t: top + area.querySelector('.fl-read').offsetHeight + 6, r: 8, b: m.bottom - bottom + 8 };
   }
   bottom = Math.min(bottom, fv.top, area.querySelector('.fl-read').getBoundingClientRect().top);
@@ -197,7 +204,7 @@ let raf = 0;
 // The fit button shows the current zoom once the plan is no longer fitted.
 let zoomShown = '';
 function showZoom() {
-  const z = fitted ? '' : Math.round(k / k0 * 100) + '%';
+  const pct = Math.round(k / k0 * 100), z = fitted || pct === 100 ? '' : pct + '%';
   if (z === zoomShown) return;
   zoomShown = z;
   const b = $('#zoomFit');
@@ -280,7 +287,7 @@ function draw() {
   ctx.lineCap = 'round';
   f.walls.forEach((w, i) => {
     if (isSel('wall', i)) {
-      ctx.strokeStyle = C.accent; ctx.lineWidth = Math.max(8, MATERIALS[w.m].w * k + 6); ctx.globalAlpha = 0.35; line(w); ctx.globalAlpha = 1;
+      ctx.strokeStyle = C.accent; ctx.lineWidth = Math.max(8, MATERIALS[w.m].w * k + 6); ctx.globalAlpha = 0.2; line(w); ctx.globalAlpha = 1;
     }
     ctx.strokeStyle = C['m-' + w.m];
     ctx.lineCap = 'round';
@@ -333,7 +340,9 @@ function draw() {
     }
     const active = m.bands.includes(P.band);
     if (isSel('node', a.ni)) {
-      ctx.fillStyle = C.accent; ctx.globalAlpha = 0.25; ctx.beginPath(); ctx.arc(x, y, r + 7, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+      // A soft disc plus a solid ring: visible on the accent-filled main router too.
+      ctx.fillStyle = C.accent; ctx.globalAlpha = 0.18; ctx.beginPath(); ctx.arc(x, y, r + 8, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+      ctx.strokeStyle = C.accent; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(x, y, r + 5, 0, Math.PI * 2); ctx.stroke();
     }
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
     if (active) { ctx.fillStyle = a.n.main ? C.accent : C.ink; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = C.sheet; ctx.stroke(); }
@@ -368,15 +377,38 @@ function draw() {
   }
   const isWall = drag && drag.kind === 'wall';
   const seg = drag && (drag.kind === 'wall' || drag.kind === 'measure') ? drag : (measure && measure.fi === P.floor ? measure : null);
-  if (seg) {
-    ctx.save(); ctx.strokeStyle = isWall ? C['m-' + mat] : C.accent; ctx.lineWidth = isWall ? Math.max(3, MATERIALS[mat].w * k) : 2;
+  const wallW = Math.max(3, MATERIALS[mat].w * k);
+  if (seg && isWall && drag.rect) previewRect(seg, 1);
+  else if (seg) {
+    ctx.save(); ctx.strokeStyle = isWall ? C['m-' + mat] : C.accent; ctx.lineWidth = isWall ? wallW : 2;
     if (!isWall) ctx.setLineDash([6, 4]);
     line(seg); ctx.restore();
     ctx.font = '500 12px "IBM Plex Mono", monospace';
     halo(fmt(Math.hypot(seg.x2 - seg.x1, seg.y2 - seg.y1), 2) + ' m', (seg.x1 + seg.x2) / 2 * k, (seg.y1 + seg.y2) / 2 * k - 12, C.ink);
   }
+  if (chain && chain.fi === P.floor && tool === 'wall' && !drag) {
+    // The open chain: a ring on the first corner (tap it to close) and, with a mouse, the next wall.
+    const pv = chain.hx === undefined ? null : { x1: chain.x, y1: chain.y, x2: chain.hx, y2: chain.hy };
+    if (pv && chain.rect) previewRect(pv, 0.6);
+    else if (pv && Math.hypot(pv.x2 - pv.x1, pv.y2 - pv.y1) >= 0.2) {
+      ctx.save(); ctx.globalAlpha = 0.6; ctx.strokeStyle = C['m-' + mat]; ctx.lineWidth = wallW; line(pv); ctx.restore();
+      ctx.font = '500 12px "IBM Plex Mono", monospace';
+      halo(fmt(Math.hypot(pv.x2 - pv.x1, pv.y2 - pv.y1), 2) + ' m', (pv.x1 + pv.x2) / 2 * k, (pv.y1 + pv.y2) / 2 * k - 12, C.ink);
+    }
+    ctx.save(); ctx.strokeStyle = C.accent; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(chain.sx * k, chain.sy * k, 7, 0, Math.PI * 2); ctx.stroke();
+    if (!chain.rect) { ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(chain.x * k, chain.y * k, 3.5, 0, Math.PI * 2); ctx.fill(); }
+    ctx.restore();
+  }
   ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
   placePop();
+}
+function previewRect(r, alpha) {
+  const x = Math.min(r.x1, r.x2), y = Math.min(r.y1, r.y2), w = Math.abs(r.x2 - r.x1), h = Math.abs(r.y2 - r.y1);
+  ctx.save(); ctx.globalAlpha = alpha; ctx.strokeStyle = C['m-' + mat]; ctx.lineWidth = Math.max(3, MATERIALS[mat].w * k);
+  ctx.strokeRect(x * k, y * k, w * k, h * k); ctx.restore();
+  ctx.font = '500 12px "IBM Plex Mono", monospace';
+  halo(`${fmt(w, 2)} × ${fmt(h, 2)} m`, (x + w / 2) * k, y * k - 12, C.ink);
 }
 function roundRect(x, y, w, h, r) {
   ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
@@ -513,11 +545,12 @@ function applyPending() {
   const f = cur(), pend = multiPending;
   if (!pend || pend.key !== selKey()) { multiPending = null; renderPop(); return; }
   pushHist();
+  let n = 0;
   selItems().forEach(x => {
-    if (pend.mat && x.type === 'wall' && f.walls[x.i]) f.walls[x.i].m = pend.mat;
-    if (pend.model && x.type === 'node' && f.nodes[x.i]) f.nodes[x.i].model = pend.model;
+    if (pend.mat && x.type === 'wall' && f.walls[x.i]) { f.walls[x.i].m = pend.mat; n++; }
+    if (pend.model && x.type === 'node' && f.nodes[x.i]) { f.nodes[x.i].model = pend.model; n++; }
   });
-  multiPending = null; dirty(); live(t('live.applied'));
+  multiPending = null; dirty(); toast(t('live.applied', { n }));
 }
 // Deleting several items asks first; a single item is deleted at once (Undo brings it back).
 async function confirmDeleteSelection() {
@@ -553,7 +586,7 @@ cv.addEventListener('pointerdown', e => {
   tap = { x: e.clientX, y: e.clientY, p, moved: false };
   if (tool === 'wall' || tool === 'measure') {
     const s = snapPt(p.x, p.y);
-    drag = { kind: tool, x1: s.x, y1: s.y, x2: s.x, y2: s.y };
+    drag = { kind: tool, x1: s.x, y1: s.y, x2: s.x, y2: s.y, rect: tool === 'wall' && rectMode };
     if (tool === 'measure') { measure = null; if (sel && sel.type === 'measure') sel = null; }
   } else if (tool === 'select') {
     const additive = e.shiftKey || e.ctrlKey || e.metaKey || multiMode;
@@ -606,6 +639,9 @@ cv.addEventListener('pointermove', e => {
     const q = pos(e), hov = !wallHandleAt(q) && hitTest(q);
     cv.style.cursor = wallHandleAt(q) ? 'crosshair' : hov && hov.type === 'wall' && isSel('wall', hov.i) ? 'move' : 'default';
   }
+  if (!drag && !pan && chain && tool === 'wall' && e.pointerType === 'mouse') {
+    const s = chainTarget(pos(e)); chain.hx = s.x; chain.hy = s.y; schedule();
+  }
   if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (pinch && ptrs.size >= 2) {
     const [a, b] = [...ptrs.values()], r = cv.getBoundingClientRect();
@@ -623,7 +659,7 @@ cv.addEventListener('pointermove', e => {
   }
   const p = pos(e);
   if (drag) {
-    if (drag.kind === 'wall') { const s = wallEnd(drag.x1, drag.y1, p); drag.x2 = s.x; drag.y2 = s.y; }
+    if (drag.kind === 'wall') { const s = drag.rect ? snapPt(p.x, p.y) : wallEnd(drag.x1, drag.y1, p); drag.x2 = s.x; drag.y2 = s.y; }
     else if (drag.kind === 'wallEnd') {
       // Ends move freely (snapping to the grid and other walls), so an existing wall can be tilted.
       const s = snapPt(p.x, p.y);
@@ -677,7 +713,7 @@ function endPointer(e) {
   }
   const p = tap && tap.p, wasTap = tap && !tap.moved; tap = null;
   $('#pop').classList.remove('away');
-  if (drag) { endDrag(); return; }
+  if (drag) { endDrag(p); return; }
   if (!wasTap || e.type === 'pointercancel') return;
   if (tool === 'node') {
     pushHist();
@@ -692,7 +728,44 @@ function endPointer(e) {
     openLabelInput(p);
   }
 }
-function endDrag() {
+// Where the next wall of the chain ends: the first corner when close to it (closing the room),
+// otherwise the snapped point, kept at 90° when "Lock to 90°" is on.
+function chainTarget(p) {
+  if (chain.rect) return snapPt(p.x, p.y);
+  if (Math.hypot(p.x - chain.sx, p.y - chain.sy) * k < 16 && (chain.x !== chain.sx || chain.y !== chain.sy)) return { x: chain.sx, y: chain.sy, close: true };
+  return wallEnd(chain.x, chain.y, p);
+}
+function chainTap(p) {
+  if (chain && chain.fi !== P.floor) chain = null;
+  if (!chain) {
+    const s = snapPt(p.x, p.y);
+    chain = { x: s.x, y: s.y, sx: s.x, sy: s.y, fi: P.floor, rect: rectMode };
+    chainUI(); schedule(); return;
+  }
+  const s = chainTarget(p);
+  if (chain.rect) {
+    if (Math.abs(s.x - chain.x) >= 0.2 && Math.abs(s.y - chain.y) >= 0.2) { addRect(chain.x, chain.y, s.x, s.y); endChain(); }
+    else schedule();
+    return;
+  }
+  const len = Math.hypot(s.x - chain.x, s.y - chain.y);
+  if (len < 0.2) { schedule(); return; }
+  pushHist(); cur().walls.push({ x1: chain.x, y1: chain.y, x2: s.x, y2: s.y, m: mat });
+  if (s.close) chain = null; else { chain.x = s.x; chain.y = s.y; }
+  dirty(); chainUI(); live(t(s.close ? 'live.closed' : 'live.wall', { len: fmt(len, 2) }));
+}
+function endChain() { if (!chain) return; chain = null; chainUI(); schedule(); }
+// Touch has no double-click or Enter, so it gets a Done button while a chain is open.
+function chainUI() { $('#chainDone').hidden = !chain || chain.rect || !touchUI.matches; }
+function addRect(x1, y1, x2, y2) {
+  const a = Math.min(x1, x2), b = Math.min(y1, y2), c = Math.max(x1, x2), d = Math.max(y1, y2);
+  if (c - a < 0.2 || d - b < 0.2) { schedule(); return; }
+  pushHist();
+  cur().walls.push({ x1: a, y1: b, x2: c, y2: b, m: mat }, { x1: c, y1: b, x2: c, y2: d, m: mat },
+    { x1: c, y1: d, x2: a, y2: d, m: mat }, { x1: a, y1: d, x2: a, y2: b, m: mat });
+  dirty(); live(t('live.rect', { w: fmt(c - a, 2), h: fmt(d - b, 2) }));
+}
+function endDrag(p) {
   const d = drag; drag = null;
   if (d.kind === 'box') {
     const found = itemsInBox(Math.min(d.x1, d.x2), Math.min(d.y1, d.y2), Math.max(d.x1, d.x2), Math.max(d.y1, d.y2));
@@ -703,8 +776,14 @@ function endDrag() {
   }
   if (d.kind === 'wall') {
     const len = Math.hypot(d.x2 - d.x1, d.y2 - d.y1);
-    if (len >= 0.2) { pushHist(); cur().walls.push({ x1: d.x1, y1: d.y1, x2: d.x2, y2: d.y2, m: mat }); dirty(); live(t('live.wall', { len: fmt(len, 2) })); }
-    else schedule();
+    if (len < 0.2) { if (p) chainTap(p); else schedule(); }
+    else if (d.rect) { addRect(d.x1, d.y1, d.x2, d.y2); endChain(); }
+    else {
+      // A dragged wall also continues the chain from its far end.
+      const cont = chain && chain.fi === P.floor && chain.x === d.x1 && chain.y === d.y1;
+      chain = { x: d.x2, y: d.y2, sx: cont ? chain.sx : d.x1, sy: cont ? chain.sy : d.y1, fi: P.floor };
+      pushHist(); cur().walls.push({ x1: d.x1, y1: d.y1, x2: d.x2, y2: d.y2, m: mat }); dirty(); live(t('live.wall', { len: fmt(len, 2) })); chainUI();
+    }
   } else if (d.kind === 'measure') {
     measure = Math.hypot(d.x2 - d.x1, d.y2 - d.y1) >= 0.1 ? { ...d, fi: P.floor } : null;
     sel = measure ? { type: 'measure' } : null;
@@ -716,6 +795,7 @@ function endDrag() {
   }
 }
 cv.addEventListener('pointerup', endPointer);
+cv.addEventListener('dblclick', () => { if (tool === 'wall') endChain(); });
 cv.addEventListener('pointercancel', endPointer);
 cv.addEventListener('pointerleave', e => { overMap = false; if (e.pointerType === 'mouse' && !drag && !pan) readout(null); });
 cv.addEventListener('pointerenter', () => { overMap = true; });
@@ -731,7 +811,7 @@ function readout(p) {
   const box = $('#readout');
   const hint = t((touchUI.matches ? 'hintsTouch.' : 'hints.') + tool);
   $('#toolHint').textContent = hint;
-  $('#toolHint').hidden = compact.matches;
+  $('#toolHint').hidden = compact.matches || touched; // desktop: shown until the tool is first used
   box.classList.toggle('is-hint', !p && compact.matches && !touched);
   if (!p) { box.textContent = compact.matches && !touched ? hint : t(touchUI.matches ? 'readout.idleTouch' : 'readout.idle'); return; }
   const nodes = nodesAll();
@@ -833,14 +913,15 @@ document.addEventListener('keydown', e => {
   const arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
   if (arrows[e.key]) { const s = e.shiftKey ? 1 : GRID; if (nudge(arrows[e.key][0] * s, arrows[e.key][1] * s)) e.preventDefault(); return; }
   if ((e.key === 'Delete' || e.key === 'Backspace') && selItems().length) { e.preventDefault(); confirmDeleteSelection(); return; }
-  if (e.key === 'Escape') { drag = null; sel = null; measure = null; renderPop(); schedule(); }
+  if (e.key === 'Enter' && chain) { e.preventDefault(); endChain(); return; }
+  if (e.key === 'Escape') { drag = null; sel = null; measure = null; endChain(); renderPop(); schedule(); }
 });
 document.addEventListener('keyup', e => { if (e.key === ' ') { spaceDown = false; setCursor(); } });
 
 /* ---------- tool rail and options ---------- */
 function setCursor() { cv.style.cursor = tool === 'select' ? 'default' : tool === 'erase' ? 'not-allowed' : 'crosshair'; }
 function setTool(name) {
-  tool = name; touched = false;
+  tool = name; touched = false; endChain();
   document.querySelectorAll('#toolset [data-tool]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === name)));
   $('#matGroup').hidden = name !== 'wall';
   $('#modelGroup').hidden = name !== 'node';
@@ -848,7 +929,6 @@ function setTool(name) {
   $('#toolOpts').hidden = !['wall', 'node', 'select'].includes(name);
   if (sel && sel.type === 'measure' && name !== 'measure') { sel = null; measure = null; renderPop(); }
   setCursor(); readout(null);
-  if (fitted && P) fitView(); // the phone's tool options take room above the rail
   schedule();
 }
 document.querySelectorAll('#toolset [data-tool]').forEach(b => b.addEventListener('click', () => setTool(b.dataset.tool)));
@@ -871,6 +951,8 @@ function fillModelSel() {
 $('#matSel').addEventListener('change', e => { mat = e.target.value; });
 $('#modelSel').addEventListener('change', e => { model = e.target.value; });
 $('#ortho').addEventListener('change', e => { ortho = e.target.checked; });
+$('#rectOn').addEventListener('change', e => { rectMode = e.target.checked; $('#ortho').disabled = rectMode; endChain(); });
+$('#chainDone').addEventListener('click', () => { endChain(); live(t('live.chainDone')); });
 $('#multiOn').addEventListener('change', e => { multiMode = e.target.checked; });
 $('#heatOn').addEventListener('change', e => { P.heat = e.target.checked; persist(); schedule(); });
 $('#alpha').addEventListener('input', e => { P.alpha = e.target.value / 100; persist(); schedule(); });
@@ -890,13 +972,15 @@ function bandShare(bk) {
 }
 const partialText = bk => { const p = bandShare(bk); return p ? t('panel.bandPartial', { ...p, band: bandLabel(bk) }) : ''; };
 let bandsSig = '';
+// "2,4 GHz" shows as "2,4" on phones; the unit stays for screen readers.
+const unitSplit = s => esc(s).replace(/\s(GHz)$/, '<span class="lbl-long"> $1</span>');
 function renderBands() {
   const sig = P.band + E.BAND_KEYS.map(bk => +hasBandDevice(bk)).join('') + nodesAll().length;
   if (sig === bandsSig) return;
   bandsSig = sig;
   $('#bands').innerHTML = E.BAND_KEYS.map(bk => {
     const none = nodesAll().length && !hasBandDevice(bk), label = t('bandNoDevice', { band: bandLabel(bk) });
-    return `<button type="button" aria-pressed="${bk === P.band}" data-band="${bk}"${none ? ` class="nodev" title="${esc(label)}" aria-label="${esc(label)}"` : ''}>${bandLabel(bk)}</button>`;
+    return `<button type="button" aria-pressed="${bk === P.band}" data-band="${bk}"${none ? ` class="nodev" title="${esc(label)}" aria-label="${esc(label)}"` : ''}>${unitSplit(bandLabel(bk))}</button>`;
   }).join('');
 }
 function setBand(bk) {
@@ -908,7 +992,7 @@ $('#bands').addEventListener('click', e => { const b = e.target.closest('[data-b
 
 function renderFloors() {
   $('#floors').innerHTML = P.floors.map((f, i) => `<button type="button" aria-pressed="${i === P.floor}" data-floor="${i}">${esc(f.name)}</button>`).join('')
-    + `<button type="button" class="ghost" data-floor="add">${esc(t('floors.add'))}</button>`;
+    + `<button type="button" class="ghost" data-floor="add" aria-label="${esc(t('floors.add'))}"><span aria-hidden="true">+</span><span class="lbl-long" aria-hidden="true">${esc(t('floors.add').replace(/^\+\s*/, ' '))}</span></button>`;
 }
 $('#floors').addEventListener('click', e => {
   const b = e.target.closest('[data-floor]'); if (!b) return;
@@ -943,9 +1027,12 @@ sheetMode.addEventListener('change', () => setDrawer(sheetMode.matches ? false :
 
 // The verdict: what to buy, whether a cable is needed and how each band covers the house.
 function mainBand() { return hasBandDevice('5') || !hasBandDevice('2.4') ? '5' : '2.4'; }
+// The house is drawn when every floor with walls has a closed outline. Until then results are a draft.
+const outlineDone = () => P.floors.some(f => f.walls.length) && P.floors.every((f, fi) => !f.walls.length || E.outlineClosed(P, fi));
 function verdict() {
   const all = nodesAll();
   if (!all.length) return null;
+  if (!outlineDone()) return { status: 'draft' };
   const mb = mainBand(), house = Object.fromEntries(E.BAND_KEYS.map(bk => [bk, houseStats(bk)]));
   const weak = E.weakLinks(P, MODELS);
   const short = house[mb].good < 0.9;
@@ -956,12 +1043,29 @@ const linkColor = v => ['q0', 'q0', 'q1', 'q1', 'q4'][E.linkCat(v)];
 const statusIcon = s => `<svg class="ic st-ic st-${s === 'ok' ? 'ok' : s === 'okCable' ? 'warn' : 'bad'}" aria-hidden="true"><use href="#i-${s === 'ok' ? 'check' : 'alert'}"/></svg>`;
 function summaryChip(v) {
   if (!v) return `<span class="dot" style="background:var(--muted)"></span>${esc(t('hud.noNodes'))}`;
+  if (v.status === 'draft') return `<span class="dot" style="background:var(--muted)"></span>${esc(t('hud.draft'))}`;
   const weak = v.weak.length ? ' · ' + esc(v.weak.length === 1 ? t('hud.weak1') : t('hud.weakN', { n: v.weak.length })) : '';
   return `${statusIcon(v.status)}${esc(t('hud.mainBand', { band: bandLabel(v.mb) }))} · <b>${pct(v.house[v.mb].good)}</b>${weak}`;
+}
+// What to buy, from the plan: how many nodes, which kind and which ones need a cable. Short coverage
+// asks for at least one more node; wireless links between nodes call for a tri-band kit, whose extra
+// radio carries the backhaul; an all-wired mesh or a single router does fine with dual-band.
+function recommendation(v) {
+  const n = nodesAll().length, wireless = E.topology(P, MODELS).some(l => !l.wired);
+  const count = v.status === 'short' ? n + 1 : n;
+  let text = count === 1 ? t('verdict.buySingle') : wireless || v.status === 'short' ? t('verdict.buyTri', { n: count }) : t('verdict.buyDual', { n: count });
+  if (v.status === 'short') text = t('verdict.atLeast', { what: text });
+  const cable = v.weak.length ? t('verdict.buyCable', { names: v.weak.map(w => nodeName(w.child)).join(', ') }) : '';
+  return { text, cable };
 }
 function renderVerdict(v) {
   // The project's backup sits on the result it records: a small Export action in the card's corner.
   let h = `<div class="card-head"><h2>${esc(t('verdict.title'))}</h2><button type="button" class="ghost btn-sm" data-export title="${esc(t('verdict.exportLabel'))}" aria-label="${esc(t('verdict.exportLabel'))}">${icon('download')}<span>${esc(t('verdict.export'))}</span></button></div>`;
+  if (!outlineDone() || (v && v.status === 'draft')) {
+    // No verdict before the house is drawn: no premature "covers the house", no competing button.
+    h += `<p class="v-status"><span class="dot" style="background:var(--muted)"></span>${esc(t('verdict.draft'))}</p><p class="small muted">${esc(t('verdict.draftLine'))}</p>`;
+    $('#pVerdict').innerHTML = h; return;
+  }
   if (!v) {
     h += `<p class="small muted">${esc(t('verdict.empty'))}</p><div class="btnrow"><button type="button" class="primary" data-pick="node">${esc(t('verdict.placeNode'))}</button></div>`;
     $('#pVerdict').innerHTML = h; return;
@@ -970,7 +1074,9 @@ function renderVerdict(v) {
   nodesAll().forEach(a => { kit[a.n.model] = (kit[a.n.model] || 0) + 1; });
   const kitText = Object.entries(kit).map(([id, n]) => `${n} × ${MODELS[id].name}`).join(' + ');
   h += `<p class="v-status">${statusIcon(v.status)}${esc(t('verdict.' + v.status))}</p>`;
-  h += `<dl class="v-dl"><dt>${esc(t('verdict.devices'))}</dt><dd>${esc(kitText)}</dd></dl>`;
+  const buy = recommendation(v);
+  h += `<dl class="v-dl"><dt>${esc(t('verdict.buy'))}</dt><dd>${esc(buy.text)}</dd>${buy.cable ? `<dd class="small">${esc(buy.cable)}</dd>` : ''}`
+    + `<dt>${esc(t('verdict.devices'))}</dt><dd class="v-onplan">${esc(kitText)}</dd></dl>`;
   const line = v.status === 'short' ? 'verdict.shortLine' : 'verdict.okLine';
   h += `<p class="small">${esc(t(line, { band: bandLabel(v.mb), pct: pct(v.house[v.mb].good) }))}</p>`;
   if (v.status === 'short' && partialText(v.mb)) h += `<p class="small">${esc(partialText(v.mb))}</p>`;
@@ -1023,7 +1129,7 @@ function renderPanel() {
       + (alt ? `<div class="btnrow"><button type="button" data-band="${alt}">${esc(t('verdict.showBand', { band: bandLabel(alt) }))}</button></div>` : '');
   }
   else {
-    h += `<div><div class="big">${pct(st.good)}<small>${esc(t('panel.goodShare'))}</small></div><p class="small muted">${esc(t('panel.area', { area: fmt(st.area, 0) }))}</p></div>`;
+    h += `<div><div class="big">${pct(st.good)}<small>${esc(t('panel.goodShare'))}</small></div><p class="small muted balance">${esc(t(f.walls.length ? 'panel.area' : 'panel.areaWhole', { area: fmt(st.area, 0) }))}</p></div>`;
     if (partialText(P.band)) h += `<p class="small">${esc(partialText(P.band))}</p>`;
     h += `<div class="bar" aria-hidden="true">${st.counts.map((c, i) => (c ? `<span style="width:${c / st.n * 100}%;background:var(--q${i})"></span>` : '')).join('')}</div>`;
     h += `<div class="rows">${[0, 1, 2, 3, 4].map(i => `<div class="r"><i class="sw" style="background:var(--q${i})"></i><span>${esc(cat(i).name)} <em>${esc(cat(i).use)}</em></span><span class="n">${pct(st.n ? st.counts[i] / st.n : 0)}</span></div>`).join('')}</div>`;
@@ -1044,13 +1150,14 @@ function renderPanel() {
 
   let sh = `<h2>${esc(t('panel.suggestTitle'))}</h2>`;
   if (suggestion && suggestion.none) sh += `<p class="small">${esc(noneText(suggestion))}</p>${suggestion.none === 'weakLink' ? `<div class="btnrow">${wireBtn(suggestion.child, 'primary')}<button type="button" data-sug="clear" class="ghost">${esc(t('panel.ok'))}</button></div>` : `<button type="button" data-sug="clear" class="ghost">${esc(t('panel.ok'))}</button>`}`;
-  else if (suggestion) sh += `<p class="small">${esc(t('panel.suggestShort', { from: pct(suggestion.from), to: pct(suggestion.to) }))}</p>` + sugButtons();
+  else if (suggestion) sh += `<p class="small">${esc(t('panel.suggestShort', { from: pct(suggestion.from), to: pct(suggestion.to) }))}</p>` + sugButtons(false);
   else if (suggestRun) {
     const v = Math.round(suggestRun.progress * 100);
     sh += `<p class="small" id="sugPct">${esc(t('panel.computingPct', { pct: v + '%' }))}</p>`
       + `<div class="progress" role="progressbar" aria-label="${esc(t('panel.suggestTitle'))}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${v}"><span id="sugBar" style="width:${v}%"></span></div>`
       + `<div class="btnrow"><button type="button" data-sug="cancel" class="ghost">${esc(t('panel.cancel'))}</button></div>`;
   }
+  else if (v && v.status === 'ok') sh += `<p class="small">${esc(t('panel.noNeed'))}</p><button type="button" class="ghost" data-sug="run">${esc(t('panel.suggestAnyway'))}</button>`;
   else sh += `<p class="small muted">${esc(t('panel.suggestIntro', { band: bl }))}</p><button type="button" data-sug="run">${esc(t('panel.suggestRun'))}</button>`;
   $('#pSuggest').innerHTML = sh;
 
@@ -1076,7 +1183,7 @@ function sugText() {
   if (s.model !== model && MODELS[model]) extra += esc(t('panel.suggestOtherModel', { chosen: MODELS[model].name, band: bandLabel(P.band), model: MODELS[s.model].name }));
   return t('panel.suggestResult', { model: esc(MODELS[s.model].name), x: fmt(s.x, 1), y: fmt(s.y, 1), band: bandLabel(P.band), from: pct(s.from), to: pct(s.to) }) + extra;
 }
-const sugButtons = () => `<div class="btnrow"><button type="button" data-sug="add" class="primary">${esc(t('panel.addHere'))}</button><button type="button" data-sug="clear" class="ghost">${esc(t('panel.discard'))}</button></div>`;
+const sugButtons = (main = true) => `<div class="btnrow"><button type="button" data-sug="add" class="${main ? 'primary' : ''}">${esc(t('panel.addHere'))}</button><button type="button" data-sug="clear" class="ghost">${esc(t('panel.discard'))}</button></div>`;
 
 function setWired(gi, on) {
   const a = nodesAll()[gi]; if (!a || a.n.main) return;
@@ -1153,17 +1260,17 @@ function renderPop() {
         <p class="hint">${esc(t('sel.lengthHint'))}</p>
         <label class="field-label" for="selMat">${esc(t('sel.material'))}</label>
         <select id="selMat">${Object.entries(MATERIALS).map(([key, m]) => `<option value="${key}"${key === item.m ? ' selected' : ''}>${esc(matText(key, m.db[BANDS[P.band].i]))}</option>`).join('')}</select>
-        <div class="btnrow"><button type="button" data-selact="dup">${esc(t('sel.duplicate'))}</button><button type="button" class="ghost danger" data-selact="del">${esc(t('sel.delWall'))}</button></div>`;
+        <div class="btnrow"><button type="button" data-selact="dup">${esc(t('sel.duplicate'))}</button><button type="button" class="ghost danger" data-selact="del">${esc(t('sel.del'))}</button></div>`;
     } else if (sel.type === 'node') {
       const gi = nodesAll().findIndex(a => a.n === item);
       h = popHead(nodeName(gi))
         + `<label class="field-label" for="selModel">${esc(t('sel.model'))}</label><select id="selModel">${modelOptions(item.model)}</select>
         ${item.main ? `<p class="small muted">${esc(t('sel.mainNote'))}</p>` : `<label class="check"><input type="checkbox" id="selWired"${item.wired ? ' checked' : ''}> ${esc(t('sel.wired'))}</label>`}
-        <div class="btnrow">${item.main ? '' : `<button type="button" data-selact="main">${esc(t('sel.makeMain'))}</button>`}<button type="button" data-selact="dup">${esc(t('sel.duplicate'))}</button><button type="button" class="ghost danger" data-selact="del">${esc(t('sel.delNode'))}</button></div>`;
+        <div class="btnrow">${item.main ? '' : `<button type="button" data-selact="main">${esc(t('sel.makeMain'))}</button>`}<button type="button" data-selact="dup">${esc(t('sel.duplicate'))}</button><button type="button" class="ghost danger" data-selact="del">${esc(t('sel.del'))}</button></div>`;
     } else {
       h = popHead(t('sel.room'))
         + `<label class="sr" for="selText">${esc(t('sel.text'))}</label><input type="text" id="selText" value="${esc(item.t)}" maxlength="40">
-        <div class="btnrow"><button type="button" data-selact="dup">${esc(t('sel.duplicate'))}</button><button type="button" class="ghost danger" data-selact="del">${esc(t('sel.delRoom'))}</button></div>`;
+        <div class="btnrow"><button type="button" data-selact="dup">${esc(t('sel.duplicate'))}</button><button type="button" class="ghost danger" data-selact="del">${esc(t('sel.del'))}</button></div>`;
     }
   } else if (sel && sel.type === 'link') {
     const l = E.topology(P, MODELS).find(x => x.child === sel.child);
@@ -1172,7 +1279,7 @@ function renderPop() {
       h = popHead(nodeName(l.child) + ' → ' + nodeName(l.parent))
         + `<p class="pop-row">${linkPill(l)}</p>`
         + (l.wired ? `<div class="btnrow"><button type="button" data-unwire="${l.child}">${esc(t('sel.unwire'))}</button></div>`
-          : `<p class="small muted">${esc(t('panel.linkQuality', { q: t('panel.linkWords.' + E.linkCat(l.v)) }))} ${esc(t('panel.linksHint'))}</p><div class="btnrow">${wireBtn(l.child, E.linkCat(l.v) === 4 ? 'primary' : '')}</div>`);
+          : `<p class="small muted">${esc(t('panel.linkQuality', { q: t('panel.linkWords.' + E.linkCat(l.v)) }))} ${esc(t('panel.linkPopHint'))}</p><div class="btnrow">${wireBtn(l.child, E.linkCat(l.v) === 4 ? 'primary' : '')}</div>`);
     }
   } else if (sel && sel.type === 'measure' && measure) {
     h = popHead(t('sel.measureTitle'))
@@ -1307,8 +1414,24 @@ pop.addEventListener('keydown', e => {
 });
 
 /* ---------- plan, area and background image ---------- */
-$('#areaW').addEventListener('change', e => { pushHist(); P.w = clamp(+e.target.value || 16, 4, 80); fitted = true; dirty(); resize(); });
-$('#areaH').addEventListener('change', e => { pushHist(); P.h = clamp(+e.target.value || 12, 4, 80); fitted = true; dirty(); resize(); });
+// The plan never shrinks below what is drawn on any floor; asking for less says so.
+function drawnExtent() {
+  let w = 0, h = 0;
+  P.floors.forEach(f => {
+    f.walls.forEach(v => { w = Math.max(w, v.x1, v.x2); h = Math.max(h, v.y1, v.y2); });
+    [...f.nodes, ...f.labels].forEach(o => { w = Math.max(w, o.x); h = Math.max(h, o.y); });
+  });
+  return { w: Math.ceil(w * 2) / 2, h: Math.ceil(h * 2) / 2 };
+}
+function setPlanSize(dim, value) {
+  const ext = drawnExtent(), min = Math.max(4, dim === 'w' ? ext.w : ext.h);
+  let v = clamp(parseNum(value) || (dim === 'w' ? 16 : 12), 4, 80);
+  if (v < min) { v = min; toast(t('toast.planMin', { w: fmt(Math.max(4, ext.w), 1), h: fmt(Math.max(4, ext.h), 1) })); }
+  pushHist(); P[dim] = v; fitted = true; dirty(); resize();
+  $(dim === 'w' ? '#areaW' : '#areaH').value = v;
+}
+$('#areaW').addEventListener('change', e => setPlanSize('w', e.target.value));
+$('#areaH').addEventListener('change', e => setPlanSize('h', e.target.value));
 function loadBackground(file) {
   if (!file || !/^image\//.test(file.type)) { if (file) toast(t('toast.imageError')); return; }
   const rd = new FileReader();
@@ -1357,8 +1480,19 @@ $('#delFloor').addEventListener('click', async () => {
 function renderProjects() {
   const list = St.listProjects();
   if (!list.some(x => x.id === P.id)) list.unshift({ id: P.id, name: P.name });
-  $('#projectSel').innerHTML = list.map(x => `<option value="${esc(x.id)}"${x.id === P.id ? ' selected' : ''}>${esc(x.id === P.id ? P.name : x.name)}</option>`).join('');
+  $('#projectSel').innerHTML = list.map(x => `<option value="${esc(x.id)}"${x.id === P.id ? ' selected' : ''}>${esc(x.id === P.id ? P.name : listName(x.name))}</option>`).join('');
 }
+// The example house keeps its generated name in the language it was created in; the list shows it in the page language.
+const listName = name => ((defaults.exampleName || []).includes(name) ? t('project.exampleName') : name);
+// Plan and scale: Cancel (or Esc) puts back what the dialog changed; Done keeps it.
+let planMark = null;
+function cancelPlan() {
+  const m = planMark; planMark = null;
+  if (m && JSON.stringify(P) !== m.json) { P = restore(m.json); hist.length = Math.min(hist.length, m.n); fut = []; ver++; fitted = true; persist(); renderAll(); resize(); }
+}
+$('#planCancel').addEventListener('click', () => { cancelPlan(); $('#planDlg').close(); });
+$('#planDlg').addEventListener('cancel', cancelPlan);
+$('#planDlg').addEventListener('close', () => { planMark = null; });
 $('#projectSel').addEventListener('change', e => {
   const data = St.loadProject(e.target.value);
   if (!data) { toast(t('toast.notFound')); renderProjects(); return; }
@@ -1375,7 +1509,7 @@ $('#projMenu').addEventListener('click', async e => {
   if (!act) return;
   $('#projMenu').open = false;
   if (act === 'new') $('#newProject').click();
-  else if (act === 'plan') $('#planDlg').showModal();
+  else if (act === 'plan') { planMark = { n: hist.length, json: JSON.stringify(P) }; $('#planDlg').showModal(); }
   else if (act === 'example') openExample();
   else if (act === 'rename') {
     const name = await ask({ title: t('project.renameTitle'), input: { label: t('project.nameLabel'), value: P.name }, ok: t('project.save') });
@@ -1447,7 +1581,7 @@ $('#importFile').addEventListener('change', e => {
   rd.readAsText(file);
 });
 
-$('#startBlank').addEventListener('click', () => { persistNow(); openProject(St.blankProject(t('project.defaultName'), NAMES.ground)); setTool('wall'); });
+$('#startBlank').addEventListener('click', () => $('#newProject').click());
 
 /* ---------- router models dialog ---------- */
 let editingId = null;

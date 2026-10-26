@@ -25,14 +25,15 @@
     "tour": "Recorrido guiado",
     "language": "Idioma",
     "skip": "Ir al simulador",
-    "toTop": "Volver al simulador"
+    "toTop": "Volver al simulador",
+    "menu": "Menú"
   },
   "intro": {
     "h1": "Simulador de Wi-Fi mesh en el plano de tu casa",
     "p": "Planejador WiFi te muestra hasta dónde llega la señal antes de comprar el router: dibuja las paredes, coloca el router y los nodos mesh y mira la cobertura en 2,4, 5 y 6 GHz. Gratis, sin registro, y tus proyectos se quedan en tu navegador."
   },
   "example": {
-    "blank": "Proyecto en blanco",
+    "blank": "Empezar mi proyecto",
     "chip": "Estás viendo la casa de ejemplo."
   },
   "project": {
@@ -70,7 +71,9 @@
     "history": "Historial",
     "canvasKeys": "Con el plano enfocado, usa [ y ] para elegir paredes, nodos y nombres, las flechas para mover, Supr para borrar y Esc para soltar.",
     "heatShort": "Calor",
-    "multi": "Seleccionar varios"
+    "multi": "Seleccionar varios",
+    "rect": "Rectángulo",
+    "chainDone": "Terminar"
   },
   "tools": {
     "select": "Seleccionar",
@@ -95,7 +98,8 @@
     "imageOpacity": "Opacidad de la imagen",
     "scaleHint": "Para ajustar la escala, usa <b>Medir</b>, arrastra sobre una medida conocida de la imagen e indica su tamaño real.",
     "removeImage": "Quitar imagen",
-    "chooseImage": "Elegir imagen…"
+    "chooseImage": "Elegir imagen…",
+    "done": "Listo"
   },
   "share": {
     "title": "Compartir",
@@ -110,7 +114,7 @@
   },
   "guide": {
     "howToTitle": "Cómo usar el simulador",
-    "howToSteps": "<li>Haz clic en <b>Nuevo proyecto</b> e indica el ancho y el fondo del terreno o de la casa.</li><li>Si tienes el plano en foto o en imagen, cárgalo en <b>Archivo › Plano y escala</b> y ajusta la escala con <b>Medir</b>.</li><li>Con la herramienta <b>Pared</b>, dibuja las paredes exteriores e interiores eligiendo el material. Las puertas y ventanas también son paredes, de madera o vidrio.</li><li>Con <b>Router</b>, coloca el router principal donde está el módem del proveedor y luego los demás nodos.</li><li>Cambia entre 2,4, 5 y 6 GHz y mira el mapa de calor. Verde es señal excelente; rojo es sin señal útil.</li><li>Usa <b>Sugerir posición</b> para saber dónde un nodo más aporta más, y <b>Archivo › Exportar JSON</b> para guardar el proyecto.</li>",
+    "howToSteps": "<li>Haz clic en <b>Empezar mi proyecto</b> (o <b>Nuevo proyecto</b>) y ponle un nombre. El plano abre con 16 × 12 m; cambia el tamaño en <b>Archivo › Plano y escala</b> si hace falta.</li><li>Si tienes el plano en foto o en imagen, cárgalo en <b>Archivo › Plano y escala</b> y ajusta la escala con <b>Medir</b>.</li><li>Con la herramienta <b>Pared</b>, haz clic en cada esquina: las paredes siguen una tras otra, y hacer clic en el punto inicial cierra la habitación. <b>Rectángulo</b> dibuja una habitación entera de una vez. Elige el material; las puertas y ventanas también son paredes, de madera o vidrio.</li><li>Con <b>Router</b>, coloca el router principal donde está el módem del proveedor y luego los demás nodos.</li><li>Cambia entre 2,4, 5 y 6 GHz y mira el mapa de calor. Verde es señal excelente; rojo es sin señal útil.</li><li>Usa <b>Sugerir posición</b> para saber dónde un nodo más aporta más, y <b>Archivo › Exportar JSON</b> para guardar el proyecto.</li>",
     "wallsTitle": "Cuánta señal quita cada pared",
     "wallsText": "Cada pared que atraviesa la señal suma una pérdida en decibelios (dB). Cada 10 dB la potencia que llega baja a la décima parte, así que dos o tres paredes de ladrillo ya se notan. Los valores de abajo son los promedios que usa el simulador; la pérdida real varía con el grosor, la humedad y la armadura de acero.",
     "material": "Material",
@@ -198,7 +202,7 @@
   "ui": {
     "hints": {
       "select": "Haz clic en una pared, nodo o enlace para editarlo; Shift + clic o Shift + arrastrar selecciona varios. Arrastra el fondo para mover el plano; Ctrl + rueda hace zoom.",
-      "wall": "Haz clic y arrastra para dibujar una pared. Los extremos se ajustan a la cuadrícula de 25 cm y a las paredes existentes. Para diagonales, desmarca “Fijar a 90°”.",
+      "wall": "Haz clic en cada esquina: las paredes siguen una tras otra. Haz clic en el punto inicial para cerrar la habitación; doble clic, Enter o Esc termina. Con “Rectángulo”, arrastra de una esquina a la opuesta.",
       "node": "Haz clic donde está el módem para poner el router principal y luego donde va cada nodo mesh.",
       "label": "Haz clic en el plano y escribe el nombre de la habitación. Enter confirma.",
       "measure": "Arrastra para medir una distancia. Con imagen de fondo, úsalo para ajustar la escala.",
@@ -273,7 +277,7 @@
       "coverage": "Cobertura · {band}",
       "needNode": "Coloca el router donde está el módem, con la herramienta <b>Router</b>.",
       "noBand": "Ningún equipo del proyecto transmite en {band}. Para usarla, selecciona un nodo y elige un modelo con {band}.",
-      "goodShare": "de la casa con ≥ −67 dBm",
+      "goodShare": "de la casa con buena señal",
       "area": "Área considerada: {area} m², el rectángulo alrededor de las paredes.",
       "wireIt": "Conectar {node} por cable",
       "linksTitle": "Enlace entre nodos",
@@ -308,20 +312,21 @@
       "bandPartial": "Equipos con {band}: {n} de {total} ({names}). Los demás no ayudan en esta banda.",
       "computingPct": "Probando los puntos libres… {pct}",
       "cancel": "Cancelar",
-      "suggestShort": "Sugerencia marcada en el plano: la cobertura pasa de {from} a {to}."
+      "suggestShort": "Sugerencia marcada en el plano: la cobertura pasa de {from} a {to}.",
+      "noNeed": "La casa ya tiene buena señal. Probablemente no hace falta otro nodo.",
+      "suggestAnyway": "Sugerir de todos modos",
+      "areaWhole": "Área considerada: {area} m², todo el plano (aún sin paredes).",
+      "linkPopHint": "Inalámbrico, busca entre −60 y −70 dBm; por debajo de eso, conéctalo con cable de red."
     },
     "sel": {
       "wall": "Pared",
       "material": "Material",
-      "delWall": "Borrar pared",
       "model": "Modelo",
       "mainNote": "Router principal: se conecta al módem del proveedor.",
       "wired": "Conectado por cable de red",
       "makeMain": "Hacer principal",
-      "delNode": "Borrar nodo",
       "room": "Nombre de la habitación",
       "text": "Texto",
-      "delRoom": "Borrar nombre",
       "close": "Cerrar",
       "unwire": "Usar inalámbrico",
       "measureTitle": "Medida",
@@ -346,7 +351,8 @@
       "pendingModel": "Nodos: {n} → {model}",
       "delConfirm": "¿Borrar {n} elementos seleccionados?",
       "delConfirmMsg": "Puedes recuperarlos con Deshacer (Ctrl+Z).",
-      "duplicate": "Duplicar"
+      "duplicate": "Duplicar",
+      "del": "Borrar"
     },
     "models": {
       "isp": "Router del proveedor",
@@ -402,7 +408,8 @@
       "imported": "Proyecto “{name}” importado.",
       "importError": "Este archivo no es un proyecto de Planejador WiFi. Elige un JSON exportado desde aquí.",
       "copied": "Resumen copiado.",
-      "copyFail": "No pude copiar automáticamente. El texto está seleccionado: usa Ctrl+C o Cmd+C."
+      "copyFail": "No pude copiar automáticamente. El texto está seleccionado: usa Ctrl+C.",
+      "planMin": "El plano no puede ser menor que el dibujo: mínimo {w} × {h} m."
     },
     "summary": {
       "area": "Área: {w} × {h} m, {floors} piso(s). Coordenadas en metros desde la esquina superior izquierda.",
@@ -433,7 +440,7 @@
         {
           "target": "#projectBar",
           "title": "Tus proyectos",
-          "body": "Empieza un <b>Nuevo proyecto</b> para tu casa. La casa de ejemplo queda guardada para consulta. En <b>Archivo</b> exportas e importas proyectos en JSON."
+          "body": "Para tu casa, abre <b>Archivo › Nuevo proyecto</b>. La casa de ejemplo queda guardada para consulta, y en <b>Archivo</b> también exportas e importas proyectos en JSON."
         },
         {
           "target": "[data-tool=wall]",
@@ -464,7 +471,7 @@
     },
     "hintsTouch": {
       "select": "Toca una pared, nodo o enlace para editarlo. Para elegir varios, marca “Seleccionar varios”. Arrastra el fondo para mover el plano; pellizca para hacer zoom.",
-      "wall": "Arrastra para dibujar una pared. Para diagonales, desmarca “Fijar a 90°” en las opciones de la herramienta.",
+      "wall": "Toca cada esquina: las paredes siguen una tras otra. Toca el punto inicial para cerrar o toca Terminar. Con “Rectángulo”, arrastra de una esquina a la opuesta.",
       "node": "Toca donde está el módem para poner el router principal y luego donde va cada nodo mesh.",
       "label": "Toca el plano y escribe el nombre de la habitación.",
       "measure": "Arrastra para medir una distancia. Con imagen de fondo, úsalo para ajustar la escala.",
@@ -481,16 +488,24 @@
       "okLine": "En {band}, el {pct} de la casa tiene buena señal.",
       "shortLine": "En {band}, solo el {pct} de la casa tiene buena señal. Mira dónde ayuda un nodo más.",
       "cableLine": "El enlace de {node} es débil: conéctalo con un cable o acércalo a otro nodo.",
-      "devices": "Equipos",
+      "devices": "En el plano",
       "sixGood": "6 GHz también cubre la casa: puedes usar la banda más rápida.",
       "sixNear": "6 GHz llega al {pct} de la casa: es la más rápida cerca de los nodos.",
-      "sixNone": "Ningún equipo tiene 6 GHz. Para usar esa banda, elige un modelo con 6 GHz (Wi-Fi 6E o 7).",
+      "sixNone": "Ningún equipo tiene 6 GHz. Para usar esa banda, elige un modelo que indique 6 GHz (no todo Wi-Fi 7 la tiene).",
       "byBand": "Toda la casa, por banda",
       "showBand": "Ver el mapa en {band}",
       "note": "Estimación con error típico de ±8 dB.",
       "sixPartial": "6 GHz llega al {pct} de la casa; equipos con 6 GHz: {n} de {total}.",
       "export": "Exportar",
-      "exportLabel": "Exportar el proyecto (JSON)"
+      "exportLabel": "Exportar el proyecto (JSON)",
+      "draft": "Borrador",
+      "draftLine": "El resultado aparece cuando las paredes exteriores cierren la casa. Hasta entonces, las cifras son solo un borrador.",
+      "buy": "Para comprar",
+      "buySingle": "1 router Wi-Fi (basta con doble banda)",
+      "buyDual": "{n} nodos mesh de doble banda (todos por cable)",
+      "buyTri": "{n} nodos mesh tribanda: una radio queda solo para el enlace entre ellos",
+      "atLeast": "Al menos {what}",
+      "buyCable": "Más un cable de red para {names}."
     },
     "hud": {
       "weak1": "1 enlace débil",
@@ -498,7 +513,8 @@
       "noNodes": "Sin router",
       "open": "Mostrar resultado",
       "close": "Ocultar resultado",
-      "mainBand": "Banda principal {band}"
+      "mainBand": "Banda principal {band}",
+      "draft": "Borrador"
     },
     "live": {
       "wall": "Pared creada, {len} m.",
@@ -510,9 +526,12 @@
       "band": "Mapa en {band}.",
       "suggestDone": "Sugerencia lista: la cobertura pasa de {from} a {to}.",
       "suggestCancelled": "Sugerencia cancelada.",
-      "applied": "Cambio aplicado a los elementos seleccionados.",
+      "applied": "Cambio aplicado a {n} elementos.",
       "copied": "Copiado. Usa Ctrl+V para pegar.",
-      "pasted": "Pegado y seleccionado."
+      "pasted": "Pegado y seleccionado.",
+      "closed": "Habitación cerrada.",
+      "rect": "Habitación de {w} × {h} m dibujada.",
+      "chainDone": "Paredes terminadas."
     },
     "stage": {
       "zoomAt": "Ajustar a la pantalla (zoom actual {pct})"
@@ -525,7 +544,7 @@
   },
   "invite": {
     "title": "Empieza por el plano",
-    "text": "Arrastra en el plano para dibujar las paredes exteriores, o carga una foto del plano y dibuja encima.",
+    "text": "Marca cada esquina para dibujar las paredes exteriores, o carga una foto del plano y dibuja encima.",
     "draw": "Dibujar paredes",
     "photo": "Cargar foto del plano",
     "drop": "También puedes soltar la imagen aquí."

@@ -105,6 +105,8 @@
               <label class="opt-label" for="matSel">{{stage.material}}</label>
               <select id="matSel"></select>
               <label class="check"><input type="checkbox" id="ortho" checked> {{stage.ortho}}</label>
+              <label class="check"><input type="checkbox" id="rectOn"> {{stage.rect}}</label>
+              <button type="button" class="btn-sm primary" id="chainDone" hidden>{{stage.chainDone}}</button>
             </div>
             <div class="opts" id="modelGroup" hidden>
               <label class="opt-label" for="modelSel">{{stage.model}}</label>
@@ -243,13 +245,13 @@
     <label class="field-row" for="alpha"><span>{{stage.heatOpacity}}</span><input type="range" id="alpha" min="15" max="85" step="5"></label>
     <p class="field-label">{{plan.image}}</p>
     <div class="filepick"><input type="file" id="bgFile" class="sr" accept="image/*"><label class="filebtn" for="bgFile">{{plan.chooseImage}}</label></div>
+    <p class="hint">{{{plan.scaleHint}}}</p>
     <div id="bgCtl" class="group" hidden>
       <label class="field-row" for="bgAlpha"><span>{{plan.imageOpacity}}</span><input type="range" id="bgAlpha" min="10" max="100" step="5"></label>
-      <p class="hint">{{{plan.scaleHint}}}</p>
       <button type="button" id="bgRemove" class="ghost">{{plan.removeImage}}</button>
     </div>
     <button type="button" id="delFloor" class="ghost danger" hidden></button>
-    <div class="btnrow end"><button value="close">{{dialog.close}}</button></div>
+    <div class="btnrow end"><button value="close" class="primary">{{plan.done}}</button><button type="button" id="planCancel">{{dialog.cancel}}</button></div>
   </form>
 </dialog>
 

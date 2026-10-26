@@ -12,9 +12,13 @@ export const defaults = data.defaults || {};
 // Raw value (string, array or object) at a dotted key, e.g. raw('tour.steps').
 export const raw = key => key.split('.').reduce((o, k) => (o == null ? undefined : o[k]), data.ui);
 
+// Apple keyboards say ⌘ where the texts say Ctrl; the shortcuts accept both keys.
+export const mac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '');
+export const keys = s => (mac ? s.replace(/\bCtrl\+Shift\+/g, '⇧⌘').replace(/\bCtrl\+/g, '⌘').replace(/\bCtrl\b/g, '⌘') : s);
+
 // Translated string with {name} placeholders filled from params. Falls back to the key.
 export function t(key, params) {
   const v = raw(key);
-  const s = typeof v === 'string' ? v : key;
+  const s = keys(typeof v === 'string' ? v : key);
   return params ? s.replace(/\{(\w+)\}/g, (m, p) => (p in params ? String(params[p]) : m)) : s;
 }
