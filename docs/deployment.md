@@ -15,9 +15,12 @@ npm run preview    # builds and serves dist/ at http://localhost:8080
 `dist/` contains:
 
 ```
-index.html, politica-de-privacidade.html, 404.html   Portuguese (default)
-en/index.html, en/privacy.html, en/404.html            English
-es/index.html, es/privacidad.html, es/404.html         Spanish
+index.html, guias/, metodologia.html, sobre.html,
+  politica-de-privacidade.html, 404.html               Portuguese (default)
+en/index.html, en/guides/, en/methodology.html,
+  en/about.html, en/privacy.html, en/404.html          English
+es/index.html, es/guias/, es/metodologia.html,
+  es/acerca-de.html, es/privacidad.html, es/404.html   Spanish
 assets/                                                CSS, JavaScript, images
 sitemap.xml, robots.txt, llms.txt, site.webmanifest
 ```
@@ -88,6 +91,6 @@ An extension's default export receives `{ env, langs }` and returns any of:
 | `slots` | HTML inserted at fixed points: `head`, `bodyEnd`, `afterTool` (below the planner workspace), `inResults` (at the end of the planner's results drawer), `inGuide`, `afterGuide`, `footer`, `privacy`. Slots use the same `{{key}}` syntax as the templates. |
 | `writeFiles(outDir)` | Writes extra files (scripts, styles, server configuration) before CSS and JavaScript are fingerprinted. |
 
-The app announces usage events (`project_create`, `project_export`, `project_import`, `suggest_node`, `model_create`, `copy_summary`) as a `planejador:track` DOM event, which an extension can listen to. If your extension collects anything about visitors, describe it in the `privacy` slot, in every language, and ask for consent where the law requires it.
+The app announces usage events (`project_create`, `project_export`, `project_import`, `project_link_open`, `suggest_node`, `model_create`, `copy_summary`, `copy_link`) as a `planejador:track` DOM event, which an extension can listen to. Events never carry the project itself. A project link keeps the project in the URL fragment (`#p=…`), and `assets/js/site.js` removes it from the address as the page loads, before other module scripts run; an extension must not read or send it. If your extension collects anything about visitors, describe it in the `privacy` slot, in every language, and ask for consent where the law requires it.
 
 `tests/build.test.js` shows a complete example extension.
