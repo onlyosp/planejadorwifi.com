@@ -7,7 +7,8 @@
     "index": "/",
     "privacy": "/politica-de-privacidade",
     "notFound": "/404.html",
-    "guides": "/guias/"
+    "guides": "/guias/",
+    "guide-router": "/guias/onde-colocar-roteador"
   },
   "meta": {
     "title": "Simulador de Wi-Fi Mesh na Planta da Casa | Planejador WiFi",
@@ -219,9 +220,9 @@
       "erase": "Clique numa parede, nó ou nome para apagar."
     },
     "bands": {
+      "2.4": "2,4 GHz",
       "5": "5 GHz",
-      "6": "6 GHz",
-      "2.4": "2,4 GHz"
+      "6": "6 GHz"
     },
     "materials": {
       "tijolo": "Alvenaria (tijolo/bloco)",
@@ -578,6 +579,70 @@
       "description": "Guias práticos sobre onde colocar o roteador, quantos nós mesh comprar e quanto cada parede bloqueia o Wi-Fi, com números do mesmo modelo do simulador.",
       "h1": "Guias de Wi-Fi e rede mesh",
       "intro": "Respostas diretas para quem vai montar ou melhorar o Wi-Fi de casa. Os números vêm do mesmo modelo que o simulador usa, e cada guia termina num teste que você pode fazer na sua planta."
+    },
+    "items": {
+      "router": {
+        "title": "Onde colocar o roteador Wi-Fi em casa | Planejador WiFi",
+        "description": "O melhor lugar para o roteador é o centro da casa, a 1 ou 2 m do chão e longe de metal. Veja quanto cada parede reduz o alcance e o que fazer se o modem fica num canto.",
+        "h1": "Onde colocar o roteador Wi-Fi?",
+        "short": "Onde colocar o roteador",
+        "answer": "<p>Coloque o roteador no centro da casa, a 1 ou 2 metros do chão, em lugar aberto e longe de metal, espelhos e da geladeira. O melhor ponto é o que deixa menos paredes entre o roteador e os cômodos onde você mais usa a internet.</p><p>As paredes pesam mais do que a distância. Pelo modelo do Planejador WiFi, em 5 GHz o sinal bom chega a cerca de {range.b5} m sem nada no caminho, {range.b5.tijolo} m atravessando uma parede de alvenaria e {range.b5.tijolo.2} m atravessando duas.</p><p>Se o modem da operadora fica num canto, leve o roteador para o centro com um cabo de rede ou use um sistema mesh. Em casa de dois andares, a laje tira {db.slab.b5} dB do sinal em 5 GHz, e um nó por andar costuma resolver.</p>",
+        "sections": [
+          {
+            "id": "centro",
+            "q": "Por que o centro da casa é o melhor lugar?",
+            "html": "<p>O roteador espalha o sinal em todas as direções, mais ou menos por igual. Num canto, metade desse sinal vai para a rua ou para o vizinho, e o cômodo do lado oposto fica com a maior distância e o maior número de paredes no caminho.</p><p>No centro, a distância até o cômodo mais longe cai pela metade, e quase todos os cômodos ficam a uma ou duas paredes do roteador. “Centro” aqui é o centro de onde você usa a internet: se o escritório e a sala ficam de um lado e a garagem do outro, puxe o roteador para o lado que importa.</p>"
+          },
+          {
+            "id": "paredes-ou-distancia",
+            "q": "O que pesa mais: a distância ou as paredes?",
+            "html": "<p>As paredes. Cada parede tira uma quantidade fixa de decibéis, e o sinal perdido assim equivale a muitos metros de distância. No modelo do simulador, uma parede de alvenaria divide por {factor.b5.tijolo} a distância em que o sinal continua bom em 5 GHz; uma parede de concreto divide por {factor.b5.concreto}.</p><ul><li>Sem paredes: sinal bom até cerca de {range.b5} m em 5 GHz e {range.b24} m em 2,4 GHz.</li><li>Uma parede de alvenaria: {range.b5.tijolo} m em 5 GHz e {range.b24.tijolo} m em 2,4 GHz.</li><li>Duas paredes de alvenaria: {range.b5.tijolo.2} m em 5 GHz e {range.b24.tijolo.2} m em 2,4 GHz.</li><li>Uma parede de concreto ou um pilar: {range.b5.concreto} m em 5 GHz.</li></ul><p>Por isso, na hora de escolher o lugar, conte as paredes entre o roteador e cada cômodo antes de medir a distância. “Sinal bom” aqui é {level.1} dBm ou melhor, o que basta para vídeo HD e chamadas de vídeo.</p>"
+          },
+          {
+            "id": "altura",
+            "q": "Em que altura colocar o roteador?",
+            "html": "<p>Entre 1 e 2 metros do chão, sobre um móvel ou preso na parede, com espaço livre em volta. No chão, o sinal precisa atravessar móveis e pessoas antes de chegar aos aparelhos. Numa prateleira alta, ele passa por cima da maior parte dos móveis.</p>"
+          },
+          {
+            "id": "longe-de",
+            "q": "O que deve ficar longe do roteador?",
+            "html": "<ul><li><b>Metal, espelhos e geladeira:</b> refletem e bloqueiam o sinal. O modelo conta {db.metal.b5} dB em 5 GHz para eles; uma parede de concreto conta {db.concreto.b5} dB.</li><li><b>Aquário e caixa d’água:</b> a água absorve bem as frequências do Wi-Fi.</li><li><b>Micro-ondas:</b> funciona perto de 2,4 GHz e atrapalha essa faixa enquanto está ligado.</li><li><b>Atrás da TV ou dentro do rack de som:</b> a TV tem fundo de metal, e o rack cerca o roteador de eletrônicos.</li></ul>"
+          },
+          {
+            "id": "modem-no-canto",
+            "q": "E se o modem da operadora fica num canto da casa?",
+            "html": "<p>O modem fica onde o cabo ou a fibra da operadora entra, e isso quase nunca é o centro da casa. Há três saídas, da mais simples para a mais completa:</p><ol><li><b>Cabo de rede até o centro:</b> passe um cabo de rede (Cat 5e ou Cat 6) do modem até um roteador no meio da casa e desligue o Wi-Fi do modem, para não ter duas redes disputando o mesmo espaço.</li><li><b>Sistema mesh:</b> o nó principal fica ao lado do modem, ligado por cabo, e um segundo nó vai para perto do centro ou do lado oposto. Os nós conversam entre si sem fio ou, melhor, por cabo.</li><li><b>Mudar o ponto da operadora:</b> peça ao técnico para instalar o modem num lugar mais central na próxima visita.</li></ol>"
+          },
+          {
+            "id": "dois-andares",
+            "q": "Onde colocar numa casa de dois andares?",
+            "html": "<p>A laje entre os andares tira {db.slab.b5} dB do sinal em 5 GHz e {db.slab.b24} dB em 2,4 GHz, mais do que a maioria das paredes. Com o roteador no térreo, o sinal bom em 5 GHz chega a cerca de {range.b5.slab} m em linha reta no andar de cima, antes de contar as paredes de lá.</p><p>Se um andar é muito mais usado, coloque o roteador nele. Se os dois são usados, um ponto alto no centro do térreo (perto do teto, numa estante alta) ajuda, mas o resultado mais confiável é um nó mesh em cada andar, de preferência um em cima do outro e, se der, ligados por cabo.</p>"
+          },
+          {
+            "id": "conferir",
+            "q": "Como saber se o lugar escolhido ficou bom?",
+            "html": "<p>Meça a intensidade do sinal, em dBm, nos cômodos que você mais usa. Mire em {level.1} dBm ou melhor; {level.0} dBm ou melhor é excelente. Abaixo de {level.2} dBm a conexão fica lenta e instável.</p><ul><li><b>Android:</b> um app de análise de Wi-Fi mostra o valor em dBm.</li><li><b>iPhone:</b> instale o app AirPort Utility, da Apple, e ative o “Wi-Fi Scanner” em Ajustes › AirPort Utility.</li><li><b>Mac:</b> segure a tecla Option e clique no ícone de Wi-Fi; o valor aparece como RSSI.</li></ul><p>Antes de furar parede ou comprar cabo, teste as posições no simulador: desenhe a planta, mude o roteador de lugar e compare o mapa de sinal de cada opção.</p>"
+          }
+        ],
+        "faq": [
+          {
+            "q": "Posso esconder o roteador dentro de um armário?",
+            "a": "Pode, mas ele perde alcance. Uma porta de madeira tira {db.madeira.b5} dB em 5 GHz e um armário ou rack de metal, {db.metal.b5} dB, o que pode custar um cômodo inteiro de cobertura. Se precisar esconder, use um móvel aberto ou deixe a porta aberta."
+          },
+          {
+            "q": "As antenas do roteador devem ficar em pé?",
+            "a": "Na maioria dos roteadores, sim. As antenas externas espalham o sinal mais para os lados do que para cima e para baixo, então em pé elas cobrem melhor o mesmo andar. Numa casa de dois andares, inclinar uma das antenas costuma ajudar o andar de cima. Modelos com antenas internas devem ficar na posição em que vêm na caixa."
+          },
+          {
+            "q": "Um roteador basta ou preciso de mesh?",
+            "a": "Um roteador costuma bastar quando todos os cômodos usados ficam a no máximo duas paredes de alvenaria dele: até cerca de {range.b5.tijolo.2} m com duas paredes no caminho, em 5 GHz. Casas maiores, compridas ou de dois andares geralmente precisam de mais de um ponto de acesso. O simulador mostra isso na sua planta."
+          }
+        ],
+        "cta": {
+          "title": "Teste a posição na sua planta",
+          "text": "Desenhe as paredes da sua casa, coloque o roteador e veja o sinal estimado em cada cômodo. Arraste o roteador para outro lugar e compare em segundos."
+        }
+      }
     }
   }
 }

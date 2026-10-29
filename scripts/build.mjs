@@ -32,7 +32,9 @@ const DEFAULT_LANG = 'pt-BR';
 // Guides share one template (src/guide.html). Each one's texts live in every language file under
 // guides.items.<id> and its public path under paths["guide-<id>"]. `published` is the date it first
 // went online; the modified date comes from git. `related` lists other guide ids, in order.
-const GUIDES = [];
+const GUIDES = [
+  { id: 'router', published: '2026-10-29', related: [] },
+];
 const guidePage = id => `guide-${id}`;
 const guideOf = page => GUIDES.find(g => guidePage(g.id) === page);
 

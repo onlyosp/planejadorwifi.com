@@ -95,3 +95,15 @@ test('robots.txt lets every crawler in and llms.txt lists every page of the site
     for (const lastmod of sitemap.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)) assert.match(lastmod[1], /^\d{4}-\d{2}-\d{2}$/);
   } finally { b.done(); }
 });
+
+test('guide pages get the guide slots, the generated numbers and article data', async () => {
+  const b = await run({ extensions: [demo] });
+  try {
+    const page = b.read('en/guides/where-to-put-wifi-router.html');
+    for (const id of ['demo-guide', 'demo-after-guide', 'demo-footer', 'demo-end']) assert.ok(page.includes(`id="${id}"`), id);
+    assert.ok(!/\{[a-z]+(\.\w+)*\}/.test(page.replace(/<script[\s\S]*?<\/script>/g, '')), 'every model token is filled');
+    const types = [...page.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)].map(m => JSON.parse(m[1])['@type']);
+    assert.deepEqual(types, ['Article', 'BreadcrumbList', 'FAQPage']);
+    assert.ok(!b.read('privacy.html'.replace(/^/, 'en/')).includes('demo-guide'), 'guide slots stay out of other pages');
+  } finally { b.done(); }
+});

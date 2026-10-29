@@ -7,7 +7,8 @@
     "index": "/en/",
     "privacy": "/en/privacy",
     "notFound": "/en/404.html",
-    "guides": "/en/guides/"
+    "guides": "/en/guides/",
+    "guide-router": "/en/guides/where-to-put-wifi-router"
   },
   "meta": {
     "title": "Wi-Fi Mesh Planner on Your Floor Plan | Planejador WiFi",
@@ -219,9 +220,9 @@
       "erase": "Click a wall, node or name to delete it."
     },
     "bands": {
+      "2.4": "2.4 GHz",
       "5": "5 GHz",
-      "6": "6 GHz",
-      "2.4": "2.4 GHz"
+      "6": "6 GHz"
     },
     "materials": {
       "tijolo": "Brick / block",
@@ -578,6 +579,70 @@
       "description": "Practical guides on where to put your router, how many mesh nodes to buy and how much each wall blocks Wi-Fi, with numbers from the same model the planner uses.",
       "h1": "Wi-Fi and mesh network guides",
       "intro": "Straight answers for anyone setting up or fixing home Wi-Fi. The numbers come from the same model the planner uses, and each guide ends with a test you can run on your own floor plan."
+    },
+    "items": {
+      "router": {
+        "title": "Where to Put Your Wi-Fi Router at Home | Planejador WiFi",
+        "description": "The best spot for a router is the middle of the home, 1 to 2 m off the floor and away from metal. See how much each wall cuts its range and what to do if the modem is in a corner.",
+        "h1": "Where should you put your Wi-Fi router?",
+        "short": "Where to put the router",
+        "answer": "<p>Put the router in the middle of your home, 1 to 2 meters off the floor, out in the open and away from metal, mirrors and the fridge. The best spot is the one with the fewest walls between the router and the rooms where you use the internet most.</p><p>Walls matter more than distance. In the Planejador WiFi model, good 5 GHz signal reaches about {range.b5} m with nothing in the way, {range.b5.tijolo} m through one brick wall and {range.b5.tijolo.2} m through two.</p><p>If your ISP’s modem sits in a corner, bring the router to the middle with a network cable or use a mesh system. In a two-story home the floor slab takes {db.slab.b5} dB off the 5 GHz signal, and one node per floor usually solves it.</p>",
+        "sections": [
+          {
+            "id": "middle",
+            "q": "Why is the middle of the home the best spot?",
+            "html": "<p>A router sends its signal out in every direction, roughly evenly. From a corner, half of it goes to the street or the neighbors, and the room on the far side gets both the longest distance and the most walls.</p><p>From the middle, the distance to the farthest room is cut in half, and most rooms end up one or two walls away. “Middle” means the middle of where you use the internet: if the office and the living room are on one side and the garage on the other, move the router toward the side that matters.</p>"
+          },
+          {
+            "id": "walls-or-distance",
+            "q": "What matters more: distance or walls?",
+            "html": "<p>Walls. Each wall takes off a fixed number of decibels, and the signal lost that way is worth many meters of distance. In the planner’s model, one brick wall divides the distance at which 5 GHz signal stays good by {factor.b5.tijolo}; a concrete wall divides it by {factor.b5.concreto}.</p><ul><li>No walls: good signal up to about {range.b5} m on 5 GHz and {range.b24} m on 2.4 GHz.</li><li>One brick wall: {range.b5.tijolo} m on 5 GHz and {range.b24.tijolo} m on 2.4 GHz.</li><li>Two brick walls: {range.b5.tijolo.2} m on 5 GHz and {range.b24.tijolo.2} m on 2.4 GHz.</li><li>One concrete wall or pillar: {range.b5.concreto} m on 5 GHz.</li></ul><p>So when you pick a spot, count the walls between the router and each room before you measure the distance. “Good signal” here means {level.1} dBm or better, enough for HD video and video calls.</p>"
+          },
+          {
+            "id": "height",
+            "q": "How high should the router be?",
+            "html": "<p>Between 1 and 2 meters off the floor, on a shelf or mounted on the wall, with open space around it. On the floor, the signal has to get through furniture and people before it reaches your devices. On a high shelf, it clears most of the furniture.</p>"
+          },
+          {
+            "id": "keep-away",
+            "q": "What should you keep away from the router?",
+            "html": "<ul><li><b>Metal, mirrors and the fridge:</b> they reflect and block the signal. The model counts {db.metal.b5} dB on 5 GHz for them; a concrete wall counts {db.concreto.b5} dB.</li><li><b>Aquariums and water tanks:</b> water absorbs Wi-Fi frequencies well.</li><li><b>Microwave ovens:</b> they run near 2.4 GHz and disturb that band while they are on.</li><li><b>Behind the TV or inside an AV cabinet:</b> TVs have metal backs, and the cabinet surrounds the router with electronics.</li></ul>"
+          },
+          {
+            "id": "modem-in-a-corner",
+            "q": "What if the ISP’s modem is in a corner?",
+            "html": "<p>The modem goes where the ISP’s cable or fiber comes in, and that is rarely the middle of the home. There are three ways out, from simplest to most complete:</p><ol><li><b>A network cable to the middle:</b> run a network cable (Cat 5e or Cat 6) from the modem to a router in the middle of the home, and turn off the modem’s Wi-Fi so two networks don’t compete for the same space.</li><li><b>A mesh system:</b> the main node sits next to the modem, connected by cable, and a second node goes near the middle or the far side. The nodes talk to each other wirelessly or, better, over a cable.</li><li><b>Move the ISP’s outlet:</b> ask the technician to install the modem somewhere more central on the next visit.</li></ol>"
+          },
+          {
+            "id": "two-stories",
+            "q": "Where should it go in a two-story home?",
+            "html": "<p>The slab between floors takes {db.slab.b5} dB off the 5 GHz signal and {db.slab.b24} dB off 2.4 GHz, more than most walls. With the router downstairs, good 5 GHz signal reaches about {range.b5.slab} m in a straight line upstairs, before counting any walls up there.</p><p>If one floor gets much more use, put the router there. If both do, a high spot in the middle of the ground floor (near the ceiling, on a tall bookcase) helps, but the most reliable setup is one mesh node per floor, ideally one above the other and, if you can, wired together.</p>"
+          },
+          {
+            "id": "check",
+            "q": "How do you know the spot works?",
+            "html": "<p>Measure the signal strength, in dBm, in the rooms you use most. Aim for {level.1} dBm or better; {level.0} dBm or better is excellent. Below {level.2} dBm the connection gets slow and unstable.</p><ul><li><b>Android:</b> a Wi-Fi analyzer app shows the value in dBm.</li><li><b>iPhone:</b> install Apple’s AirPort Utility app and turn on “Wi-Fi Scanner” under Settings › AirPort Utility.</li><li><b>Mac:</b> hold Option and click the Wi-Fi icon; the value shows as RSSI.</li></ul><p>Before you drill a hole or buy cable, try the spots in the planner: draw your floor plan, move the router around and compare the signal map for each option.</p>"
+          }
+        ],
+        "faq": [
+          {
+            "q": "Can I hide the router in a cabinet?",
+            "a": "You can, but it loses range. A wooden door takes {db.madeira.b5} dB off 5 GHz and a metal cabinet or rack {db.metal.b5} dB, which can cost a whole room of coverage. If you need to hide it, use open shelving or leave the door open."
+          },
+          {
+            "q": "Should the router’s antennas point up?",
+            "a": "On most routers, yes. External antennas spread the signal more to the sides than up and down, so upright antennas cover the same floor best. In a two-story home, tilting one antenna often helps the floor above. Models with internal antennas should stand the way they come in the box."
+          },
+          {
+            "q": "Is one router enough, or do I need mesh?",
+            "a": "One router is usually enough when every room you use is at most two brick walls away from it: up to about {range.b5.tijolo.2} m with two walls in the way, on 5 GHz. Larger, long or two-story homes usually need more than one access point. The planner shows this on your own floor plan."
+          }
+        ],
+        "cta": {
+          "title": "Try the spot on your floor plan",
+          "text": "Draw your home’s walls, place the router and see the estimated signal in every room. Drag the router somewhere else and compare in seconds."
+        }
+      }
     }
   }
 }

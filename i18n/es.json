@@ -7,7 +7,8 @@
     "index": "/es/",
     "privacy": "/es/privacidad",
     "notFound": "/es/404.html",
-    "guides": "/es/guias/"
+    "guides": "/es/guias/",
+    "guide-router": "/es/guias/donde-poner-el-router-wifi"
   },
   "meta": {
     "title": "Simulador de Wi-Fi Mesh en el Plano de tu Casa | Planejador WiFi",
@@ -219,9 +220,9 @@
       "erase": "Haz clic en una pared, nodo o nombre para borrarlo."
     },
     "bands": {
+      "2.4": "2,4 GHz",
       "5": "5 GHz",
-      "6": "6 GHz",
-      "2.4": "2,4 GHz"
+      "6": "6 GHz"
     },
     "materials": {
       "tijolo": "Ladrillo / bloque",
@@ -578,6 +579,70 @@
       "description": "Guías prácticas sobre dónde poner el router, cuántos nodos mesh comprar y cuánto bloquea el Wi-Fi cada pared, con cifras del mismo modelo que usa el simulador.",
       "h1": "Guías de Wi-Fi y redes mesh",
       "intro": "Respuestas directas para quien va a montar o mejorar el Wi-Fi de su casa. Las cifras vienen del mismo modelo que usa el simulador, y cada guía termina con una prueba que puedes hacer en tu propio plano."
+    },
+    "items": {
+      "router": {
+        "title": "Dónde poner el router Wi-Fi en casa | Planejador WiFi",
+        "description": "El mejor lugar para el router es el centro de la casa, a 1 o 2 m del suelo y lejos del metal. Mira cuánto reduce el alcance cada pared y qué hacer si el módem está en una esquina.",
+        "h1": "¿Dónde poner el router Wi-Fi?",
+        "short": "Dónde poner el router",
+        "answer": "<p>Pon el router en el centro de la casa, a 1 o 2 metros del suelo, a la vista y lejos del metal, los espejos y el refrigerador. El mejor punto es el que deja menos paredes entre el router y las habitaciones donde más usas internet.</p><p>Las paredes pesan más que la distancia. Según el modelo de Planejador WiFi, en 5 GHz la señal buena llega a unos {range.b5} m sin nada en medio, {range.b5.tijolo} m atravesando una pared de ladrillo y {range.b5.tijolo.2} m atravesando dos.</p><p>Si el módem del proveedor está en una esquina, lleva el router al centro con un cable de red o usa un sistema mesh. En una casa de dos pisos, la losa le quita {db.slab.b5} dB a la señal en 5 GHz, y un nodo por piso suele resolverlo.</p>",
+        "sections": [
+          {
+            "id": "centro",
+            "q": "¿Por qué el centro de la casa es el mejor lugar?",
+            "html": "<p>El router reparte la señal en todas las direcciones, más o menos por igual. Desde una esquina, la mitad se va a la calle o a los vecinos, y la habitación del lado opuesto queda con la mayor distancia y la mayor cantidad de paredes en el camino.</p><p>Desde el centro, la distancia hasta la habitación más lejana se reduce a la mitad, y casi todas quedan a una o dos paredes del router. “Centro” significa el centro de donde usas internet: si la oficina y la sala están de un lado y el garaje del otro, acerca el router al lado que importa.</p>"
+          },
+          {
+            "id": "paredes-o-distancia",
+            "q": "¿Qué pesa más: la distancia o las paredes?",
+            "html": "<p>Las paredes. Cada pared resta una cantidad fija de decibelios, y la señal que se pierde así equivale a muchos metros de distancia. En el modelo del simulador, una pared de ladrillo divide entre {factor.b5.tijolo} la distancia a la que la señal sigue siendo buena en 5 GHz; una de concreto la divide entre {factor.b5.concreto}.</p><ul><li>Sin paredes: señal buena hasta unos {range.b5} m en 5 GHz y {range.b24} m en 2,4 GHz.</li><li>Una pared de ladrillo: {range.b5.tijolo} m en 5 GHz y {range.b24.tijolo} m en 2,4 GHz.</li><li>Dos paredes de ladrillo: {range.b5.tijolo.2} m en 5 GHz y {range.b24.tijolo.2} m en 2,4 GHz.</li><li>Una pared de concreto o una columna: {range.b5.concreto} m en 5 GHz.</li></ul><p>Por eso, al elegir el lugar, cuenta las paredes entre el router y cada habitación antes de medir la distancia. “Señal buena” aquí es {level.1} dBm o mejor, suficiente para video HD y videollamadas.</p>"
+          },
+          {
+            "id": "altura",
+            "q": "¿A qué altura poner el router?",
+            "html": "<p>Entre 1 y 2 metros del suelo, sobre un mueble o en la pared, con espacio libre alrededor. En el suelo, la señal tiene que atravesar muebles y personas antes de llegar a los dispositivos. En un estante alto, pasa por encima de casi todos los muebles.</p>"
+          },
+          {
+            "id": "lejos-de",
+            "q": "¿Qué debe quedar lejos del router?",
+            "html": "<ul><li><b>Metal, espejos y refrigerador:</b> reflejan y bloquean la señal. El modelo cuenta {db.metal.b5} dB en 5 GHz para ellos; una pared de concreto cuenta {db.concreto.b5} dB.</li><li><b>Peceras y tanques de agua:</b> el agua absorbe muy bien las frecuencias del Wi-Fi.</li><li><b>Microondas:</b> funciona cerca de 2,4 GHz y perturba esa banda mientras está encendido.</li><li><b>Detrás del televisor o dentro del mueble del equipo de sonido:</b> el televisor tiene la parte trasera de metal, y el mueble rodea al router de aparatos electrónicos.</li></ul>"
+          },
+          {
+            "id": "modem-en-una-esquina",
+            "q": "¿Y si el módem del proveedor está en una esquina?",
+            "html": "<p>El módem queda donde entra el cable o la fibra del proveedor, y casi nunca es el centro de la casa. Hay tres salidas, de la más simple a la más completa:</p><ol><li><b>Un cable de red hasta el centro:</b> tiende un cable de red (Cat 5e o Cat 6) del módem a un router en el centro de la casa y apaga el Wi-Fi del módem, para que no haya dos redes compitiendo por el mismo espacio.</li><li><b>Un sistema mesh:</b> el nodo principal va junto al módem, conectado por cable, y un segundo nodo va cerca del centro o del lado opuesto. Los nodos se comunican entre sí de forma inalámbrica o, mejor, por cable.</li><li><b>Mover la toma del proveedor:</b> pide al técnico que instale el módem en un lugar más central en la próxima visita.</li></ol>"
+          },
+          {
+            "id": "dos-pisos",
+            "q": "¿Dónde ponerlo en una casa de dos pisos?",
+            "html": "<p>La losa entre pisos le quita {db.slab.b5} dB a la señal en 5 GHz y {db.slab.b24} dB en 2,4 GHz, más que la mayoría de las paredes. Con el router en la planta baja, la señal buena en 5 GHz llega a unos {range.b5.slab} m en línea recta en el piso de arriba, antes de contar las paredes de ese piso.</p><p>Si un piso se usa mucho más, pon el router en ese piso. Si se usan los dos, un punto alto en el centro de la planta baja (cerca del techo, en un librero alto) ayuda, pero lo más confiable es un nodo mesh por piso, idealmente uno encima del otro y, si se puede, conectados por cable.</p>"
+          },
+          {
+            "id": "comprobar",
+            "q": "¿Cómo saber si el lugar funciona?",
+            "html": "<p>Mide la intensidad de la señal, en dBm, en las habitaciones que más usas. Apunta a {level.1} dBm o mejor; {level.0} dBm o mejor es excelente. Por debajo de {level.2} dBm la conexión se vuelve lenta e inestable.</p><ul><li><b>Android:</b> una app de análisis de Wi-Fi muestra el valor en dBm.</li><li><b>iPhone:</b> instala la app AirPort Utility de Apple y activa “Wi-Fi Scanner” en Ajustes › AirPort Utility.</li><li><b>Mac:</b> mantén pulsada la tecla Opción y haz clic en el ícono de Wi-Fi; el valor aparece como RSSI.</li></ul><p>Antes de perforar una pared o comprar cable, prueba los lugares en el simulador: dibuja el plano, mueve el router y compara el mapa de señal de cada opción.</p>"
+          }
+        ],
+        "faq": [
+          {
+            "q": "¿Puedo esconder el router dentro de un mueble?",
+            "a": "Puedes, pero pierde alcance. Una puerta de madera resta {db.madeira.b5} dB en 5 GHz y un mueble o rack de metal, {db.metal.b5} dB, lo que puede costar una habitación entera de cobertura. Si necesitas esconderlo, usa un mueble abierto o deja la puerta abierta."
+          },
+          {
+            "q": "¿Las antenas del router deben ir hacia arriba?",
+            "a": "En la mayoría de los routers, sí. Las antenas externas reparten la señal más hacia los lados que hacia arriba y abajo, así que en vertical cubren mejor el mismo piso. En una casa de dos pisos, inclinar una de las antenas suele ayudar al piso de arriba. Los modelos con antenas internas deben quedar en la posición en que vienen en la caja."
+          },
+          {
+            "q": "¿Basta con un router o necesito mesh?",
+            "a": "Un router suele bastar cuando todas las habitaciones que usas quedan, como mucho, a dos paredes de ladrillo de él: hasta unos {range.b5.tijolo.2} m con dos paredes en medio, en 5 GHz. Las casas grandes, alargadas o de dos pisos suelen necesitar más de un punto de acceso. El simulador lo muestra en tu propio plano."
+          }
+        ],
+        "cta": {
+          "title": "Prueba el lugar en tu plano",
+          "text": "Dibuja las paredes de tu casa, pon el router y mira la señal estimada en cada habitación. Arrastra el router a otro lugar y compara en segundos."
+        }
+      }
     }
   }
 }
