@@ -10,7 +10,8 @@
     "guides": "/guias/",
     "guide-router": "/guias/onde-colocar-roteador",
     "guide-nodes": "/guias/quantos-nos-mesh-preciso",
-    "guide-mesh": "/guias/mesh-repetidor-ou-cabo"
+    "guide-mesh": "/guias/mesh-repetidor-ou-cabo",
+    "guide-walls": "/guias/quanto-parede-bloqueia-wifi"
   },
   "meta": {
     "title": "Simulador de Wi-Fi Mesh na Planta da Casa | Planejador WiFi",
@@ -757,6 +758,63 @@
         "cta": {
           "title": "Veja a ligação entre os nós",
           "text": "Coloque o roteador e um nó na sua planta e confira a ligação em dBm. Marque o nó como ligado por cabo para comparar as duas opções."
+        }
+      },
+      "walls": {
+        "title": "Quanto cada parede e laje bloqueia o Wi-Fi? Tabela em dB | Planejador WiFi",
+        "description": "Tabela de perda do sinal Wi-Fi por material em 2,4, 5 e 6 GHz: tijolo, concreto, gesso, vidro, metal e laje. Entenda o que é um decibel e quanto cada parede encurta o alcance.",
+        "h1": "Quanto cada parede e laje bloqueia o Wi-Fi?",
+        "short": "Quanto as paredes bloqueiam",
+        "answer": "<p>Em 5 GHz, uma parede de tijolo tira cerca de {db.tijolo.b5} dB do sinal, uma de concreto {db.concreto.b5} dB, uma de gesso acartonado {db.gesso.b5} dB e a laje entre andares {db.slab.b5} dB. Metal, espelho e geladeira são os piores: {db.metal.b5} dB.</p><p>Cada 10 dB a menos deixa um décimo da potência. Por isso uma só parede de concreto divide por {factor.b5.concreto} a distância em que o sinal continua bom, e duas de tijolo levam o alcance de {range.b5} m para {range.b5.tijolo.2} m.</p><p>As faixas mais altas perdem mais: a mesma parede de tijolo tira {db.tijolo.b24} dB em 2,4 GHz e {db.tijolo.b6} dB em 6 GHz.</p>",
+        "sections": [
+          {
+            "id": "tabela",
+            "q": "Quanto perde cada material em cada faixa?",
+            "html": "<p>Valores médios usados pelo simulador, por parede atravessada:</p>{table.materials}<p>A perda real muda com a espessura, a umidade e a ferragem dentro da parede. Uma parede de tijolo grossa, ou com o reboco ainda úmido, pode perder bem mais que a média; uma divisória fina, menos.</p>"
+          },
+          {
+            "id": "decibel",
+            "q": "O que é um decibel, na prática?",
+            "html": "<p>O decibel (dB) compara duas potências numa escala de multiplicação, não de soma. Os números que importam:</p><ul><li><b>3 dB:</b> metade da potência.</li><li><b>10 dB:</b> um décimo.</li><li><b>20 dB:</b> um centésimo.</li></ul><p>As perdas em dB se somam: duas paredes de tijolo em 5 GHz tiram {db.tijolo.b5} + {db.tijolo.b5} dB, e cada 10 dB dessa soma divide a potência por dez. No modelo, atravessar uma parede de tijolo em 5 GHz custa o mesmo que multiplicar a distância por {factor.b5.tijolo}.</p>"
+          },
+          {
+            "id": "faixas",
+            "q": "Por que 5 e 6 GHz perdem mais nas paredes?",
+            "html": "<p>Quanto maior a frequência, mais a onda é absorvida pelos materiais da parede. No modelo, o sinal bom atravessando uma parede de tijolo chega a cerca de {range.b24.tijolo} m em 2,4 GHz, {range.b5.tijolo} m em 5 GHz e {range.b6.tijolo} m em 6 GHz. Em compensação, as faixas altas são bem mais rápidas e menos congestionadas, e por isso valem a pena perto do roteador.</p>"
+          },
+          {
+            "id": "laje",
+            "q": "Quanto a laje entre andares bloqueia?",
+            "html": "<p>A laje de concreto tira {db.slab.b24} dB em 2,4 GHz, {db.slab.b5} dB em 5 GHz e {db.slab.b6} dB em 6 GHz, quase tanto quanto uma parede de concreto. O simulador soma uma laje por andar atravessado e conta a altura de {floorh} m entre os pisos na distância.</p><p>Com o roteador no térreo, o sinal bom em 5 GHz chega a cerca de {range.b5.slab} m no andar de cima em linha reta, antes de contar as paredes de lá. Em casa de laje, quase sempre compensa um nó por andar.</p>"
+          },
+          {
+            "id": "portas-janelas",
+            "q": "Portas, janelas e espelhos fazem diferença?",
+            "html": "<ul><li><b>Porta de madeira:</b> {db.madeira.b5} dB em 5 GHz fechada; aberta, nada.</li><li><b>Vidro comum:</b> {db.vidro.b5} dB. Vidro com película refletiva ou de controle solar tem uma camada metálica e bloqueia muito mais.</li><li><b>Espelho:</b> o fundo é metal, e o modelo o trata como metal: {db.metal.b5} dB.</li><li><b>Porta de correr de alumínio, portão e box metálico:</b> metal também.</li></ul>"
+          },
+          {
+            "id": "qual-parede",
+            "q": "Como saber de que é feita a minha parede?",
+            "html": "<p>Bata na parede: som oco indica gesso acartonado ou divisória leve. Pilares e vigas são de concreto, e em muitos prédios as paredes internas são de alvenaria estrutural, que não pode ser derrubada; no simulador, trate as duas como concreto. Paredes de cozinha e banheiro com azulejo seguem a regra da parede de trás. Na dúvida entre dois materiais, escolha o mais pesado: o resultado fica do lado seguro.</p>"
+          }
+        ],
+        "faq": [
+          {
+            "q": "Parede mais grossa bloqueia mais?",
+            "a": "Sim. Os valores da tabela são para paredes de espessura comum em casas. O simulador usa um valor por material, não por espessura, então uma parede muito grossa pode ser desenhada como concreto para chegar mais perto da realidade."
+          },
+          {
+            "q": "Azulejo ou pintura atrapalham o Wi-Fi?",
+            "a": "Tinta comum quase não muda nada, e azulejo soma pouco. O que pesa é a parede atrás e qualquer metal: tela de reboco, papel metalizado, tubulação ou um armário de aço encostado."
+          },
+          {
+            "q": "O Wi-Fi atravessa uma parede de concreto?",
+            "a": "Atravessa, mas perde muito: {db.concreto.b5} dB em 5 GHz. Pelo modelo, o sinal bom chega a cerca de {range.b5.concreto} m atrás de uma parede de concreto em 5 GHz e {range.b24.concreto} m em 2,4 GHz."
+          }
+        ],
+        "cta": {
+          "title": "Desenhe cada parede com o material certo",
+          "text": "No simulador, cada parede tem um material. Troque tijolo por concreto ou vidro e veja na hora quanto o mapa de sinal muda."
         }
       }
     },

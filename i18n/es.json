@@ -10,7 +10,8 @@
     "guides": "/es/guias/",
     "guide-router": "/es/guias/donde-poner-el-router-wifi",
     "guide-nodes": "/es/guias/cuantos-nodos-mesh-necesito",
-    "guide-mesh": "/es/guias/mesh-repetidor-o-cable"
+    "guide-mesh": "/es/guias/mesh-repetidor-o-cable",
+    "guide-walls": "/es/guias/cuanto-bloquean-las-paredes-el-wifi"
   },
   "meta": {
     "title": "Simulador de Wi-Fi Mesh en el Plano de tu Casa | Planejador WiFi",
@@ -757,6 +758,63 @@
         "cta": {
           "title": "Mira el enlace entre los nodos",
           "text": "Pon el router y un nodo en tu plano y revisa el enlace en dBm. Marca el nodo como conectado por cable para comparar las dos opciones."
+        }
+      },
+      "walls": {
+        "title": "¿Cuánto bloquean las paredes y losas el Wi-Fi? Tabla en dB | Planejador WiFi",
+        "description": "Tabla de pérdida de señal Wi-Fi por material en 2,4, 5 y 6 GHz: ladrillo, concreto, drywall, vidrio, metal y losa. Entiende qué es un decibel y cuánto acorta el alcance cada pared.",
+        "h1": "¿Cuánto bloquean las paredes y las losas el Wi-Fi?",
+        "short": "Cuánto bloquean las paredes",
+        "answer": "<p>En 5 GHz, una pared de ladrillo quita unos {db.tijolo.b5} dB de señal, una de concreto {db.concreto.b5} dB, una de drywall o yeso {db.gesso.b5} dB y la losa entre pisos {db.slab.b5} dB. Metal, espejos y la nevera son lo peor: {db.metal.b5} dB.</p><p>Cada 10 dB menos deja una décima parte de la potencia. Por eso una sola pared de concreto divide por {factor.b5.concreto} la distancia a la que la señal sigue siendo buena, y dos de ladrillo bajan el alcance de {range.b5} m a {range.b5.tijolo.2} m.</p><p>Las bandas más altas pierden más: la misma pared de ladrillo quita {db.tijolo.b24} dB en 2,4 GHz y {db.tijolo.b6} dB en 6 GHz.</p>",
+        "sections": [
+          {
+            "id": "tabla",
+            "q": "¿Cuánto pierde cada material en cada banda?",
+            "html": "<p>Valores medios que usa el simulador, por pared atravesada:</p>{table.materials}<p>La pérdida real cambia con el grosor, la humedad y el acero dentro de la pared. Una pared de ladrillo gruesa, o con el revoque todavía húmedo, puede perder bastante más que la media; un tabique delgado, menos.</p>"
+          },
+          {
+            "id": "decibel",
+            "q": "¿Qué es un decibel, en la práctica?",
+            "html": "<p>El decibel (dB) compara dos potencias en una escala que multiplica, no que suma. Los números que importan:</p><ul><li><b>3 dB:</b> la mitad de la potencia.</li><li><b>10 dB:</b> una décima parte.</li><li><b>20 dB:</b> una centésima parte.</li></ul><p>Las pérdidas en dB se suman: dos paredes de ladrillo en 5 GHz quitan {db.tijolo.b5} + {db.tijolo.b5} dB, y cada 10 dB de esa suma divide la potencia por diez. En el modelo, atravesar una pared de ladrillo en 5 GHz cuesta lo mismo que multiplicar la distancia por {factor.b5.tijolo}.</p>"
+          },
+          {
+            "id": "bandas",
+            "q": "¿Por qué 5 y 6 GHz pierden más en las paredes?",
+            "html": "<p>Cuanto mayor la frecuencia, más absorben la onda los materiales de la pared. En el modelo, la buena señal a través de una pared de ladrillo llega a unos {range.b24.tijolo} m en 2,4 GHz, {range.b5.tijolo} m en 5 GHz y {range.b6.tijolo} m en 6 GHz. A cambio, las bandas altas son mucho más rápidas y menos saturadas, y por eso conviene usarlas cerca del router.</p>"
+          },
+          {
+            "id": "losa",
+            "q": "¿Cuánto bloquea la losa entre pisos?",
+            "html": "<p>La losa de concreto quita {db.slab.b24} dB en 2,4 GHz, {db.slab.b5} dB en 5 GHz y {db.slab.b6} dB en 6 GHz, casi tanto como una pared de concreto. El simulador suma una losa por piso atravesado y cuenta los {floorh} m entre pisos en la distancia.</p><p>Con el router en la planta baja, la buena señal en 5 GHz llega a unos {range.b5.slab} m en el piso de arriba en línea recta, antes de contar las paredes de allí. En casas con losa, casi siempre conviene un nodo por piso.</p>"
+          },
+          {
+            "id": "puertas-ventanas",
+            "q": "¿Puertas, ventanas y espejos hacen diferencia?",
+            "html": "<ul><li><b>Puerta de madera:</b> {db.madeira.b5} dB en 5 GHz cerrada; abierta, nada.</li><li><b>Vidrio común:</b> {db.vidro.b5} dB. El vidrio con película reflejante o de control solar tiene una capa metálica y bloquea mucho más.</li><li><b>Espejo:</b> el fondo es metal, y el modelo lo trata como metal: {db.metal.b5} dB.</li><li><b>Puerta corrediza de aluminio, portón y cancel metálico de baño:</b> también son metal.</li></ul>"
+          },
+          {
+            "id": "que-pared",
+            "q": "¿Cómo sé de qué es mi pared?",
+            "html": "<p>Golpéala: un sonido hueco indica drywall o un tabique liviano. Columnas y vigas son de concreto, y en muchos edificios las paredes interiores son de mampostería estructural, que no se puede tirar; en el simulador, trata las dos como concreto. Las paredes con azulejo de cocina y baño siguen la regla de la pared de atrás. Si dudas entre dos materiales, elige el más pesado: el resultado queda del lado seguro.</p>"
+          }
+        ],
+        "faq": [
+          {
+            "q": "¿Una pared más gruesa bloquea más?",
+            "a": "Sí. Los valores de la tabla son para paredes de grosor común en casas. El simulador usa un valor por material, no por grosor, así que una pared muy gruesa se puede dibujar como concreto para acercarse a la realidad."
+          },
+          {
+            "q": "¿El azulejo o la pintura afectan el Wi-Fi?",
+            "a": "La pintura común casi no cambia nada, y el azulejo suma poco. Lo que pesa es la pared de atrás y cualquier metal: malla de revoque, aislante con papel metalizado, tuberías o un mueble de acero pegado a la pared."
+          },
+          {
+            "q": "¿El Wi-Fi atraviesa una pared de concreto?",
+            "a": "La atraviesa, pero pierde mucho: {db.concreto.b5} dB en 5 GHz. Según el modelo, la buena señal llega a unos {range.b5.concreto} m detrás de una pared de concreto en 5 GHz y {range.b24.concreto} m en 2,4 GHz."
+          }
+        ],
+        "cta": {
+          "title": "Dibuja cada pared con el material correcto",
+          "text": "En el simulador, cada pared tiene un material. Cambia ladrillo por concreto o vidrio y mira al instante cuánto cambia el mapa de señal."
         }
       }
     },

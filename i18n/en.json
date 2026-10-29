@@ -10,7 +10,8 @@
     "guides": "/en/guides/",
     "guide-router": "/en/guides/where-to-put-wifi-router",
     "guide-nodes": "/en/guides/how-many-mesh-nodes-do-i-need",
-    "guide-mesh": "/en/guides/mesh-vs-extender-vs-ethernet"
+    "guide-mesh": "/en/guides/mesh-vs-extender-vs-ethernet",
+    "guide-walls": "/en/guides/how-much-walls-block-wifi"
   },
   "meta": {
     "title": "Wi-Fi Mesh Planner on Your Floor Plan | Planejador WiFi",
@@ -757,6 +758,63 @@
         "cta": {
           "title": "Check the link between nodes",
           "text": "Place the router and a node on your floor plan and check the link in dBm. Mark the node as wired to compare both options."
+        }
+      },
+      "walls": {
+        "title": "How Much Do Walls and Floors Block Wi-Fi? Table in dB | Planejador WiFi",
+        "description": "Table of Wi-Fi signal loss per material at 2.4, 5 and 6 GHz: brick, concrete, drywall, glass, metal and floor slabs. Learn what a decibel is and how much each wall cuts range.",
+        "h1": "How much do walls and floors block Wi-Fi?",
+        "short": "How much walls block Wi-Fi",
+        "answer": "<p>On 5 GHz, a brick wall takes about {db.tijolo.b5} dB off the signal, a concrete wall {db.concreto.b5} dB, drywall {db.gesso.b5} dB and the concrete slab between floors {db.slab.b5} dB. Metal, mirrors and the fridge are the worst: {db.metal.b5} dB.</p><p>Every 10 dB lost leaves one tenth of the power. That is why a single concrete wall divides the distance at which signal stays good by {factor.b5.concreto}, and two brick walls take the range from {range.b5} m down to {range.b5.tijolo.2} m.</p><p>Higher bands lose more: the same brick wall takes {db.tijolo.b24} dB at 2.4 GHz and {db.tijolo.b6} dB at 6 GHz.</p>",
+        "sections": [
+          {
+            "id": "table",
+            "q": "How much does each material lose on each band?",
+            "html": "<p>Average values the planner uses, per wall crossed:</p>{table.materials}<p>Real loss changes with thickness, moisture and the steel inside the wall. A thick brick wall, or one with plaster that is still damp, can lose much more than the average; a thin partition, less.</p>"
+          },
+          {
+            "id": "decibel",
+            "q": "What is a decibel, in practice?",
+            "html": "<p>The decibel (dB) compares two power levels on a multiplying scale, not an adding one. The numbers that matter:</p><ul><li><b>3 dB:</b> half the power.</li><li><b>10 dB:</b> one tenth.</li><li><b>20 dB:</b> one hundredth.</li></ul><p>Losses in dB add up: two brick walls on 5 GHz take {db.tijolo.b5} + {db.tijolo.b5} dB, and every 10 dB of that sum divides the power by ten. In the model, going through one brick wall on 5 GHz costs as much as multiplying the distance by {factor.b5.tijolo}.</p>"
+          },
+          {
+            "id": "bands",
+            "q": "Why do 5 and 6 GHz lose more through walls?",
+            "html": "<p>The higher the frequency, the more the wave is absorbed by the wall materials. In the model, good signal through one brick wall reaches about {range.b24.tijolo} m on 2.4 GHz, {range.b5.tijolo} m on 5 GHz and {range.b6.tijolo} m on 6 GHz. On the other hand, the higher bands are much faster and less crowded, which is why they are worth it near the router.</p>"
+          },
+          {
+            "id": "floor-slab",
+            "q": "How much does the floor between stories block?",
+            "html": "<p>A concrete floor slab takes {db.slab.b24} dB at 2.4 GHz, {db.slab.b5} dB at 5 GHz and {db.slab.b6} dB at 6 GHz, almost as much as a concrete wall. The planner adds one slab per floor crossed and counts the {floorh} m between floors in the distance.</p><p>With the router downstairs, good 5 GHz signal reaches about {range.b5.slab} m upstairs in a straight line, before counting the walls up there. In homes with concrete floors, one node per floor is almost always worth it.</p>"
+          },
+          {
+            "id": "doors-windows",
+            "q": "Do doors, windows and mirrors make a difference?",
+            "html": "<ul><li><b>Wooden door:</b> {db.madeira.b5} dB on 5 GHz when closed; nothing when open.</li><li><b>Plain glass:</b> {db.vidro.b5} dB. Low-E or reflective glass has a metal coating and blocks much more.</li><li><b>Mirror:</b> its backing is metal, and the model treats it as metal: {db.metal.b5} dB.</li><li><b>Aluminum sliding door, garage door and metal shower enclosure:</b> metal too.</li></ul>"
+          },
+          {
+            "id": "which-wall",
+            "q": "How do I tell what my wall is made of?",
+            "html": "<p>Knock on it: a hollow sound means drywall or a light partition. Columns and beams are concrete, and in many buildings the inner walls are load-bearing masonry that cannot be taken down; in the planner, treat both as concrete. Tiled kitchen and bathroom walls follow the wall behind the tiles. When torn between two materials, pick the heavier one: the result stays on the safe side.</p>"
+          }
+        ],
+        "faq": [
+          {
+            "q": "Does a thicker wall block more?",
+            "a": "Yes. The values in the table are for walls of usual thickness in homes. The planner uses one value per material, not per thickness, so a very thick wall can be drawn as concrete to get closer to reality."
+          },
+          {
+            "q": "Do tiles or paint block Wi-Fi?",
+            "a": "Ordinary paint changes almost nothing, and tiles add little. What matters is the wall behind them and any metal: plaster mesh, foil-backed insulation, pipes or a steel cabinet against the wall."
+          },
+          {
+            "q": "Can Wi-Fi go through a concrete wall?",
+            "a": "It can, but it loses a lot: {db.concreto.b5} dB on 5 GHz. In the model, good signal reaches about {range.b5.concreto} m past one concrete wall on 5 GHz and {range.b24.concreto} m on 2.4 GHz."
+          }
+        ],
+        "cta": {
+          "title": "Draw each wall with the right material",
+          "text": "In the planner, every wall has a material. Switch brick to concrete or glass and see right away how much the signal map changes."
         }
       }
     },
