@@ -1059,8 +1059,9 @@ function recommendation(v) {
   return { text, cable };
 }
 function renderVerdict(v) {
-  // The project's backup sits on the result it records: a small Export action in the card's corner.
-  let h = `<div class="card-head"><h2>${esc(t('verdict.title'))}</h2><button type="button" class="ghost btn-sm" data-export title="${esc(t('verdict.exportLabel'))}" aria-label="${esc(t('verdict.exportLabel'))}">${icon('download')}<span>${esc(t('verdict.export'))}</span></button></div>`;
+  // Sharing and the project's backup sit on the result they carry: small actions in the card's corner.
+  const action = (attr, ic, label, text) => `<button type="button" class="ghost btn-sm" ${attr} title="${esc(label)}" aria-label="${esc(label)}">${icon(ic)}<span>${esc(text)}</span></button>`;
+  let h = `<div class="card-head"><h2>${esc(t('verdict.title'))}</h2><div class="card-actions">${action('data-copy-link', 'link', t('verdict.copyLinkLabel'), t('verdict.copyLink'))}${action('data-export', 'download', t('verdict.exportLabel'), t('verdict.export'))}</div></div>`;
   if (!outlineDone() || (v && v.status === 'draft')) {
     // No verdict before the house is drawn: no premature "covers the house", no competing button.
     h += `<p class="v-status"><span class="dot" style="background:var(--muted)"></span>${esc(t('verdict.draft'))}</p><p class="small muted">${esc(t('verdict.draftLine'))}</p>`;
@@ -1105,6 +1106,7 @@ $('#pCoverage').addEventListener('click', e => { const b = e.target.closest('[da
 $('#pVerdict').addEventListener('click', e => {
   const b = e.target.closest('[data-band]'); if (b) { setBand(b.dataset.band); if (sheetMode.matches) setDrawer(false); return; }
   if (e.target.closest('[data-export]')) { exportFile(); return; }
+  if (e.target.closest('[data-copy-link]')) { copyLink(); return; }
   if (e.target.closest('[data-pick=node]')) { setTool('node'); if (sheetMode.matches) setDrawer(false); }
 });
 
@@ -1659,12 +1661,12 @@ async function copy(text, done) {
     fb.hidden = false; fb.value = await text; fb.focus(); fb.select(); toast(t('toast.copyFail'));
   }
 }
-$('#copyLink').addEventListener('click', async () => {
+async function copyLink() {
   track('copy_link');
   const tooLong = new Error('too long');
   try { await copy(shareLink().then(url => url || Promise.reject(tooLong)), t(P.floors.some(f => f.bg) ? 'toast.linkNoImage' : 'toast.linkCopied')); }
   catch (e) { toast(t(e === tooLong ? 'toast.linkTooLong' : 'toast.copyFail')); }
-});
+}
 
 function summary(link) {
   const L = [], all = nodesAll(), S = k => t('summary.' + k);

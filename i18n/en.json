@@ -113,10 +113,9 @@
   },
   "share": {
     "title": "Share",
-    "text": "Copy a link that opens a copy of this project on another device, or a text summary to ask for advice on a forum, from a technician or an AI assistant.",
+    "text": "Copy a text summary of the project, with a link to open it, to ask for advice on a forum, from a technician or an AI assistant.",
     "copy": "Copy summary",
-    "fallback": "Text to copy",
-    "copyLink": "Copy link"
+    "fallback": "Text to copy"
   },
   "bands": {
     "2_4": "2.4 GHz",
@@ -182,7 +181,7 @@
     },
     {
       "q": "Where are my projects saved?",
-      "a": "Only in your browser, in the device's local storage. Nothing is sent to a server. To keep a copy or open it on another computer, use File and then Export JSON."
+      "a": "Only in your browser, in the device's local storage. Nothing is sent to a server. To keep a copy, use File and then Export JSON. To open it on another device or show it to someone, use Copy link in the Your plan box: the project travels inside the link itself."
     }
   ],
   "footer": {
@@ -535,7 +534,9 @@
       "buyDual": "{n} dual-band mesh nodes (all wired)",
       "buyTri": "{n} tri-band mesh nodes: one radio stays free for the link between them",
       "atLeast": "At least {what}",
-      "buyCable": "Plus a network cable for {names}."
+      "buyCable": "Plus a network cable for {names}.",
+      "copyLink": "Copy link",
+      "copyLinkLabel": "Copy a link that opens a copy of this project"
     },
     "hud": {
       "weak1": "1 weak link",

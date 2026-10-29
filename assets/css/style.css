@@ -212,6 +212,7 @@ canvas { display: block; touch-action: none; cursor: crosshair }
 .share-row { display: flex; flex-direction: column; gap: 6px }
 .card p, .drawer-foot p, .pop p { text-wrap: pretty }
 .card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px }
+.card-actions { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end }
 .btn-sm { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px 3px 6px; font-size: 13px; color: var(--muted) }
 .btn-sm:hover { color: var(--ink) }
 .btn-sm .ic { width: 16px; height: 16px }

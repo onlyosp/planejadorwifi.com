@@ -113,10 +113,9 @@
   },
   "share": {
     "title": "Compartilhar",
-    "text": "Copie um link que abre uma cópia deste projeto em outro aparelho, ou um resumo em texto para pedir opinião num fórum, a um técnico ou a um assistente de IA.",
+    "text": "Copie um resumo em texto do projeto, com o link para abri-lo, para pedir opinião num fórum, a um técnico ou a um assistente de IA.",
     "copy": "Copiar resumo",
-    "fallback": "Texto para copiar",
-    "copyLink": "Copiar link"
+    "fallback": "Texto para copiar"
   },
   "bands": {
     "2_4": "2,4 GHz",
@@ -182,7 +181,7 @@
     },
     {
       "q": "Onde ficam salvos os meus projetos?",
-      "a": "Só no seu navegador, no armazenamento local do aparelho. Nada é enviado para servidor. Para guardar uma cópia ou abrir em outro computador, use Arquivo e depois Exportar JSON."
+      "a": "Só no seu navegador, no armazenamento local do aparelho. Nada é enviado para servidor. Para guardar uma cópia, use Arquivo e depois Exportar JSON. Para abrir em outro aparelho ou mostrar a alguém, use Copiar link, no quadro Seu plano: o projeto vai dentro do próprio link."
     }
   ],
   "footer": {
@@ -535,7 +534,9 @@
       "buyDual": "{n} nós mesh dual-band (todos ligados por cabo)",
       "buyTri": "{n} nós mesh tri-band: um rádio fica só para a ligação entre eles",
       "atLeast": "Pelo menos {what}",
-      "buyCable": "Mais cabo de rede para {names}."
+      "buyCable": "Mais cabo de rede para {names}.",
+      "copyLink": "Copiar link",
+      "copyLinkLabel": "Copiar um link que abre uma cópia deste projeto"
     },
     "hud": {
       "weak1": "1 ligação fraca",

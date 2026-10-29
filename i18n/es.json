@@ -113,10 +113,9 @@
   },
   "share": {
     "title": "Compartir",
-    "text": "Copia un enlace que abre una copia de este proyecto en otro dispositivo, o un resumen en texto para pedir opinión en un foro, a un técnico o a un asistente de IA.",
+    "text": "Copia un resumen en texto del proyecto, con el enlace para abrirlo, para pedir opinión en un foro, a un técnico o a un asistente de IA.",
     "copy": "Copiar resumen",
-    "fallback": "Texto para copiar",
-    "copyLink": "Copiar enlace"
+    "fallback": "Texto para copiar"
   },
   "bands": {
     "2_4": "2,4 GHz",
@@ -182,7 +181,7 @@
     },
     {
       "q": "¿Dónde se guardan mis proyectos?",
-      "a": "Solo en tu navegador, en el almacenamiento local del dispositivo. No se envía nada a ningún servidor. Para guardar una copia o abrirlo en otro equipo, usa Archivo y luego Exportar JSON."
+      "a": "Solo en tu navegador, en el almacenamiento local del dispositivo. No se envía nada a ningún servidor. Para guardar una copia, usa Archivo y luego Exportar JSON. Para abrirlo en otro dispositivo o mostrárselo a alguien, usa Copiar enlace en el cuadro Tu plan: el proyecto va dentro del propio enlace."
     }
   ],
   "footer": {
@@ -535,7 +534,9 @@
       "buyDual": "{n} nodos mesh de doble banda (todos por cable)",
       "buyTri": "{n} nodos mesh tribanda: una radio queda solo para el enlace entre ellos",
       "atLeast": "Al menos {what}",
-      "buyCable": "Más un cable de red para {names}."
+      "buyCable": "Más un cable de red para {names}.",
+      "copyLink": "Copiar enlace",
+      "copyLinkLabel": "Copiar un enlace que abre una copia de este proyecto"
     },
     "hud": {
       "weak1": "1 enlace débil",
