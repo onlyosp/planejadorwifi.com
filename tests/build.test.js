@@ -109,6 +109,17 @@ test('guide pages get the guide slots, the generated numbers and article data', 
   } finally { b.done(); }
 });
 
+test('the methodology page is an article with its sections and links to every guide', async () => {
+  const b = await run();
+  try {
+    const page = b.read('en/methodology.html');
+    const types = [...page.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)].map(m => JSON.parse(m[1])['@type']);
+    assert.deepEqual(types, ['Article', 'BreadcrumbList']);
+    assert.ok(page.includes('href="/en/guides/wifi-signal-strength-dbm"'), 'page links are filled from paths');
+    for (const guide of [...b.read('en/guides/index.html').matchAll(/<h2><a href="([^"]+)"/g)].map(m => m[1])) assert.ok(page.includes(`href="${guide}"`), guide);
+  } finally { b.done(); }
+});
+
 // The guides state these in words around the generated numbers; if the model changes enough to
 // break one, rewrite the sentence (i18n guides.items.nodes) along with this test.
 test('the example homes still support what the nodes guide says', () => {

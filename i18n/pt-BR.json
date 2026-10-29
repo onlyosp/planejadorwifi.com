@@ -13,7 +13,8 @@
     "guide-mesh": "/guias/mesh-repetidor-ou-cabo",
     "guide-walls": "/guias/quanto-parede-bloqueia-wifi",
     "guide-dbm": "/guias/sinal-wifi-dbm",
-    "guide-bands": "/guias/2-4-5-ou-6-ghz"
+    "guide-bands": "/guias/2-4-5-ou-6-ghz",
+    "methodology": "/metodologia"
   },
   "meta": {
     "title": "Simulador de Wi-Fi Mesh na Planta da Casa | Planejador WiFi",
@@ -947,5 +948,55 @@
       "pl0": "Perda a 1 m",
       "tx": "Potência"
     }
+  },
+  "methodology": {
+    "title": "Metodologia: como o Planejador WiFi calcula o sinal | Planejador WiFi",
+    "description": "O modelo de propagação do simulador: perda por distância com expoente {n}, perda por parede e laje em cada faixa, qualidade do backhaul, como funciona o Sugerir posição e os limites da estimativa.",
+    "h1": "Como o simulador calcula o sinal",
+    "short": "Metodologia",
+    "lead": "<p>O Planejador WiFi estima o sinal em cada ponto da planta com um modelo simples de propagação: a perda cresce com o logaritmo da distância, e cada parede ou laje atravessada soma uma perda fixa, que depende do material e da faixa. O cálculo roda no seu navegador, e o código está aberto.</p><p>O resultado tem erro típico de ±8 dB. Serve para comparar posições e decidir quantos nós comprar, não para substituir uma medição no local.</p>",
+    "related": "Guias que usam este modelo",
+    "sections": [
+      {
+        "id": "modelo",
+        "h": "Perda por distância",
+        "html": "<p>O sinal num ponto é a potência do aparelho menos a perda no caminho:</p><p class=\"formula\">sinal = potência + ajuste do modelo − [PL0 + 10 · n · log10(d) + paredes + andares × laje]</p><ul><li><b>d</b> é a distância em metros entre o nó e o ponto, em três dimensões: entre andares, conta a altura de {floorh} m por piso. Distâncias menores que meio metro contam como meio metro.</li><li><b>n = {n}</b> é o expoente de perda por distância.</li><li><b>PL0</b> é a perda a 1 m, igual à perda no espaço livre na frequência de referência da faixa: 20 · log10(f em MHz) − 27,55.</li><li><b>Ajuste do modelo</b> é a potência de cada roteador em relação a um nó mesh típico; os modelos que você cadastra também têm esse ajuste.</li></ul>{table.bands}<p>O modelo geral de propagação interna da recomendação ITU-R P.1238 tem a mesma forma, mas sem termo para paredes: o efeito delas fica embutido no coeficiente de distância. Aqui cada parede é contada uma a uma, e por isso o expoente fica mais perto do valor do espaço livre, que é 2.</p>"
+      },
+      {
+        "id": "materiais",
+        "h": "Perda por parede, material e faixa",
+        "html": "<p>Para cada ponto, o simulador traça uma linha reta até cada nó e soma a perda de cada parede que a linha cruza. Uma quina compartilhada por duas paredes conta uma vez só. Para um ponto em outro andar, soma uma laje por piso atravessado e as paredes do andar onde está o ponto.</p>{table.materials}<p>São valores médios para casas. Medições de laboratório, como as do NIST no relatório NISTIR 6055, mostram que a perda de um mesmo material muda bastante com a espessura e a frequência. O simulador usa um valor por material e não olha a espessura desenhada.</p>"
+      },
+      {
+        "id": "cobertura",
+        "h": "Níveis de sinal e cobertura",
+        "html": "<p>O mapa pinta cada ponto em cinco níveis, de excelente ({level.0} dBm ou melhor) a sem sinal útil (abaixo de {level.3} dBm). A <a href=\"{href.dbm}\">tabela completa</a> está no guia de dBm. Cada ponto recebe o sinal do nó mais forte.</p><p>A porcentagem de cobertura é a parte da área com {level.1} dBm ou melhor, calculada numa grade de {grid} m dentro do retângulo que envolve as paredes do andar.</p>"
+      },
+      {
+        "id": "backhaul",
+        "h": "Qualidade do backhaul",
+        "html": "<p>A ligação sem fio entre dois nós usa o mesmo cálculo, com o ajuste do mais fraco dos dois aparelhos e as paredes dos dois andares quando eles estão em pisos diferentes. Se os dois têm 6 GHz, o simulador calcula a ligação em 5 e em 6 GHz e fica com a mais forte; senão, usa 5 GHz.</p><ul><li><b>{link.0} dBm ou melhor:</b> ótima.</li><li><b>De {link.0} a {link.1} dBm:</b> boa.</li><li><b>Abaixo de {link.1} dBm:</b> fraca; o simulador recomenda cabo.</li></ul><p>Os nós ligados por cabo se penduram no roteador principal. Os outros entram na rede um de cada vez, pela ligação mais forte até um nó que já está nela, o que monta uma árvore sem ciclos com o roteador na raiz.</p>"
+      },
+      {
+        "id": "sugerir",
+        "h": "Como funciona o Sugerir posição",
+        "html": "<ol><li>Divide o retângulo do andar numa grade de {suggest.cell} m e descarta os pontos a menos de {suggest.wallGap} m de uma parede.</li><li>Para cada ponto, imagina um nó novo ali e calcula a área com {level.1} dBm ou melhor somando os nós que já existem.</li><li>Se já há nós, só aceita pontos com ligação sem fio de {link.1} dBm ou melhor até algum deles. Quando nenhum ponto útil cumpre isso, tenta de novo sem a exigência e avisa que o nó vai precisar de cabo.</li><li>Fica com o ponto que mais aumenta a área coberta. No empate, desempata pela soma do sinal em todos os pontos, contando no mínimo {suggest.floor} dBm em cada um.</li></ol><p>Se nenhum ponto melhora a cobertura em pelo menos um ponto percentual, o simulador diz por quê: a casa já está coberta, nenhum ponto ajuda, ou alguma ligação entre nós está fraca e precisa de cabo.</p>"
+      },
+      {
+        "id": "limites",
+        "h": "Precisão e limites",
+        "html": "<p>O erro típico é de ±8 dB. O modelo deixa de fora:</p><ul><li>reflexões e o sinal que contorna paredes por portas e corredores;</li><li>móveis, pessoas, eletrodomésticos e água, a não ser que você os desenhe como parede;</li><li>interferência de redes vizinhas, Bluetooth e micro-ondas;</li><li>a antena e a potência de cada celular ou notebook, que transmitem menos que o roteador;</li><li>portas abertas ou fechadas, espessura real das paredes e ferragem dentro delas;</li><li>a velocidade: o simulador estima sinal, não megabits.</li></ul><p>Use o mapa para comparar posições e kits na mesma planta. Depois de instalar, meça o sinal nos cômodos que importam e ajuste.</p>"
+      },
+      {
+        "id": "exemplos",
+        "h": "Casas de exemplo dos guias",
+        "html": "<p>Os guias citam casas retangulares desenhadas pelo próprio site: paredes externas de alvenaria, cômodos de cerca de {room} × {room} m e uma porta de madeira de {door} m em cada parede interna. Os nós são postos um a um pelo mesmo cálculo do Sugerir posição, em 5 GHz, até cada andar ter sinal bom em pelo menos {target} da área. Os números são recalculados toda vez que o site é publicado.</p>"
+      },
+      {
+        "id": "referencias",
+        "h": "Referências",
+        "html": "<ul><li>ITU-R. <a href=\"https://www.itu.int/rec/R-REC-P.1238\">Recomendação P.1238</a>: dados de propagação e métodos de previsão para o planejamento de sistemas de radiocomunicação internos.</li><li>Stone, W. C. <a href=\"https://doi.org/10.6028/NIST.IR.6055\">Electromagnetic Signal Attenuation in Construction Materials</a>, NISTIR 6055. NIST, 1997.</li><li>Código do modelo: <a href=\"https://github.com/onlyosp/planejadorwifi.com/blob/main/assets/js/engine.js\">assets/js/engine.js</a>, no repositório do Planejador WiFi no GitHub.</li></ul>"
+      }
+    ]
   }
 }

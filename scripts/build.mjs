@@ -44,7 +44,7 @@ const GUIDES = [
 const guidePage = id => `guide-${id}`;
 const guideOf = page => GUIDES.find(g => guidePage(g.id) === page);
 // Reference pages (src/doc.html): texts under the page key in every language file.
-const DOCS = {};
+const DOCS = { methodology: { published: '2026-10-29' } };
 
 const PAGES = {
   index: 'src/index.html', guides: 'src/guides.html',

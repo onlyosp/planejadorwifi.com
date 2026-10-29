@@ -13,7 +13,8 @@
     "guide-mesh": "/en/guides/mesh-vs-extender-vs-ethernet",
     "guide-walls": "/en/guides/how-much-walls-block-wifi",
     "guide-dbm": "/en/guides/wifi-signal-strength-dbm",
-    "guide-bands": "/en/guides/2-4-vs-5-vs-6-ghz"
+    "guide-bands": "/en/guides/2-4-vs-5-vs-6-ghz",
+    "methodology": "/en/methodology"
   },
   "meta": {
     "title": "Wi-Fi Mesh Planner on Your Floor Plan | Planejador WiFi",
@@ -947,5 +948,55 @@
       "pl0": "Loss at 1 m",
       "tx": "Power"
     }
+  },
+  "methodology": {
+    "title": "Methodology: How Planejador WiFi Estimates Signal | Planejador WiFi",
+    "description": "The planner’s propagation model: distance loss with exponent {n}, wall and floor loss on each band, backhaul quality, how Suggest a spot works and the limits of the estimate.",
+    "h1": "How the planner estimates signal",
+    "short": "Methodology",
+    "lead": "<p>Planejador WiFi estimates the signal at every point of the floor plan with a simple propagation model: loss grows with the logarithm of distance, and every wall or floor slab crossed adds a fixed loss that depends on the material and the band. The math runs in your browser, and the code is open source.</p><p>The result has a typical error of ±8 dB. Use it to compare placements and decide how many nodes to buy, not to replace an on-site measurement.</p>",
+    "related": "Guides built on this model",
+    "sections": [
+      {
+        "id": "model",
+        "h": "Distance loss",
+        "html": "<p>The signal at a point is the device’s power minus the loss along the way:</p><p class=\"formula\">signal = power + model adjustment − [PL0 + 10 · n · log10(d) + walls + floors × slab]</p><ul><li><b>d</b> is the distance in meters between the node and the point, in three dimensions: between floors it counts {floorh} m per floor. Distances under half a meter count as half a meter.</li><li><b>n = {n}</b> is the distance loss exponent.</li><li><b>PL0</b> is the loss at 1 m, equal to the free-space loss at the band’s reference frequency: 20 · log10(f in MHz) − 27.55.</li><li><b>Model adjustment</b> is each router’s power relative to a typical mesh node; models you add have this adjustment too.</li></ul>{table.bands}<p>The site-general indoor model in Recommendation ITU-R P.1238 has the same form but no wall term: the effect of walls is folded into its distance coefficient. Here every wall is counted one by one, so the exponent stays closer to the free-space value of 2.</p>"
+      },
+      {
+        "id": "materials",
+        "h": "Loss per wall, material and band",
+        "html": "<p>For each point, the planner draws a straight line to every node and adds the loss of each wall the line crosses. A corner shared by two walls counts once. For a point on another floor, it adds one slab per floor crossed and the walls of the floor the point is on.</p>{table.materials}<p>These are average values for homes. Laboratory measurements, such as NIST’s in report NISTIR 6055, show that the loss of the same material varies widely with thickness and frequency. The planner uses one value per material and ignores the drawn thickness.</p>"
+      },
+      {
+        "id": "coverage",
+        "h": "Signal levels and coverage",
+        "html": "<p>The map colors every point in five levels, from excellent ({level.0} dBm or better) to no usable signal (below {level.3} dBm). The <a href=\"{href.dbm}\">full table</a> is in the dBm guide. Each point takes the signal of the strongest node.</p><p>The coverage percentage is the share of the area at {level.1} dBm or better, computed on a {grid} m grid inside the rectangle around the floor’s walls.</p>"
+      },
+      {
+        "id": "backhaul",
+        "h": "Backhaul quality",
+        "html": "<p>The wireless link between two nodes uses the same calculation, with the adjustment of the weaker of the two devices and the walls of both floors when they are on different floors. If both have 6 GHz, the planner works out the link on 5 and on 6 GHz and keeps the stronger one; otherwise it uses 5 GHz.</p><ul><li><b>{link.0} dBm or better:</b> great.</li><li><b>{link.0} to {link.1} dBm:</b> good.</li><li><b>Below {link.1} dBm:</b> weak; the planner recommends a cable.</li></ul><p>Wired nodes hang from the main router. The others join the network one at a time, through the strongest link to a node already in it, which builds a tree with no loops and the router at its root.</p>"
+      },
+      {
+        "id": "suggest",
+        "h": "How Suggest a spot works",
+        "html": "<ol><li>It splits the floor’s rectangle into a {suggest.cell} m grid and drops points closer than {suggest.wallGap} m to a wall.</li><li>For each point, it imagines a new node there and works out the area at {level.1} dBm or better, together with the existing nodes.</li><li>If there are nodes already, it only accepts points with a wireless link of {link.1} dBm or better to one of them. When no useful point meets that, it tries again without the requirement and warns that the node will need a cable.</li><li>It keeps the point that adds the most covered area. Ties go to the higher sum of signal over all points, counting at least {suggest.floor} dBm at each.</li></ol><p>If no point improves coverage by at least one percentage point, the planner says why: the house is already covered, no point helps, or a link between nodes is weak and needs a cable.</p>"
+      },
+      {
+        "id": "limits",
+        "h": "Accuracy and limits",
+        "html": "<p>The typical error is ±8 dB. The model leaves out:</p><ul><li>reflections and signal that goes around walls through doors and hallways;</li><li>furniture, people, appliances and water, unless you draw them as walls;</li><li>interference from neighboring networks, Bluetooth and microwave ovens;</li><li>the antenna and power of each phone or laptop, which transmit less than the router;</li><li>open or closed doors, the real thickness of walls and the steel inside them;</li><li>speed: the planner estimates signal, not megabits.</li></ul><p>Use the map to compare placements and kits on the same floor plan. After installing, measure the signal in the rooms that matter and adjust.</p>"
+      },
+      {
+        "id": "examples",
+        "h": "Example homes in the guides",
+        "html": "<p>The guides quote rectangular homes drawn by the site itself: brick outer walls, rooms of about {room} × {room} m and a {door} m wooden door in every inner wall. Nodes are placed one by one with the same search as Suggest a spot, on 5 GHz, until each floor has good signal over at least {target} of its area. The numbers are recalculated every time the site is published.</p>"
+      },
+      {
+        "id": "references",
+        "h": "References",
+        "html": "<ul><li>ITU-R. <a href=\"https://www.itu.int/rec/R-REC-P.1238\">Recommendation P.1238</a>: Propagation data and prediction methods for the planning of indoor radiocommunication systems.</li><li>Stone, W. C. <a href=\"https://doi.org/10.6028/NIST.IR.6055\">Electromagnetic Signal Attenuation in Construction Materials</a>, NISTIR 6055. NIST, 1997.</li><li>Model code: <a href=\"https://github.com/onlyosp/planejadorwifi.com/blob/main/assets/js/engine.js\">assets/js/engine.js</a>, in the Planejador WiFi repository on GitHub.</li></ul>"
+      }
+    ]
   }
 }
