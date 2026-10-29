@@ -34,14 +34,20 @@ The site ships in three languages: **pt-BR** (default, served at `/`), **en** (`
 - **Same change, three files.** When you add or edit a string, update all three files in the same commit with a real translation, never a copy of the Portuguese. `tests/i18n.test.js` fails if the files differ in keys, array lengths or `{placeholders}`.
 - **Write naturally.** Use the conventions of each audience: Brazilian Portuguese, US English, and neutral Latin American Spanish. Keep product and brand names as they are (Planejador WiFi, Deco, eero).
 - **Numbers and units.** Format numbers with the page locale (`fmt()` in `app.js`); keep units metric.
-- **New pages.** Add a template to `src/`, register it in `PAGES` in `scripts/build.mjs`, and give it a path in each language's `paths`. Canonical URLs, hreflang links, the language switcher and the sitemap entries are generated from those paths.
+- **New pages.** Every page needs a path in each language's `paths`; canonical URLs, hreflang links, the language switcher, the sitemap and `llms.txt` are generated from those paths. Then pick the kind of page:
+  - **Guide:** add an entry to `GUIDES` in `scripts/build.mjs` (id, publish date, example home, related guides), its texts under `guides.items.<id>` and its path under `paths["guide-<id>"]`. All guides share `src/guide.html`.
+  - **Reference page** (like the methodology and about pages): add an entry to `DOCS` (publish date, schema type, links at the end) and its texts under a top-level key with the page's name. These share `src/doc.html`.
+  - **Anything else:** add a template to `src/` and register it in `PAGES`.
+  - `tests/build.test.js` checks every indexable page for a unique title and description, complete hreflang, valid JSON-LD and its entries in the sitemap and `llms.txt`.
 - **Routing.** Only the Portuguese home page redirects by browser language, and only for people (crawlers are skipped). Do not add other automatic redirects: every language version must stay reachable and indexable.
 - **Project data is not translated.** Names people type (projects, rooms) stay as typed. Names the app generates (floor names, the example house) are recognized in any language and shown in the page language by `localizeDefaults()` in `app.js`; if you add another generated name, add it to `defaultNames()` in `scripts/build.mjs`.
 
 ## Conventions
 
 - **Language of the code:** code, comments, commit messages, documentation and issues are in English. Site text follows the Languages section above.
-- **Model changes:** the guide's attenuation table is generated from `assets/js/engine.js`. If you change the model, update the guide texts in the three language files when they quote numbers, and the tests, in the same change.
+- **Model numbers are never typed by hand.** Page texts write `{tokens}` (attenuation per material and band, signal levels, ranges, coverage of the example homes, tables and more; the list is in the comment above `fillModel()` in `scripts/build.mjs`) and the build fills them from `assets/js/engine.js`. An unknown token stops the build. `llms.txt` quotes the same values.
+- **Model changes:** the example homes in `scripts/scenarios.mjs` are covered with the planner's own engine, and the guides quote their results. Some guide sentences state those results in words ("one node is enough up to 120 m²"); `tests/build.test.js` checks them. If a model change breaks one, rewrite the sentence in the three language files and the test in the same change.
+- **Project links:** "Copy link" puts the whole project in the link's fragment (`#p=…`, `encodeShare()` and `decodeShare()` in `store.js`). Links already sent must keep opening: to change the format, raise `SHARE_VERSION` and keep decoding the old versions. The fragment never leaves the browser: `site.js` removes it from the address before other scripts run, and no code may send it anywhere, `track()` included.
 - **Module boundaries:** `engine.js` holds pure functions only, with no DOM or storage access. Storage goes through `store.js`, and every `localStorage` access is wrapped in try/catch.
 - **Colors:** every color is a CSS token in `assets/css/style.css`, defined for light and dark themes.
 - **Accessibility:** controls have labels, keyboard focus stays visible, and layouts work at 375 px wide with no horizontal scroll.
