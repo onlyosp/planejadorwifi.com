@@ -364,6 +364,11 @@ function specials(dicts, lang, page, dateOf, examples) {
     langRedirect: LANG_REDIRECT,
     ...(page === 'guides' || guideOf(page) ? guideSpecials(dicts, lang, page, dateOf, examples) : {}),
     ...(DOCS[page] ? docSpecials(dicts, lang, page, dateOf) : {}),
+    ...(page === 'privacy' ? { jsonLd: ldScripts([
+      { '@context': 'https://schema.org', '@type': 'WebPage', name: d.privacy.h1, description: d.privacy.description, url: SITE + d.paths.privacy, inLanguage: d.lang,
+        isPartOf: { '@type': 'WebSite', name: 'Planejador WiFi', url: SITE + '/' } },
+      crumbsLd([[d.guides.home, SITE + d.paths.index], [d.privacy.h1, SITE + d.paths.privacy]]),
+    ]) } : {}),
   };
 }
 
