@@ -22,21 +22,37 @@ import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFi
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
-import { MATERIALS, SLAB, SIGNAL_LEVELS, N_EXP, BUILTIN_MODELS } from '../assets/js/engine.js';
+import { MATERIALS, SLAB, SIGNAL_LEVELS, N_EXP, GOOD, BANDS, BUILTIN_MODELS } from '../assets/js/engine.js';
 import { createDates } from './lastmod.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const SITE = (process.env.SITE_URL || 'https://planejadorwifi.com').replace(/\/$/, '');
 export const LANGS = ['pt-BR', 'en', 'es'];
 const DEFAULT_LANG = 'pt-BR';
-const PAGES = { index: 'src/index.html', privacy: 'src/privacy.html', notFound: 'src/404.html' };
-const INDEXED = ['index', 'privacy'];
+// Guides share one template (src/guide.html). Each one's texts live in every language file under
+// guides.items.<id> and its public path under paths["guide-<id>"]. `published` is the date it first
+// went online; the modified date comes from git. `related` lists other guide ids, in order.
+const GUIDES = [];
+const guidePage = id => `guide-${id}`;
+const guideOf = page => GUIDES.find(g => guidePage(g.id) === page);
+
+const PAGES = {
+  index: 'src/index.html', guides: 'src/guides.html',
+  ...Object.fromEntries(GUIDES.map(g => [guidePage(g.id), 'src/guide.html'])),
+  privacy: 'src/privacy.html', notFound: 'src/404.html',
+};
+export const INDEXED = ['index', 'guides', ...GUIDES.map(g => guidePage(g.id)), 'privacy'];
 // What each page's content is made of, for its last-modified date: its template plus its own
 // part of the language file (see scripts/lastmod.mjs).
-const SOURCES = {
-  index: { files: ['src/index.html'], keys: ['meta', 'intro', 'guide', 'faq'] },
-  privacy: { files: ['src/privacy.html'], keys: ['privacy'] },
-};
+function sources(page) {
+  const g = guideOf(page);
+  if (g) return { files: ['src/guide.html'], keys: [`guides.items.${g.id}`] };
+  return {
+    index: { files: ['src/index.html'], keys: ['meta', 'intro', 'guide', 'faq'] },
+    guides: { files: ['src/guides.html'], keys: ['guides.index'] },
+    privacy: { files: ['src/privacy.html'], keys: ['privacy'] },
+  }[page] || { files: [PAGES[page]], keys: [] };
+}
 const STATIC = ['assets', 'site.webmanifest'];
 const MATERIAL_ORDER = ['tijolo', 'concreto', 'slab', 'gesso', 'madeira', 'vidro', 'metal'];
 
@@ -86,7 +102,118 @@ p=p||'en';}
 var to={en:'/en/',es:'/es/'}[p];if(to)location.replace(to+location.search+location.hash);
 }catch(e){}})();</script>`;
 
-function specials(dicts, lang, page) {
+/* ---------- numbers from the model ----------
+ * Guide texts never type the model's numbers: they write {tokens} that the build fills from
+ * engine.js, in the page's number format. Bands are b24, b5 and b6; materials are the keys of
+ * MATERIALS plus "slab".
+ *   {db.tijolo.b5}         loss of one wall, in dB
+ *   {level.1}              lower bound of signal category 1 (good), in dBm
+ *   {n}                    path loss exponent
+ *   {range.b5}             distance in meters where the signal stays good, with nothing in the way
+ *   {range.b5.tijolo.2}    the same through two walls of that material
+ *   {factor.b5.tijolo}     how many times one wall of that material shortens that distance
+ *   {table.materials}      the attenuation table; {table.signal} the signal levels table */
+const BAND_TOKENS = { b24: '2.4', b5: '5', b6: '6' };
+const lossOf = mat => (mat === 'slab' ? SLAB : MATERIALS[mat]?.db);
+
+function modelValue(token, d) {
+  const [kind, ...a] = token.split('.');
+  const num = (v, digits = 0) => new Intl.NumberFormat(d.locale, { maximumFractionDigits: digits }).format(v).replace('-', '\u2212');
+  const band = k => { const b = BANDS[BAND_TOKENS[k]]; if (!b) throw new Error(`Unknown band in {${token}}`); return b; };
+  const loss = (mat, b) => { const l = lossOf(mat); if (!l) throw new Error(`Unknown material in {${token}}`); return l[b.i]; };
+  if (kind === 'db') return num(loss(a[0], band(a[1])));
+  if (kind === 'level' && SIGNAL_LEVELS[+a[0]] !== undefined) return num(SIGNAL_LEVELS[+a[0]]);
+  if (kind === 'n') return num(N_EXP, 1);
+  if (kind === 'range') {
+    const b = band(a[0]), walls = a[1] ? loss(a[1], b) * (a[2] ? +a[2] : 1) : 0;
+    const m = 10 ** ((b.tx - b.pl0 - walls - GOOD) / (10 * N_EXP));
+    return num(m, m < 10 ? 1 : 0);
+  }
+  if (kind === 'factor') { const b = band(a[0]); return num(10 ** (loss(a[1], b) / (10 * N_EXP)), 1); }
+  if (kind === 'table' && a[0] === 'materials') return materialTable(d);
+  if (kind === 'table' && a[0] === 'signal') return signalTable(d);
+  throw new Error(`Unknown model token {${token}} (${d.lang}).`);
+}
+// Fills the tokens, then keeps numbers with their units on one line (5 GHz, 18 dB, 8,1 m).
+export const fillModel = (html, d) => String(html).replace(/\{([a-z]+(?:\.\w+)*)\}/g, (_, token) => modelValue(token, d))
+  .replace(/(\d) (GHz|dBm|dB|m)(?![\w-])/g, '$1\u00a0$2');
+
+function materialRows(d) {
+  const names = d.guide.materialNames;
+  return MATERIAL_ORDER.map(k => `<tr><td>${esc(names[k])}</td>${lossOf(k).map(v => `<td class="num">${v} dB</td>`).join('')}</tr>`).join('');
+}
+function signalRows(d) {
+  const dbm = v => `${String(v).replace('-', '\u2212')}`, L = SIGNAL_LEVELS, g = d.guide;
+  const ranges = [g.levelBest.replace('{v}', dbm(L[0])),
+    ...L.slice(1).map((l, i) => g.levelRange.replace('{a}', dbm(L[i])).replace('{b}', dbm(l))),
+    g.levelBelow.replace('{v}', dbm(L.at(-1)))];
+  return ranges.map((r, i) => `<tr><td class="mono">${esc(r)}</td><td><i class="sw" style="background:var(--q${i})"></i>${esc(d.ui.cats[i].name)}</td><td>${esc(g.signalUse[i])}</td></tr>`).join('');
+}
+const tableWrap = (head, rows) => `<div class="tablewrap"><table><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>`;
+const materialTable = d => tableWrap(`<th>${esc(d.guide.material)}</th>${['2_4', '5', '6'].map(b => `<th class="num">${esc(d.bands[b])}</th>`).join('')}`, materialRows(d));
+const signalTable = d => tableWrap(`<th>${esc(d.guide.signal)}</th><th>${esc(d.guide.level)}</th><th>${esc(d.guide.practice)}</th>`, signalRows(d));
+
+const ldJson = v => JSON.stringify(v).replace(/</g, '\\u003c');
+const ldScripts = list => list.map(o => `<script type="application/ld+json">${ldJson(o)}</script>`).join('\n');
+const longDate = (iso, d) => new Intl.DateTimeFormat(d.locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(iso + 'T00:00:00Z'));
+const ORG = () => ({ '@type': 'Organization', name: 'Planejador WiFi', url: SITE + '/', logo: { '@type': 'ImageObject', url: SITE + '/assets/img/icon-512.png' } });
+const crumbsLd = items => ({ '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+  itemListElement: items.map(([name, url], i) => ({ '@type': 'ListItem', position: i + 1, name, item: url })) });
+const crumbsHtml = (d, items) => `<nav class="crumbs" aria-label="${esc(d.guides.crumbLabel)}"><ol>${items.map(([name, url], i) =>
+  i === items.length - 1 ? `<li aria-current="page">${esc(name)}</li>` : `<li><a href="${esc(url.slice(SITE.length) || '/')}">${esc(name)}</a></li>`).join('')}</ol></nav>`;
+
+// Values for the guides index and the guide pages.
+function guideSpecials(dicts, lang, page, dateOf) {
+  const d = dicts[lang], G = d.guides, url = SITE + d.paths[page];
+  const home = [G.home, SITE + d.paths.index], index = [G.index.h1, SITE + d.paths.guides];
+  const og = (title, description) => ({ ogTitle: title, ogDescription: description });
+  if (page === 'guides') {
+    const list = GUIDES.map(g => {
+      const it = G.items[g.id];
+      return `<li><h2><a href="${esc(d.paths[guidePage(g.id)])}">${esc(it.h1)}</a></h2><p>${esc(it.description)}</p></li>`;
+    }).join('');
+    return {
+      title: G.index.title, description: G.index.description, h1: G.index.h1, ...og(G.index.h1, G.index.description),
+      crumbs: crumbsHtml(d, [home, index]), guideList: `<ul class="guide-list">${list}</ul>`,
+      jsonLd: ldScripts([
+        { '@context': 'https://schema.org', '@type': 'CollectionPage', name: G.index.h1, description: G.index.description, url, inLanguage: d.lang,
+          isPartOf: { '@type': 'WebSite', name: 'Planejador WiFi', url: SITE + '/' },
+          mainEntity: { '@type': 'ItemList', itemListElement: GUIDES.map((g, i) => ({ '@type': 'ListItem', position: i + 1, url: SITE + d.paths[guidePage(g.id)], name: G.items[g.id].h1 })) } },
+        crumbsLd([home, index]),
+      ]),
+    };
+  }
+  const g = guideOf(page), it = G.items[g.id];
+  const modified = [g.published, dateOf(page, lang)].sort().at(-1);
+  const sections = it.sections.map(s => `<section aria-labelledby="${esc(s.id)}"><h2 id="${esc(s.id)}">${esc(s.q)}</h2>\n${fillModel(s.html, d)}</section>`);
+  const half = Math.ceil(sections.length / 2);
+  const faq = it.faq || [];
+  const related = g.related.filter(id => GUIDES.some(x => x.id === id));
+  const links = [...related.map(id => `<li><a href="${esc(d.paths[guidePage(id)])}">${esc(G.items[id].h1)}</a></li>`),
+    ...(d.paths.methodology ? [`<li><a href="${esc(d.paths.methodology)}">${esc(G.methodology)}</a></li>`] : []),
+    `<li><a href="${esc(d.paths.guides)}">${esc(G.all)}</a></li>`];
+  const ld = [
+    { '@context': 'https://schema.org', '@type': 'Article', headline: it.h1, description: it.description, inLanguage: d.lang, url, mainEntityOfPage: url,
+      image: SITE + '/assets/img/og-image.png', datePublished: g.published, dateModified: modified, author: ORG(), publisher: ORG() },
+    crumbsLd([home, index, [it.short, url]]),
+  ];
+  if (faq.length) ld.push({ '@context': 'https://schema.org', '@type': 'FAQPage', inLanguage: d.lang,
+    mainEntity: faq.map(f => ({ '@type': 'Question', name: stripTags(fillModel(f.q, d)), acceptedAnswer: { '@type': 'Answer', text: stripTags(fillModel(f.a, d)) } })) });
+  return {
+    title: it.title, description: it.description, h1: it.h1, ...og(it.h1, it.description),
+    crumbs: crumbsHtml(d, [home, index, [it.short, url]]),
+    updated: G.updated.replace('{date}', longDate(modified, d)), dateIso: modified,
+    answer: `<div class="answer">${fillModel(it.answer, d)}</div>`,
+    sectionsA: sections.slice(0, half).join('\n'), sectionsB: sections.slice(half).join('\n'),
+    note: fillModel(G.note, d),
+    cta: `<aside class="cta" aria-labelledby="cta-title"><h2 id="cta-title">${esc(it.cta.title)}</h2><p>${esc(it.cta.text)}</p><p><a class="btn primary" href="${esc(d.paths.index)}#simulator">${esc(G.ctaButton)}</a></p></aside>`,
+    faq: faq.length ? `<h2 id="faq">${esc(G.faqTitle)}</h2><div class="faq">${faq.map(f => `<details><summary>${fillModel(f.q, d)}</summary><p>${fillModel(f.a, d)}</p></details>`).join('')}</div>` : '',
+    related: `<nav class="related" aria-labelledby="related-title"><h2 id="related-title">${esc(G.related)}</h2><ul>${links.join('')}</ul></nav>`,
+    jsonLd: ldScripts(ld),
+  };
+}
+
+function specials(dicts, lang, page, dateOf) {
   const d = dicts[lang];
   const linkPage = INDEXED.includes(page) ? page : 'index';
   const hreflang = INDEXED.includes(page)
@@ -94,11 +221,6 @@ function specials(dicts, lang, page) {
       `<link rel="alternate" hreflang="x-default" href="${SITE}${dicts[DEFAULT_LANG].paths[page]}">`].join('\n')
     : '';
   const langOptions = LANGS.map(l => `<option value="${dicts[l].paths[linkPage]}" data-lang="${l}"${l === lang ? ' selected' : ''}>${esc(dicts[l].langName)}</option>`).join('');
-  const names = d.guide.materialNames;
-  const materialRows = MATERIAL_ORDER.map(k => {
-    const db = k === 'slab' ? SLAB : MATERIALS[k].db;
-    return `<tr><td>${esc(names[k])}</td>${db.map(v => `<td class="num">${v} dB</td>`).join('')}</tr>`;
-  }).join('');
   const faqHtml = d.faq.map(f => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('');
   const ld = [
     { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Planejador WiFi', alternateName: ['Planejador Wi-Fi', 'planejadorwifi.com'], url: SITE + '/', inLanguage: d.lang },
@@ -108,19 +230,21 @@ function specials(dicts, lang, page) {
     { '@context': 'https://schema.org', '@type': 'FAQPage', inLanguage: d.lang,
       mainEntity: d.faq.map(f => ({ '@type': 'Question', name: stripTags(f.q), acceptedAnswer: { '@type': 'Answer', text: stripTags(f.a) } })) },
   ];
-  const json = v => JSON.stringify(v).replace(/</g, '\\u003c');
   return {
     site: SITE,
     home: d.paths.index,
+    guides: d.paths.guides,
     privacy: d.paths.privacy,
     canonical: SITE + (d.paths[page] || d.paths.index),
     hreflang,
     langOptions,
-    materialRows,
+    materialRows: materialRows(d),
+    signalRows: signalRows(d),
     faqHtml,
-    jsonLd: ld.map(o => `<script type="application/ld+json">${json(o)}</script>`).join('\n'),
-    i18nJson: `<script type="application/json" id="i18n">${json({ lang: d.lang, locale: d.locale, paths: d.paths, ui: d.ui, defaults: defaultNames(dicts) })}</script>`,
+    jsonLd: ldScripts(ld),
+    i18nJson: `<script type="application/json" id="i18n">${ldJson({ lang: d.lang, locale: d.locale, paths: d.paths, ui: d.ui, defaults: defaultNames(dicts) })}</script>`,
     langRedirect: LANG_REDIRECT,
+    ...(page === 'guides' || guideOf(page) ? guideSpecials(dicts, lang, page, dateOf) : {}),
   };
 }
 
@@ -164,14 +288,14 @@ function deepMerge(base, extra) {
   return out;
 }
 
-function renderPage(page, lang, dicts, flags, slots) {
+function renderPage(page, lang, dicts, flags, slots, dateOf) {
   let html = readFileSync(join(ROOT, PAGES[page]), 'utf8');
   for (const [slot, file] of Object.entries(PARTIALS)) {
     html = html.replaceAll(`{{{@${slot}}}}`, readFileSync(join(ROOT, 'src/partials', file + '.html'), 'utf8'));
   }
   for (const name of SLOTS) html = html.replaceAll(`{{{@slot.${name}}}}`, slots[name] || '');
   html = applyBlocks(html, { ...flags, home: page === 'index', ptHome: page === 'index' && lang === DEFAULT_LANG });
-  return render(html, dicts[lang], specials(dicts, lang, page));
+  return render(html, dicts[lang], specials(dicts, lang, page, dateOf));
 }
 
 function sitemap(dicts, dateOf) {
@@ -189,6 +313,9 @@ const robots = () => `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`
 // Title and description of an indexable page, as shown in search results.
 function pageMeta(d, page) {
   if (page === 'index') return { title: d.meta.title, description: d.meta.description };
+  if (page === 'guides') return d.guides.index;
+  const g = guideOf(page);
+  if (g) return d.guides.items[g.id];
   return { title: d[page].title, description: d[page].description };
 }
 
@@ -244,7 +371,7 @@ export async function build({ outDir = join(ROOT, 'dist'), env = process.env, ex
   const dateOf = (page, lang) => {
     const id = page + '|' + lang;
     if (!dateCache.has(id)) {
-      const src = SOURCES[page] || { files: [PAGES[page]], keys: [] };
+      const src = sources(page);
       dateCache.set(id, pageDate({ files: src.files, sections: src.keys.map(key => ({ file: `i18n/${lang}.json`, key, current: raw[lang] })) }));
     }
     return dateCache.get(id);
@@ -258,7 +385,7 @@ export async function build({ outDir = join(ROOT, 'dist'), env = process.env, ex
 
   for (const lang of LANGS) {
     for (const page of Object.keys(PAGES)) {
-      const html = renderPage(page, lang, dicts, flags, slots);
+      const html = renderPage(page, lang, dicts, flags, slots, dateOf);
       const left = html.match(/\{\{/);
       if (left) throw new Error(`Unreplaced placeholder in ${page} (${lang}).`);
       const file = join(outDir, outPath(dicts[lang].paths[page]));

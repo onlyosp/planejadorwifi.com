@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+{{{@head}}}
+<title>{{@title}}</title>
+<meta name="description" content="{{@description}}">
+<link rel="canonical" href="{{@canonical}}">
+{{{@hreflang}}}
+<meta name="theme-color" content="#E7EAEE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101419" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="{{ogLocale}}">
+<meta property="og:site_name" content="Planejador WiFi">
+<meta property="og:title" content="{{@ogTitle}}">
+<meta property="og:description" content="{{@ogDescription}}">
+<meta property="og:url" content="{{@canonical}}">
+<meta property="og:image" content="{{@site}}/assets/img/og-image.png">
+<meta property="article:modified_time" content="{{@dateIso}}">
+<meta name="twitter:card" content="summary_large_image">
+{{{@jsonLd}}}
+</head>
+<body>
+<div class="wrap">
+  {{{@header}}}
+  <main>
+    <article class="guide doc article">
+      {{{@crumbs}}}
+      <h1>{{@h1}}</h1>
+      <p class="dateline"><time datetime="{{@dateIso}}">{{@updated}}</time></p>
+      {{{@answer}}}
+      {{{@cta}}}
+      {{{@sectionsA}}}
+      {{{@slot.inGuide}}}
+      {{{@sectionsB}}}
+      <p class="hint">{{{@note}}}</p>
+      {{{@faq}}}
+      {{{@related}}}
+      {{{@slot.afterGuide}}}
+    </article>
+  </main>
+  {{{@footer}}}
+</div>
+{{{@slot.bodyEnd}}}
+</body>
+</html>

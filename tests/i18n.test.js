@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { build, loadDicts, LANGS } from '../scripts/build.mjs';
+import { build, loadDicts, LANGS, INDEXED } from '../scripts/build.mjs';
 import { MATERIALS, SLAB } from '../assets/js/engine.js';
 
 const dicts = loadDicts();
@@ -48,6 +48,16 @@ test('placeholders in translated strings match the Portuguese ones', () => {
   for (const lang of LANGS.filter(l => l !== BASE)) walk(dicts[BASE].ui, dicts[lang].ui, lang + ':ui');
 });
 
+test('guides quote the same model numbers in every language', () => {
+  // {db.tijolo.b5}-style tokens are filled from engine.js by the build; every translation must use the same ones.
+  const tokens = s => [...String(s).matchAll(/\{([\w.]+)\}/g)].map(m => m[1]).sort().join(',');
+  const walk = (a, b, path) => {
+    if (typeof a === 'string') { assert.equal(tokens(b), tokens(a), path); return; }
+    if (a && typeof a === 'object') for (const k of Object.keys(a)) walk(a[k], b?.[k], `${path}.${k}`);
+  };
+  for (const lang of LANGS.filter(l => l !== BASE)) walk(dicts[BASE].guides, dicts[lang].guides, lang + ':guides');
+});
+
 test('each language gets its own pages, hreflang links and language switcher', async () => {
   const out = mkdtempSync(join(tmpdir(), 'planejador-i18n-'));
   try {
@@ -74,7 +84,7 @@ test('each language gets its own pages, hreflang links and language switcher', a
       assert.ok(home.includes(SLAB.map(v => `<td class="num">${v} dB</td>`).join('')), `${lang} slab row`);
     }
     const sitemap = read('sitemap.xml');
-    assert.equal((sitemap.match(/<loc>/g) || []).length, LANGS.length * 2);
+    assert.equal((sitemap.match(/<loc>/g) || []).length, LANGS.length * INDEXED.length);
     assert.ok(read('404.html').includes('noindex'));
   } finally { rmSync(out, { recursive: true, force: true }); }
 });
