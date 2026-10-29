@@ -43,8 +43,14 @@ const GUIDES = [
 ];
 const guidePage = id => `guide-${id}`;
 const guideOf = page => GUIDES.find(g => guidePage(g.id) === page);
-// Reference pages (src/doc.html): texts under the page key in every language file.
-const DOCS = { methodology: { published: '2026-10-29' } };
+// Reference pages (src/doc.html): texts under the page key in every language file, plus the
+// links listed at the end of the page as [text, path].
+const DOCS = {
+  methodology: { published: '2026-10-29', type: 'Article',
+    links: d => [...GUIDES.map(g => [d.guides.items[g.id].h1, d.paths[guidePage(g.id)]]), [d.guides.all, d.paths.guides]] },
+  about: { published: '2026-10-29', type: 'AboutPage',
+    links: d => [[d.guides.methodology, d.paths.methodology], [d.guides.all, d.paths.guides], [d.footer.privacy, d.paths.privacy]] },
+};
 
 const PAGES = {
   index: 'src/index.html', guides: 'src/guides.html',
@@ -129,7 +135,7 @@ var to={en:'/en/',es:'/es/'}[p];if(to)location.replace(to+location.search+locati
  *   {mw.b5}                transmit power of the band in milliwatts
  *   {grid} {suggest.cell} {suggest.wallGap} {suggest.floor}  coverage grid and suggest() settings
  *   {room} {door}          room width and door width of the example homes, in meters
- *   {href.dbm}             public path of a guide (by id) or of a page (methodology)
+ *   {href.dbm}             public path of a guide (by id) or of a page (methodology, privacy)
  *   {link.0}               lower bound of backhaul quality 0 (great) or 1 (ok), in dBm
  *   {mhz.b5} {pl0.b5} {tx.b5}  reference frequency, loss at 1 m and transmit power of a band
  *   {floorh}               floor-to-floor height, in meters
@@ -235,19 +241,23 @@ const articleLd = (d, { headline, description, url, published, modified }) => ({
   datePublished: published, dateModified: modified, author: ORG(), publisher: ORG() });
 const dated = (d, published, modified) => ({ updated: d.guides.updated.replace('{date}', longDate(modified, d)), dateIso: modified });
 
-// Values for a reference page (methodology): its sections, links to every guide and article data.
+// Values for a reference page (methodology, about): its sections, its links and its structured data.
 function docSpecials(dicts, lang, page, dateOf) {
-  const d = dicts[lang], G = d.guides, P = d[page], url = SITE + d.paths[page];
-  const modified = [DOCS[page].published, dateOf(page, lang)].sort().at(-1);
+  const d = dicts[lang], G = d.guides, P = d[page], doc = DOCS[page], url = SITE + d.paths[page];
+  const modified = [doc.published, dateOf(page, lang)].sort().at(-1);
   const crumbs = [[G.home, SITE + d.paths.index], [P.short, url]];
-  const links = [...GUIDES.map(g => `<li><a href="${esc(d.paths[guidePage(g.id)])}">${esc(G.items[g.id].h1)}</a></li>`),
-    `<li><a href="${esc(d.paths.guides)}">${esc(G.all)}</a></li>`];
+  const links = doc.links(d).map(([text, path]) => `<li><a href="${esc(path)}">${esc(text)}</a></li>`);
+  const main = doc.type === 'Article'
+    ? articleLd(d, { headline: P.h1, description: P.description, url, published: doc.published, modified })
+    : { '@context': 'https://schema.org', '@type': doc.type, name: P.h1, description: P.description, url, inLanguage: d.lang,
+      dateModified: modified, isPartOf: { '@type': 'WebSite', name: 'Planejador WiFi', url: SITE + '/' }, about: ORG() };
   return {
     title: P.title, description: P.description, h1: P.h1, ogTitle: P.h1, ogDescription: P.description,
-    crumbs: crumbsHtml(d, crumbs), ...dated(d, DOCS[page].published, modified),
+    ogType: doc.type === 'Article' ? 'article' : 'website',
+    crumbs: crumbsHtml(d, crumbs), ...dated(d, doc.published, modified),
     lead: `<div class="answer">${fillModel(P.lead, d)}</div>`, sections: sectionsOf(P.sections, d).join('\n'),
     related: `<nav class="related" aria-labelledby="related-title"><h2 id="related-title">${esc(P.related)}</h2><ul>${links.join('')}</ul></nav>`,
-    jsonLd: ldScripts([articleLd(d, { headline: P.h1, description: P.description, url, published: DOCS[page].published, modified }), crumbsLd(crumbs)]),
+    jsonLd: ldScripts([main, crumbsLd(crumbs)]),
   };
 }
 

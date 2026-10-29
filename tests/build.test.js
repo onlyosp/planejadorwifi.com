@@ -120,6 +120,18 @@ test('the methodology page is an article with its sections and links to every gu
   } finally { b.done(); }
 });
 
+test('the about page describes the project and links to the methodology and the privacy policy', async () => {
+  const b = await run();
+  try {
+    const page = b.read('es/acerca-de.html');
+    const ld = [...page.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)].map(m => JSON.parse(m[1]));
+    assert.deepEqual(ld.map(o => o['@type']), ['AboutPage', 'BreadcrumbList']);
+    assert.equal(ld[0].about['@type'], 'Organization');
+    assert.ok(page.includes('<meta property="og:type" content="website">'));
+    for (const path of ['/es/metodologia', '/es/privacidad', '/es/guias/']) assert.ok(page.includes(`href="${path}"`), path);
+  } finally { b.done(); }
+});
+
 // The guides state these in words around the generated numbers; if the model changes enough to
 // break one, rewrite the sentence (i18n guides.items.nodes) along with this test.
 test('the example homes still support what the nodes guide says', () => {

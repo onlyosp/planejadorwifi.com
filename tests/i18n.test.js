@@ -48,14 +48,14 @@ test('placeholders in translated strings match the Portuguese ones', () => {
   for (const lang of LANGS.filter(l => l !== BASE)) walk(dicts[BASE].ui, dicts[lang].ui, lang + ':ui');
 });
 
-test('guides and the methodology quote the same model numbers in every language', () => {
+test('guides and reference pages quote the same model numbers in every language', () => {
   // {db.tijolo.b5}-style tokens are filled from engine.js by the build; every translation must use the same ones.
   const tokens = s => [...String(s).matchAll(/\{([\w.]+)\}/g)].map(m => m[1]).sort().join(',');
   const walk = (a, b, path) => {
     if (typeof a === 'string') { assert.equal(tokens(b), tokens(a), path); return; }
     if (a && typeof a === 'object') for (const k of Object.keys(a)) walk(a[k], b?.[k], `${path}.${k}`);
   };
-  for (const lang of LANGS.filter(l => l !== BASE)) for (const key of ['guides', 'methodology']) walk(dicts[BASE][key], dicts[lang][key], `${lang}:${key}`);
+  for (const lang of LANGS.filter(l => l !== BASE)) for (const key of ['guides', 'methodology', 'about']) walk(dicts[BASE][key], dicts[lang][key], `${lang}:${key}`);
 });
 
 test('each language gets its own pages, hreflang links and language switcher', async () => {

@@ -14,7 +14,8 @@
     "guide-walls": "/es/guias/cuanto-bloquean-las-paredes-el-wifi",
     "guide-dbm": "/es/guias/senal-wifi-dbm",
     "guide-bands": "/es/guias/2-4-5-o-6-ghz",
-    "methodology": "/es/metodologia"
+    "methodology": "/es/metodologia",
+    "about": "/es/acerca-de"
   },
   "meta": {
     "title": "Simulador de Wi-Fi Mesh en el Plano de tu Casa | Planejador WiFi",
@@ -996,6 +997,41 @@
         "id": "referencias",
         "h": "Referencias",
         "html": "<ul><li>UIT-R. <a href=\"https://www.itu.int/rec/R-REC-P.1238\">Recomendación P.1238</a>: datos de propagación y métodos de predicción para la planificación de sistemas de radiocomunicaciones en interiores.</li><li>Stone, W. C. <a href=\"https://doi.org/10.6028/NIST.IR.6055\">Electromagnetic Signal Attenuation in Construction Materials</a>, NISTIR 6055. NIST, 1997.</li><li>Código del modelo: <a href=\"https://github.com/onlyosp/planejadorwifi.com/blob/main/assets/js/engine.js\">assets/js/engine.js</a>, en el repositorio del Planejador WiFi en GitHub.</li></ul>"
+      }
+    ]
+  },
+  "about": {
+    "title": "Acerca del proyecto | Planejador WiFi",
+    "description": "Qué es Planejador WiFi, para quién está hecho, cómo funciona por dentro y cómo reportar un error o sugerir una mejora.",
+    "h1": "Acerca de Planejador WiFi",
+    "short": "Acerca de",
+    "lead": "<p>Planejador WiFi es una calculadora de cobertura Wi-Fi para casas y departamentos. La idea es simple: probar en el plano, antes de comprar, dónde poner el router y cuántos nodos mesh necesita tu casa.</p>",
+    "related": "Ver también",
+    "sections": [
+      {
+        "id": "para-quien",
+        "h": "Para quién es",
+        "html": "<p>Para quien va a comprar un router o un kit mesh y quiere acertar a la primera. No hace falta saber qué es dBm ni backhaul: el mapa muestra la cobertura en colores, y los detalles técnicos están a mano para quien los quiera.</p><p>Quien sabe de redes puede ajustar materiales, bandas y modelos de router. Los instaladores pueden hacer una estimación rápida para un cliente y enviarle el proyecto exportado.</p><p>Para oficinas grandes, bodegas o redes con muchos puntos de acceso, lo correcto es una medición en el lugar con equipo especializado.</p>"
+      },
+      {
+        "id": "como-funciona",
+        "h": "Cómo funciona por dentro",
+        "html": "<p>Todo el cálculo se hace en tu navegador. No hay registro, y el proyecto no se envía a ningún servidor: queda guardado en el propio navegador, como explica la <a href=\"{href.privacy}\">política de privacidad</a>.</p><p>La estimación sale de un modelo de propagación que suma la pérdida por distancia y por cada pared en el camino; la <a href=\"{href.methodology}\">metodología</a> muestra la fórmula y los valores. Los números que citan las guías salen del mismo código que dibuja el mapa, así que las guías y el simulador no se contradicen.</p>"
+      },
+      {
+        "id": "marcas",
+        "h": "Marcas y modelos",
+        "html": "<p>Planejador WiFi no vende equipos. Los modelos de router que ya vienen cargados, de varias marcas, sirven como punto de partida para comparar, y puedes agregar tu propio modelo si no está en la lista.</p>"
+      },
+      {
+        "id": "codigo-abierto",
+        "h": "Código abierto",
+        "html": "<p>El código está en <a href=\"https://github.com/onlyosp/planejadorwifi.com\">GitHub</a> bajo la licencia MIT: cualquiera puede leerlo, copiarlo y adaptarlo. El sitio está en portugués, inglés y español, y cada idioma tiene sus propias direcciones.</p>"
+      },
+      {
+        "id": "contacto",
+        "h": "Errores, sugerencias y contacto",
+        "html": "<p>¿Ves un resultado raro, un error o una mala traducción? Abre un <a href=\"https://github.com/onlyosp/planejadorwifi.com/issues\">issue en GitHub</a> o escribe a <a href=\"mailto:contato@planejadorwifi.com\">contato@planejadorwifi.com</a>. Las mediciones hechas en casas reales ayudan a calibrar el modelo, y las contribuciones de código son bienvenidas: la <a href=\"https://github.com/onlyosp/planejadorwifi.com/blob/main/CONTRIBUTING.md\">guía de contribución</a> explica cómo.</p><p>Las fallas de seguridad no deben ir en un issue público: usa el reporte privado de vulnerabilidades de GitHub, en la pestaña Security del repositorio.</p>"
       }
     ]
   }

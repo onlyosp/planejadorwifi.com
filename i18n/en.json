@@ -14,7 +14,8 @@
     "guide-walls": "/en/guides/how-much-walls-block-wifi",
     "guide-dbm": "/en/guides/wifi-signal-strength-dbm",
     "guide-bands": "/en/guides/2-4-vs-5-vs-6-ghz",
-    "methodology": "/en/methodology"
+    "methodology": "/en/methodology",
+    "about": "/en/about"
   },
   "meta": {
     "title": "Wi-Fi Mesh Planner on Your Floor Plan | Planejador WiFi",
@@ -996,6 +997,41 @@
         "id": "references",
         "h": "References",
         "html": "<ul><li>ITU-R. <a href=\"https://www.itu.int/rec/R-REC-P.1238\">Recommendation P.1238</a>: Propagation data and prediction methods for the planning of indoor radiocommunication systems.</li><li>Stone, W. C. <a href=\"https://doi.org/10.6028/NIST.IR.6055\">Electromagnetic Signal Attenuation in Construction Materials</a>, NISTIR 6055. NIST, 1997.</li><li>Model code: <a href=\"https://github.com/onlyosp/planejadorwifi.com/blob/main/assets/js/engine.js\">assets/js/engine.js</a>, in the Planejador WiFi repository on GitHub.</li></ul>"
+      }
+    ]
+  },
+  "about": {
+    "title": "About the project | Planejador WiFi",
+    "description": "What Planejador WiFi is, who it is for, how it works under the hood, and how to report a bug or suggest an improvement.",
+    "h1": "About Planejador WiFi",
+    "short": "About",
+    "lead": "<p>Planejador WiFi is a Wi-Fi coverage calculator for houses and apartments. The idea is simple: try it on the floor plan before you buy, to see where the router should go and how many mesh nodes your home needs.</p>",
+    "related": "See also",
+    "sections": [
+      {
+        "id": "who-its-for",
+        "h": "Who it is for",
+        "html": "<p>For anyone about to buy a router or a mesh kit who wants to get it right the first time. You don't need to know what dBm or backhaul mean: the map shows coverage in colors, and the technical details are there for anyone who wants them.</p><p>Networking enthusiasts can adjust materials, bands and router models. Installers can put together a quick estimate for a client and send the exported project.</p><p>For large offices, warehouses or networks with many access points, the right approach is an on-site survey with proper equipment.</p>"
+      },
+      {
+        "id": "how-it-works",
+        "h": "How it works under the hood",
+        "html": "<p>All the math runs in your browser. There is no sign-up, and your project never goes to a server: it stays in your browser, as the <a href=\"{href.privacy}\">privacy policy</a> explains.</p><p>The estimate comes from a propagation model that adds up the loss over distance and through each wall in the way; the <a href=\"{href.methodology}\">methodology</a> shows the formula and the values. The numbers quoted in the guides come from the same code that draws the map, so the guides and the planner don't disagree.</p>"
+      },
+      {
+        "id": "brands",
+        "h": "Brands and models",
+        "html": "<p>Planejador WiFi doesn't sell any equipment. The built-in router models, from several brands, are a starting point for comparison, and you can add your own model if it isn't on the list.</p>"
+      },
+      {
+        "id": "open-source",
+        "h": "Open source",
+        "html": "<p>The code is on <a href=\"https://github.com/onlyosp/planejadorwifi.com\">GitHub</a> under the MIT license: anyone can read, copy and adapt it. The site is available in Portuguese, English and Spanish, and each language has its own URLs.</p>"
+      },
+      {
+        "id": "contact",
+        "h": "Bugs, suggestions and contact",
+        "html": "<p>Seeing an odd result, a bug or a bad translation? Open an <a href=\"https://github.com/onlyosp/planejadorwifi.com/issues\">issue on GitHub</a> or email <a href=\"mailto:contato@planejadorwifi.com\">contato@planejadorwifi.com</a>. Measurements from real homes help calibrate the model, and code contributions are welcome: the <a href=\"https://github.com/onlyosp/planejadorwifi.com/blob/main/CONTRIBUTING.md\">contributing guide</a> explains how.</p><p>Please don't report security issues in a public issue: use GitHub's private vulnerability reporting, on the repository's Security tab.</p>"
       }
     ]
   }

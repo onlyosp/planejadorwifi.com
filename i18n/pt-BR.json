@@ -14,7 +14,8 @@
     "guide-walls": "/guias/quanto-parede-bloqueia-wifi",
     "guide-dbm": "/guias/sinal-wifi-dbm",
     "guide-bands": "/guias/2-4-5-ou-6-ghz",
-    "methodology": "/metodologia"
+    "methodology": "/metodologia",
+    "about": "/sobre"
   },
   "meta": {
     "title": "Simulador de Wi-Fi Mesh na Planta da Casa | Planejador WiFi",
@@ -996,6 +997,41 @@
         "id": "referencias",
         "h": "Referências",
         "html": "<ul><li>ITU-R. <a href=\"https://www.itu.int/rec/R-REC-P.1238\">Recomendação P.1238</a>: dados de propagação e métodos de previsão para o planejamento de sistemas de radiocomunicação internos.</li><li>Stone, W. C. <a href=\"https://doi.org/10.6028/NIST.IR.6055\">Electromagnetic Signal Attenuation in Construction Materials</a>, NISTIR 6055. NIST, 1997.</li><li>Código do modelo: <a href=\"https://github.com/onlyosp/planejadorwifi.com/blob/main/assets/js/engine.js\">assets/js/engine.js</a>, no repositório do Planejador WiFi no GitHub.</li></ul>"
+      }
+    ]
+  },
+  "about": {
+    "title": "Sobre o projeto | Planejador WiFi",
+    "description": "O que é o Planejador WiFi, para quem ele foi feito, como funciona por dentro e como relatar um erro ou sugerir uma melhoria.",
+    "h1": "Sobre o Planejador WiFi",
+    "short": "Sobre",
+    "lead": "<p>O Planejador WiFi é uma calculadora de cobertura Wi-Fi para casas e apartamentos. A ideia é simples: testar no desenho, antes de comprar, onde colocar o roteador e quantos nós mesh a casa precisa.</p>",
+    "related": "Veja também",
+    "sections": [
+      {
+        "id": "para-quem",
+        "h": "Para quem é",
+        "html": "<p>Para quem vai comprar um roteador ou um kit mesh e quer acertar na primeira vez. Não é preciso saber o que é dBm ou backhaul: o mapa mostra a cobertura em cores, e os detalhes técnicos ficam à mão para quem quiser.</p><p>Quem entende de redes pode ajustar materiais, faixas e modelos de roteador. Instaladores podem fazer uma estimativa rápida para um cliente e enviar o projeto exportado.</p><p>Para escritórios grandes, galpões ou redes com muitos pontos de acesso, o caminho certo é uma medição no local com equipamento próprio.</p>"
+      },
+      {
+        "id": "como-funciona",
+        "h": "Como funciona por dentro",
+        "html": "<p>O cálculo roda inteiro no seu navegador. Não há cadastro, e o projeto não vai para nenhum servidor: fica guardado no próprio navegador, como explica a <a href=\"{href.privacy}\">política de privacidade</a>.</p><p>A estimativa vem de um modelo de propagação que soma a perda pela distância e por cada parede no caminho; a <a href=\"{href.methodology}\">metodologia</a> mostra a fórmula e os valores. Os números citados nos guias saem do mesmo código que desenha o mapa, então guia e simulador não se contradizem.</p>"
+      },
+      {
+        "id": "marcas",
+        "h": "Marcas e modelos",
+        "html": "<p>O Planejador WiFi não vende equipamentos. Os modelos de roteador que já vêm cadastrados, de várias marcas, servem de ponto de partida para comparar, e você pode cadastrar o seu próprio modelo se ele não estiver na lista.</p>"
+      },
+      {
+        "id": "codigo-aberto",
+        "h": "Código aberto",
+        "html": "<p>O código está no <a href=\"https://github.com/onlyosp/planejadorwifi.com\">GitHub</a> sob a licença MIT: qualquer pessoa pode ler, copiar e adaptar. O site existe em português, inglês e espanhol, e cada idioma tem seus próprios endereços.</p>"
+      },
+      {
+        "id": "contato",
+        "h": "Erros, sugestões e contato",
+        "html": "<p>Achou um resultado estranho, um erro ou uma tradução ruim? Abra uma <a href=\"https://github.com/onlyosp/planejadorwifi.com/issues\">issue no GitHub</a> ou escreva para <a href=\"mailto:contato@planejadorwifi.com\">contato@planejadorwifi.com</a>. Medições feitas em casas de verdade ajudam a calibrar o modelo, e contribuições de código são bem-vindas: o <a href=\"https://github.com/onlyosp/planejadorwifi.com/blob/main/CONTRIBUTING.md\">guia de contribuição</a> explica como.</p><p>Falhas de segurança não devem ir para uma issue pública: use o relato privado de vulnerabilidade do GitHub, na aba Security do repositório.</p>"
       }
     ]
   }
