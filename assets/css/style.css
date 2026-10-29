@@ -313,6 +313,10 @@ a.btn.primary:hover { border-color: var(--accent); filter: brightness(1.08) }
 .guide-list a { color: var(--ink); text-decoration: none }
 .guide-list a:hover { color: var(--accent); text-decoration: underline }
 .guide-list p { color: var(--muted) }
+.guide .home-guides { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px }
+.guide .home-guides li { max-width: none }
+.home-guides a { display: block; height: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); font-weight: 500; text-decoration: none }
+.home-guides a:hover { border-color: var(--accent); color: var(--accent) }
 
 .site-foot { margin-top: 56px; padding-block: 20px 32px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13.5px; color: var(--muted) }
 .site-foot a, .site-foot .linkbtn { color: var(--muted) }

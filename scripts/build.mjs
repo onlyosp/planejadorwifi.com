@@ -349,6 +349,10 @@ function specials(dicts, lang, page, dateOf, examples) {
     home: d.paths.index,
     guides: d.paths.guides,
     privacy: d.paths.privacy,
+    methodology: d.paths.methodology,
+    about: d.paths.about,
+    homeGuides: `<ul class="home-guides">${GUIDES.map(g => `<li><a href="${esc(d.paths[guidePage(g.id)])}">${esc(d.guides.items[g.id].h1)}</a></li>`).join('')}</ul>`
+      + `<p><a href="${esc(d.paths.guides)}">${esc(d.guides.all)}</a> · <a href="${esc(d.paths.methodology)}">${esc(d.guides.methodology)}</a></p>`,
     canonical: SITE + (d.paths[page] || d.paths.index),
     hreflang,
     langOptions,

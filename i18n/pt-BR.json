@@ -35,7 +35,8 @@
     "language": "Idioma",
     "skip": "Ir para o simulador",
     "toTop": "Voltar ao simulador",
-    "menu": "Menu"
+    "menu": "Menu",
+    "guides": "Guias"
   },
   "intro": {
     "h1": "Simulador de Wi-Fi mesh na planta da sua casa",
@@ -154,7 +155,9 @@
       "Navegação e mensagens funcionam; vídeo pode oscilar.",
       "Lento e instável.",
       "A conexão cai com frequência."
-    ]
+    ],
+    "guidesTitle": "Guias para planejar o Wi-Fi",
+    "guidesText": "Respostas mais longas para as dúvidas de quem vai comprar ou mudar a rede, cada uma com um exemplo que abre direto no simulador."
   },
   "faq": [
     {
