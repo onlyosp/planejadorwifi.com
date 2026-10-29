@@ -9,7 +9,8 @@
     "notFound": "/404.html",
     "guides": "/guias/",
     "guide-router": "/guias/onde-colocar-roteador",
-    "guide-nodes": "/guias/quantos-nos-mesh-preciso"
+    "guide-nodes": "/guias/quantos-nos-mesh-preciso",
+    "guide-mesh": "/guias/mesh-repetidor-ou-cabo"
   },
   "meta": {
     "title": "Simulador de Wi-Fi Mesh na Planta da Casa | Planejador WiFi",
@@ -699,6 +700,63 @@
         "cta": {
           "title": "Conte os nós na sua planta",
           "text": "Desenhe a casa, coloque o primeiro nó onde fica o modem e use Sugerir posição para ver onde o próximo rende mais e quanto da casa ele cobre."
+        }
+      },
+      "mesh": {
+        "title": "Mesh, repetidor ou cabo: qual é melhor para o Wi-Fi? | Planejador WiFi",
+        "description": "Quando usar cabo de rede, sistema mesh ou repetidor de sinal, o que é backhaul e qual ligação entre os aparelhos mantém a velocidade, com números do modelo do simulador.",
+        "h1": "Mesh, repetidor ou cabo: qual é melhor?",
+        "short": "Mesh, repetidor ou cabo",
+        "answer": "<p>Se dá para passar cabo de rede, use cabo: um segundo roteador ou nó mesh ligado por cabo entrega a velocidade inteira e pode ficar em qualquer lugar da casa. Sem cabo, o sistema mesh é a escolha mais simples e estável para casas com mais de um cômodo fraco.</p><p>O repetidor comum é o mais barato e o mais limitado. Muitos criam uma rede com outro nome, e os de um rádio só repetem pelo mesmo canal em que recebem, o que corta a velocidade pela metade. Resolve um cômodo, não a casa.</p><p>Em qualquer solução sem fio, quem manda é a ligação entre os aparelhos, o backhaul: mire em {link.1} dBm ou melhor. Abaixo disso, tudo o que está ligado ao aparelho distante fica lento.</p>",
+        "sections": [
+          {
+            "id": "diferenca",
+            "q": "Qual a diferença entre mesh e repetidor?",
+            "html": "<p>Um sistema mesh é um conjunto de aparelhos da mesma marca que funcionam como uma rede só: mesmo nome, mesma senha, um aplicativo para tudo. Os nós combinam entre si por onde passa o tráfego e empurram o celular para o nó mais próximo quando você anda pela casa.</p><p>O repetidor é um aparelho avulso que pega o sinal do roteador e o retransmite. Ele não conversa com o roteador sobre quem atende cada aparelho, então o celular costuma ficar preso ao ponto mais fraco até a conexão cair. Funciona, mas pede mais paciência.</p>"
+          },
+          {
+            "id": "backhaul",
+            "q": "O que é backhaul e por que ele importa?",
+            "html": "<p>Backhaul é a ligação entre o nó e o roteador principal (ou outro nó). Todo o tráfego dos aparelhos ligados a um nó passa por ela, então a velocidade de um nó nunca é maior que a do seu backhaul.</p><ul><li><b>{link.0} dBm ou melhor:</b> ligação ótima.</li><li><b>Entre {link.0} e {link.1} dBm:</b> boa o bastante para a maioria das casas.</li><li><b>Abaixo de {link.1} dBm:</b> fraca; ligue esse nó por cabo ou aproxime-o.</li></ul><p>Pelo modelo, uma ligação em 5 GHz fica em {link.1} dBm ou melhor até cerca de {linkrange.b5.tijolo} m através de uma parede de alvenaria e {linkrange.b5.tijolo.2} m através de duas. Por isso o nó satélite rende mais a meio caminho entre o roteador e a área fraca do que dentro dela.</p><p>Nos kits tri-band, um dos rádios fica só para o backhaul, e os aparelhos não disputam a ligação entre os nós. Quando os dois lados têm 6 GHz, o simulador usa a faixa que der a ligação mais forte.</p>"
+          },
+          {
+            "id": "cabo",
+            "q": "Quando vale a pena passar cabo?",
+            "html": "<p>Sempre que houver como: por conduíte vazio, pelo forro ou rente ao rodapé. Com backhaul por cabo, o nó entrega a velocidade toda, não importa quantas paredes ou lajes há no caminho, e pode ir para o meio da área fraca em vez de ficar a meio caminho.</p><p>Cabo Cat 5e ou Cat 6 basta para internet de casa. A maioria dos kits mesh aceita cabo entre os nós sem configuração: basta ligar a porta de rede de um à do outro. Quando não dá para passar cabo, adaptadores de rede pela tomada (powerline) são uma alternativa, mas a velocidade varia muito com a fiação da casa.</p>"
+          },
+          {
+            "id": "repetidor",
+            "q": "Quando um repetidor resolve?",
+            "html": "<p>Quando o problema é um cômodo só, perto da área que já tem sinal bom, e o orçamento é curto. Coloque o repetidor onde o sinal do roteador ainda chega bom, não dentro do cômodo sem sinal: ele só repete o que recebe.</p><p>Prefira modelos dual-band que recebem numa faixa e transmitem na outra, ou que tenham porta de rede para virar ponto de acesso por cabo depois. Evite encadear repetidores: cada salto sem fio perde velocidade de novo.</p>"
+          },
+          {
+            "id": "roteador-antigo",
+            "q": "Dá para usar um roteador antigo como ponto de acesso?",
+            "html": "<p>Dá, se ele for ligado por cabo ao roteador principal. Configure-o no modo ponto de acesso (AP), com o mesmo nome de rede e a mesma senha, e desligue o servidor DHCP dele. Funciona bem para levar sinal a uma edícula ou a um andar de cima.</p><p>A diferença para o mesh é a troca de ponto: sem coordenação entre os aparelhos, o celular decide sozinho quando trocar e às vezes demora. Para quem fica parado num cômodo, isso quase não aparece.</p>"
+          },
+          {
+            "id": "comparar",
+            "q": "Como comparar as opções na minha casa?",
+            "html": "<p>Desenhe a planta, coloque o roteador onde fica o modem e um nó na área fraca. O painel mostra a ligação entre os nós em dBm. Depois marque o nó como <b>Ligado por cabo de rede</b> e veja quanto o mapa melhora quando ele pode ir mais longe. Se a ligação sem fio ficar fraca em qualquer ponto útil, o simulador avisa que esse nó precisa de cabo.</p>"
+          }
+        ],
+        "faq": [
+          {
+            "q": "O mesh deixa a internet mais rápida?",
+            "a": "Não aumenta a velocidade contratada. Ele leva sinal bom a mais cômodos; onde o sinal já era bom, nada muda."
+          },
+          {
+            "q": "Posso ligar os nós mesh por cabo?",
+            "a": "Pode, e é o melhor dos dois mundos: o sistema continua com um nome de rede e troca de ponto automática, e cada nó ligado por cabo entrega a velocidade toda."
+          },
+          {
+            "q": "Posso usar repetidor junto com mesh?",
+            "a": "É melhor evitar. O repetidor cria um salto a mais que o mesh não controla, e os aparelhos ligados a ele perdem a troca automática de ponto. Um nó mesh a mais resolve o mesmo cômodo sem esses problemas."
+          }
+        ],
+        "cta": {
+          "title": "Veja a ligação entre os nós",
+          "text": "Coloque o roteador e um nó na sua planta e confira a ligação em dBm. Marque o nó como ligado por cabo para comparar as duas opções."
         }
       }
     },

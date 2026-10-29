@@ -36,6 +36,7 @@ const DEFAULT_LANG = 'pt-BR';
 const GUIDES = [
   { id: 'router', published: '2026-10-29', related: ['nodes', 'walls', 'mesh'] },
   { id: 'nodes', published: '2026-10-29', related: ['router', 'mesh', 'walls'] },
+  { id: 'mesh', published: '2026-10-29', related: ['nodes', 'bands', 'router'] },
 ];
 const guidePage = id => `guide-${id}`;
 const guideOf = page => GUIDES.find(g => guidePage(g.id) === page);

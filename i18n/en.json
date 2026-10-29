@@ -9,7 +9,8 @@
     "notFound": "/en/404.html",
     "guides": "/en/guides/",
     "guide-router": "/en/guides/where-to-put-wifi-router",
-    "guide-nodes": "/en/guides/how-many-mesh-nodes-do-i-need"
+    "guide-nodes": "/en/guides/how-many-mesh-nodes-do-i-need",
+    "guide-mesh": "/en/guides/mesh-vs-extender-vs-ethernet"
   },
   "meta": {
     "title": "Wi-Fi Mesh Planner on Your Floor Plan | Planejador WiFi",
@@ -699,6 +700,63 @@
         "cta": {
           "title": "Count the nodes on your floor plan",
           "text": "Draw your home, place the first node where the modem is and use Suggest a spot to see where the next one helps most and how much of the house it covers."
+        }
+      },
+      "mesh": {
+        "title": "Mesh vs Extender vs Ethernet: Which Is Best for Wi-Fi? | Planejador WiFi",
+        "description": "When to use a network cable, a mesh system or a Wi-Fi extender, what backhaul is and which link between devices keeps your speed, with numbers from the planner’s model.",
+        "h1": "Mesh, extender or Ethernet cable: which is best?",
+        "short": "Mesh, extender or cable",
+        "answer": "<p>If you can run a network cable, use it: a second router or mesh node connected by cable delivers the full speed and can go anywhere in the house. Without a cable, a mesh system is the simplest and most stable choice for a home with more than one weak room.</p><p>A plain Wi-Fi extender is the cheapest and the most limited. Many create a network with a different name, and single-radio models repeat on the same channel they receive on, which cuts the speed in half. It fixes one room, not the house.</p><p>With any wireless option, the link between the devices, the backhaul, is what matters: aim for {link.1} dBm or better. Below that, everything connected to the far device slows down.</p>",
+        "sections": [
+          {
+            "id": "difference",
+            "q": "What is the difference between mesh and an extender?",
+            "html": "<p>A mesh system is a set of devices from one brand that act as a single network: one name, one password, one app for everything. The nodes agree among themselves on how traffic flows and nudge your phone to the nearest node as you walk around the house.</p><p>An extender is a standalone device that picks up the router’s signal and sends it out again. It does not talk to the router about who serves each device, so your phone tends to stay stuck on the weaker point until the connection drops. It works, but it takes more patience.</p>"
+          },
+          {
+            "id": "backhaul",
+            "q": "What is backhaul and why does it matter?",
+            "html": "<p>Backhaul is the link between a node and the main router (or another node). All the traffic of the devices connected to a node goes through it, so a node is never faster than its backhaul.</p><ul><li><b>{link.0} dBm or better:</b> a great link.</li><li><b>Between {link.0} and {link.1} dBm:</b> good enough for most homes.</li><li><b>Below {link.1} dBm:</b> weak; connect that node with a cable or move it closer.</li></ul><p>In the model, a 5 GHz link stays at {link.1} dBm or better up to about {linkrange.b5.tijolo} m through one brick wall and {linkrange.b5.tijolo.2} m through two. That is why a satellite node does better halfway between the router and the weak area than inside it.</p><p>In tri-band kits, one radio is kept for the backhaul alone, so your devices do not compete with the link between nodes. When both ends have 6 GHz, the planner uses whichever band gives the stronger link.</p>"
+          },
+          {
+            "id": "ethernet",
+            "q": "When is running a cable worth it?",
+            "html": "<p>Whenever there is a way: through an empty conduit, the ceiling or along the baseboard. With wired backhaul, a node delivers the full speed no matter how many walls or floors are in the way, and it can sit in the middle of the weak area instead of halfway there.</p><p>Cat 5e or Cat 6 cable is plenty for home internet. Most mesh kits accept a cable between nodes with no setup: just connect the network port of one to the other. When a cable is out of the question, powerline adapters are an alternative, but their speed varies a lot with the home’s wiring.</p>"
+          },
+          {
+            "id": "extender",
+            "q": "When does an extender do the job?",
+            "html": "<p>When the problem is a single room close to an area that already has good signal, and the budget is tight. Place the extender where the router’s signal still arrives strong, not inside the dead room: it can only repeat what it receives.</p><p>Prefer dual-band models that receive on one band and transmit on the other, or ones with a network port so they can become a wired access point later. Avoid chaining extenders: every wireless hop loses speed again.</p>"
+          },
+          {
+            "id": "old-router",
+            "q": "Can I use an old router as an access point?",
+            "html": "<p>Yes, if it is connected to the main router with a cable. Set it to access point (AP) mode, with the same network name and password, and turn off its DHCP server. It works well to bring signal to a back room, a garage apartment or an upper floor.</p><p>The difference from mesh is roaming: with no coordination between the devices, your phone decides on its own when to switch, and sometimes it takes a while. If you stay put in one room, you will hardly notice.</p>"
+          },
+          {
+            "id": "compare",
+            "q": "How do I compare the options in my home?",
+            "html": "<p>Draw the floor plan, place the router where the modem is and a node in the weak area. The panel shows the link between the nodes in dBm. Then mark the node as <b>Connected by network cable</b> and see how much the map improves when it can go farther. If the wireless link is weak at every useful spot, the planner tells you that node needs a cable.</p>"
+          }
+        ],
+        "faq": [
+          {
+            "q": "Does mesh make my internet faster?",
+            "a": "It does not raise the speed of your plan. It brings good signal to more rooms; where the signal was already good, nothing changes."
+          },
+          {
+            "q": "Can I connect mesh nodes with a cable?",
+            "a": "Yes, and it is the best of both worlds: the system keeps one network name and automatic roaming, and every wired node delivers the full speed."
+          },
+          {
+            "q": "Can I use an extender together with mesh?",
+            "a": "Better not. The extender adds a hop the mesh does not control, and devices connected to it lose automatic roaming. One more mesh node covers the same room without those problems."
+          }
+        ],
+        "cta": {
+          "title": "Check the link between nodes",
+          "text": "Place the router and a node on your floor plan and check the link in dBm. Mark the node as wired to compare both options."
         }
       }
     },

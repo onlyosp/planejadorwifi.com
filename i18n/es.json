@@ -9,7 +9,8 @@
     "notFound": "/es/404.html",
     "guides": "/es/guias/",
     "guide-router": "/es/guias/donde-poner-el-router-wifi",
-    "guide-nodes": "/es/guias/cuantos-nodos-mesh-necesito"
+    "guide-nodes": "/es/guias/cuantos-nodos-mesh-necesito",
+    "guide-mesh": "/es/guias/mesh-repetidor-o-cable"
   },
   "meta": {
     "title": "Simulador de Wi-Fi Mesh en el Plano de tu Casa | Planejador WiFi",
@@ -699,6 +700,63 @@
         "cta": {
           "title": "Cuenta los nodos en tu plano",
           "text": "Dibuja tu casa, pon el primer nodo donde está el módem y usa Sugerir posición para ver dónde rinde más el siguiente y cuánto de la casa cubre."
+        }
+      },
+      "mesh": {
+        "title": "Mesh, repetidor o cable: ¿qué es mejor para el Wi-Fi? | Planejador WiFi",
+        "description": "Cuándo usar cable de red, un sistema mesh o un repetidor de señal, qué es el backhaul y qué enlace entre equipos mantiene la velocidad, con números del modelo del simulador.",
+        "h1": "Mesh, repetidor o cable: ¿qué es mejor?",
+        "short": "Mesh, repetidor o cable",
+        "answer": "<p>Si puedes pasar un cable de red, usa cable: un segundo router o nodo mesh conectado por cable entrega toda la velocidad y puede ir a cualquier parte de la casa. Sin cable, un sistema mesh es la opción más simple y estable para casas con más de una habitación débil.</p><p>El repetidor común es el más barato y el más limitado. Muchos crean una red con otro nombre, y los de una sola radio repiten por el mismo canal en el que reciben, lo que reduce la velocidad a la mitad. Resuelve una habitación, no la casa.</p><p>En cualquier opción inalámbrica, lo que manda es el enlace entre los equipos, el backhaul: apunta a {link.1} dBm o mejor. Por debajo de eso, todo lo conectado al equipo lejano va lento.</p>",
+        "sections": [
+          {
+            "id": "diferencia",
+            "q": "¿Qué diferencia hay entre mesh y repetidor?",
+            "html": "<p>Un sistema mesh es un conjunto de equipos de la misma marca que funcionan como una sola red: un nombre, una contraseña, una app para todo. Los nodos acuerdan entre sí por dónde pasa el tráfico y llevan el celular al nodo más cercano cuando caminas por la casa.</p><p>El repetidor es un equipo suelto que toma la señal del router y la retransmite. No coordina con el router quién atiende a cada dispositivo, así que el celular suele quedarse pegado al punto más débil hasta que se corta. Funciona, pero pide más paciencia.</p>"
+          },
+          {
+            "id": "backhaul",
+            "q": "¿Qué es el backhaul y por qué importa?",
+            "html": "<p>El backhaul es el enlace entre un nodo y el router principal (u otro nodo). Todo el tráfico de los dispositivos conectados a un nodo pasa por él, así que un nodo nunca es más rápido que su backhaul.</p><ul><li><b>{link.0} dBm o mejor:</b> enlace excelente.</li><li><b>Entre {link.0} y {link.1} dBm:</b> suficiente para la mayoría de las casas.</li><li><b>Por debajo de {link.1} dBm:</b> débil; conecta ese nodo por cable o acércalo.</li></ul><p>Según el modelo, un enlace en 5 GHz se mantiene en {link.1} dBm o mejor hasta unos {linkrange.b5.tijolo} m a través de una pared de ladrillo y {linkrange.b5.tijolo.2} m a través de dos. Por eso el nodo satélite rinde más a mitad de camino entre el router y la zona débil que dentro de ella.</p><p>En los kits tribanda, una de las radios queda solo para el backhaul, y los dispositivos no compiten con el enlace entre nodos. Cuando los dos extremos tienen 6 GHz, el simulador usa la banda que dé el enlace más fuerte.</p>"
+          },
+          {
+            "id": "cable",
+            "q": "¿Cuándo conviene pasar cable?",
+            "html": "<p>Siempre que haya forma: por un ducto vacío, por el cielorraso o junto al zócalo. Con backhaul por cable, el nodo entrega toda la velocidad sin importar cuántas paredes o losas haya en el camino, y puede ir al centro de la zona débil en lugar de quedarse a mitad de camino.</p><p>Un cable Cat 5e o Cat 6 alcanza para el internet de casa. La mayoría de los kits mesh aceptan cable entre nodos sin configurar nada: basta con unir el puerto de red de uno con el del otro. Cuando no se puede pasar cable, los adaptadores de red por el enchufe (PLC o powerline) son una alternativa, pero su velocidad varía mucho con la instalación eléctrica.</p>"
+          },
+          {
+            "id": "repetidor",
+            "q": "¿Cuándo sirve un repetidor?",
+            "html": "<p>Cuando el problema es una sola habitación, cerca de una zona que ya tiene buena señal, y el presupuesto es corto. Pon el repetidor donde la señal del router todavía llega bien, no dentro de la habitación sin señal: solo repite lo que recibe.</p><p>Prefiere modelos de doble banda que reciben por una y transmiten por la otra, o que tengan puerto de red para usarlos como punto de acceso por cable más adelante. Evita encadenar repetidores: cada salto inalámbrico vuelve a perder velocidad.</p>"
+          },
+          {
+            "id": "router-viejo",
+            "q": "¿Puedo usar un router viejo como punto de acceso?",
+            "html": "<p>Sí, si está conectado por cable al router principal. Configúralo en modo punto de acceso (AP), con el mismo nombre de red y la misma contraseña, y desactiva su servidor DHCP. Funciona bien para llevar señal a un cuarto del fondo o a una planta alta.</p><p>La diferencia con el mesh es el cambio de punto: sin coordinación entre equipos, el celular decide solo cuándo cambiar y a veces tarda. Si te quedas quieto en una habitación, casi no se nota.</p>"
+          },
+          {
+            "id": "comparar",
+            "q": "¿Cómo comparo las opciones en mi casa?",
+            "html": "<p>Dibuja el plano, pon el router donde está el módem y un nodo en la zona débil. El panel muestra el enlace entre los nodos en dBm. Después marca el nodo como <b>Conectado por cable de red</b> y mira cuánto mejora el mapa cuando puede ir más lejos. Si el enlace inalámbrico queda débil en cualquier punto útil, el simulador avisa que ese nodo necesita cable.</p>"
+          }
+        ],
+        "faq": [
+          {
+            "q": "¿El mesh hace más rápido el internet?",
+            "a": "No aumenta la velocidad contratada. Lleva buena señal a más habitaciones; donde la señal ya era buena, nada cambia."
+          },
+          {
+            "q": "¿Puedo conectar los nodos mesh por cable?",
+            "a": "Sí, y es lo mejor de los dos mundos: el sistema mantiene un solo nombre de red y el cambio automático de punto, y cada nodo con cable entrega toda la velocidad."
+          },
+          {
+            "q": "¿Puedo usar un repetidor junto con un mesh?",
+            "a": "Mejor evitarlo. El repetidor suma un salto que el mesh no controla, y los dispositivos conectados a él pierden el cambio automático de punto. Un nodo mesh más resuelve la misma habitación sin esos problemas."
+          }
+        ],
+        "cta": {
+          "title": "Mira el enlace entre los nodos",
+          "text": "Pon el router y un nodo en tu plano y revisa el enlace en dBm. Marca el nodo como conectado por cable para comparar las dos opciones."
         }
       }
     },
