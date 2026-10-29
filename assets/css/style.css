@@ -295,6 +295,7 @@ td:has(> .sw) { white-space: nowrap }
 .crumbs a:hover { color: var(--ink); text-decoration: underline }
 .guide .dateline { font-size: 14px; color: var(--muted); margin-top: -6px }
 .guide .answer { font-size: 18px; line-height: 1.6 }
+.guide .formula { font-family: var(--font-mono); font-size: 14.5px; line-height: 1.6; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; max-width: none }
 .cta { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; margin-top: 6px }
 .guide .cta h2 { font-size: 20px; margin: 0 }
 .cta p { font-size: 15.5px }

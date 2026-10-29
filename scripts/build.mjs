@@ -22,8 +22,9 @@ import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFi
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
-import { MATERIALS, SLAB, SIGNAL_LEVELS, N_EXP, GOOD, BANDS, BUILTIN_MODELS } from '../assets/js/engine.js';
+import { MATERIALS, SLAB, SIGNAL_LEVELS, LINK_LEVELS, N_EXP, GOOD, BANDS, BAND_KEYS, BUILTIN_MODELS, FLOOR_H, COVER_CELL, SUGGEST } from '../assets/js/engine.js';
 import { createDates } from './lastmod.mjs';
+import { HOMES, TARGET, ROOM, DOOR, coverage } from './scenarios.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const SITE = (process.env.SITE_URL || 'https://planejadorwifi.com').replace(/\/$/, '');
@@ -33,22 +34,26 @@ const DEFAULT_LANG = 'pt-BR';
 // guides.items.<id> and its public path under paths["guide-<id>"]. `published` is the date it first
 // went online; the modified date comes from git. `related` lists other guide ids, in order.
 const GUIDES = [
-  { id: 'router', published: '2026-10-29', related: [] },
+  { id: 'router', published: '2026-10-29', related: ['nodes', 'walls', 'mesh'] },
 ];
 const guidePage = id => `guide-${id}`;
 const guideOf = page => GUIDES.find(g => guidePage(g.id) === page);
+// Reference pages (src/doc.html): texts under the page key in every language file.
+const DOCS = {};
 
 const PAGES = {
   index: 'src/index.html', guides: 'src/guides.html',
   ...Object.fromEntries(GUIDES.map(g => [guidePage(g.id), 'src/guide.html'])),
+  ...Object.fromEntries(Object.keys(DOCS).map(id => [id, 'src/doc.html'])),
   privacy: 'src/privacy.html', notFound: 'src/404.html',
 };
-export const INDEXED = ['index', 'guides', ...GUIDES.map(g => guidePage(g.id)), 'privacy'];
+export const INDEXED = ['index', 'guides', ...GUIDES.map(g => guidePage(g.id)), ...Object.keys(DOCS), 'privacy'];
 // What each page's content is made of, for its last-modified date: its template plus its own
 // part of the language file (see scripts/lastmod.mjs).
 function sources(page) {
   const g = guideOf(page);
   if (g) return { files: ['src/guide.html'], keys: [`guides.items.${g.id}`] };
+  if (DOCS[page]) return { files: ['src/doc.html'], keys: [page] };
   return {
     index: { files: ['src/index.html'], keys: ['meta', 'intro', 'guide', 'faq'] },
     guides: { files: ['src/guides.html'], keys: ['guides.index'] },
@@ -114,7 +119,19 @@ var to={en:'/en/',es:'/es/'}[p];if(to)location.replace(to+location.search+locati
  *   {range.b5}             distance in meters where the signal stays good, with nothing in the way
  *   {range.b5.tijolo.2}    the same through two walls of that material
  *   {factor.b5.tijolo}     how many times one wall of that material shortens that distance
- *   {table.materials}      the attenuation table; {table.signal} the signal levels table */
+ *   {linkrange.b5.tijolo}  like range, for a node-to-node link that stays at {link.1} or better
+ *   {ratio.1.3}            how many times more power signal level 1 has than level 3
+ *   {mw.b5}                transmit power of the band in milliwatts
+ *   {grid} {suggest.cell} {suggest.wallGap} {suggest.floor}  coverage grid and suggest() settings
+ *   {room} {door}          room width and door width of the example homes, in meters
+ *   {href.dbm}             public path of a guide (by id) or of a page (methodology)
+ *   {link.0}               lower bound of backhaul quality 0 (great) or 1 (ok), in dBm
+ *   {mhz.b5} {pl0.b5} {tx.b5}  reference frequency, loss at 1 m and transmit power of a band
+ *   {floorh}               floor-to-floor height, in meters
+ *   {cover.h120.2}         share of an example home with good signal using 2 nodes (scripts/scenarios.mjs);
+ *                          {cover.twoStory.1.1} the same for one floor (0 = ground)
+ *   {need.h120}            nodes the example home needs; {area.h120} its area in m²; {target} the goal
+ *   {table.materials} {table.signal} {table.nodes} {table.bands}  generated tables */
 const BAND_TOKENS = { b24: '2.4', b5: '5', b6: '6' };
 const lossOf = mat => (mat === 'slab' ? SLAB : MATERIALS[mat]?.db);
 
@@ -123,22 +140,47 @@ function modelValue(token, d) {
   const num = (v, digits = 0) => new Intl.NumberFormat(d.locale, { maximumFractionDigits: digits }).format(v).replace('-', '\u2212');
   const band = k => { const b = BANDS[BAND_TOKENS[k]]; if (!b) throw new Error(`Unknown band in {${token}}`); return b; };
   const loss = (mat, b) => { const l = lossOf(mat); if (!l) throw new Error(`Unknown material in {${token}}`); return l[b.i]; };
+  const pct = v => coverPct(v, d);
+  const home = id => { if (!HOMES[id]) throw new Error(`Unknown example home in {${token}}`); return coverage(id); };
   if (kind === 'db') return num(loss(a[0], band(a[1])));
   if (kind === 'level' && SIGNAL_LEVELS[+a[0]] !== undefined) return num(SIGNAL_LEVELS[+a[0]]);
   if (kind === 'n') return num(N_EXP, 1);
-  if (kind === 'range') {
+  if (kind === 'range' || kind === 'linkrange') {
     const b = band(a[0]), walls = a[1] ? loss(a[1], b) * (a[2] ? +a[2] : 1) : 0;
-    const m = 10 ** ((b.tx - b.pl0 - walls - GOOD) / (10 * N_EXP));
+    const m = 10 ** ((b.tx - b.pl0 - walls - (kind === 'range' ? GOOD : LINK_LEVELS[1])) / (10 * N_EXP));
     return num(m, m < 10 ? 1 : 0);
   }
+  if (kind === 'ratio' && SIGNAL_LEVELS[+a[0]] !== undefined && SIGNAL_LEVELS[+a[1]] !== undefined) return num(10 ** ((SIGNAL_LEVELS[+a[0]] - SIGNAL_LEVELS[+a[1]]) / 10));
+  if (kind === 'mw') return num(Math.round(10 ** (band(a[0]).tx / 10) / 10) * 10);
+  if (kind === 'grid') return num(COVER_CELL, 2);
+  if (kind === 'suggest' && SUGGEST[a[0]] !== undefined) return num(SUGGEST[a[0]], 1);
+  if (kind === 'room') return num(ROOM, 1);
+  if (kind === 'door') return num(DOOR, 1);
+  if (kind === 'size') { const h = HOMES[a[0]]; if (!h) throw new Error(`Unknown example home in {${token}}`); return `${num(h.w, 1)} × ${num(h.h, 1)} m`; }
+  if (kind === 'href') { const p = d.paths[guidePage(a[0])] || d.paths[a[0]]; if (!p) throw new Error(`Unknown page in {${token}}`); return p; }
   if (kind === 'factor') { const b = band(a[0]); return num(10 ** (loss(a[1], b) / (10 * N_EXP)), 1); }
+  if (kind === 'link' && LINK_LEVELS[+a[0]] !== undefined) return num(LINK_LEVELS[+a[0]]);
+  if (kind === 'mhz') return num(band(a[0]).mhz);
+  if (kind === 'pl0') return num(band(a[0]).pl0, 1);
+  if (kind === 'tx') return num(band(a[0]).tx);
+  if (kind === 'floorh') return num(FLOOR_H);
+  if (kind === 'target') return pct(TARGET);
+  if (kind === 'cover' && a.length >= 2) {
+    const step = home(a[0]).steps[+a[1]];
+    if (!step) throw new Error(`Unknown node count in {${token}}`);
+    return pct(a[2] !== undefined ? step[+a[2]] : step.reduce((x, y) => x + y, 0) / step.length);
+  }
+  if (kind === 'need') return home(a[0]).need ?? '—';
+  if (kind === 'area') return num(home(a[0]).area);
   if (kind === 'table' && a[0] === 'materials') return materialTable(d);
   if (kind === 'table' && a[0] === 'signal') return signalTable(d);
+  if (kind === 'table' && a[0] === 'nodes') return nodesTable(d);
+  if (kind === 'table' && a[0] === 'bands') return bandsTable(d);
   throw new Error(`Unknown model token {${token}} (${d.lang}).`);
 }
-// Fills the tokens, then keeps numbers with their units on one line (5 GHz, 18 dB, 8,1 m).
+// Fills the tokens, then keeps numbers with their units on one line (5 GHz, 18 dB, 8,1 m, 4 × 4 m).
 export const fillModel = (html, d) => String(html).replace(/\{([a-z]+(?:\.\w+)*)\}/g, (_, token) => modelValue(token, d))
-  .replace(/(\d) (GHz|dBm|dB|m)(?![\w-])/g, '$1\u00a0$2');
+  .replace(/(\d) (GHz|dBm|dB|m)(?![\w-])/g, '$1\u00a0$2').replace(/(\d) × (?=\d)/g, '$1\u00a0×\u00a0');
 
 function materialRows(d) {
   const names = d.guide.materialNames;
@@ -154,6 +196,24 @@ function signalRows(d) {
 const tableWrap = (head, rows) => `<div class="tablewrap"><table><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>`;
 const materialTable = d => tableWrap(`<th>${esc(d.guide.material)}</th>${['2_4', '5', '6'].map(b => `<th class="num">${esc(d.bands[b])}</th>`).join('')}`, materialRows(d));
 const signalTable = d => tableWrap(`<th>${esc(d.guide.signal)}</th><th>${esc(d.guide.level)}</th><th>${esc(d.guide.practice)}</th>`, signalRows(d));
+// Coverage shares are rounded down, so 89.6% never reads as reaching a 90% goal.
+const coverPct = (v, d) => new Intl.NumberFormat(d.locale, { style: 'percent', maximumFractionDigits: 0 }).format(Math.floor(v * 100 + 1e-9) / 100);
+// Example homes of the table: area, share with good signal using 1 to 3 nodes, nodes needed.
+function nodesTable(d) {
+  const T = d.guides.tables, num = v => new Intl.NumberFormat(d.locale).format(v), pct = v => coverPct(v, d);
+  const rows = Object.keys(HOMES).filter(id => HOMES[id].table).map(id => {
+    const c = coverage(id);
+    return `<tr><td>${num(c.area)}\u00a0m²</td>${[1, 2, 3].map(n => `<td class="num">${pct(c.steps[n][0])}</td>`).join('')}<td class="num">${c.need ?? '—'}</td></tr>`;
+  }).join('');
+  return tableWrap(`<th>${esc(T.area)}</th>${T.withNodes.map(h => `<th class="num">${esc(h)}</th>`).join('')}<th class="num">${esc(T.need.replace('{target}', pct(TARGET)))}</th>`, rows);
+}
+// Model constants per band: reference frequency, loss at 1 m, transmit power.
+function bandsTable(d) {
+  const T = d.guides.tables, num = (v, f = 0) => new Intl.NumberFormat(d.locale, { maximumFractionDigits: f }).format(v);
+  const rows = BAND_KEYS.map(k => { const b = BANDS[k];
+    return `<tr><td>${esc(d.bands[k.replace('.', '_')])}</td><td class="num">${num(b.mhz)}\u00a0MHz</td><td class="num">${num(b.pl0, 1)}\u00a0dB</td><td class="num">${num(b.tx)}\u00a0dBm</td></tr>`; }).join('');
+  return tableWrap(`<th>${esc(T.band)}</th><th class="num">${esc(T.mhz)}</th><th class="num">${esc(T.pl0)}</th><th class="num">${esc(T.tx)}</th>`, rows);
+}
 
 const ldJson = v => JSON.stringify(v).replace(/</g, '\\u003c');
 const ldScripts = list => list.map(o => `<script type="application/ld+json">${ldJson(o)}</script>`).join('\n');
@@ -163,6 +223,28 @@ const crumbsLd = items => ({ '@context': 'https://schema.org', '@type': 'Breadcr
   itemListElement: items.map(([name, url], i) => ({ '@type': 'ListItem', position: i + 1, name, item: url })) });
 const crumbsHtml = (d, items) => `<nav class="crumbs" aria-label="${esc(d.guides.crumbLabel)}"><ol>${items.map(([name, url], i) =>
   i === items.length - 1 ? `<li aria-current="page">${esc(name)}</li>` : `<li><a href="${esc(url.slice(SITE.length) || '/')}">${esc(name)}</a></li>`).join('')}</ol></nav>`;
+
+const sectionsOf = (list, d) => list.map(s => `<section aria-labelledby="${esc(s.id)}"><h2 id="${esc(s.id)}">${esc(s.q || s.h)}</h2>\n${fillModel(s.html, d)}</section>`);
+const articleLd = (d, { headline, description, url, published, modified }) => ({ '@context': 'https://schema.org', '@type': 'Article',
+  headline, description, inLanguage: d.lang, url, mainEntityOfPage: url, image: SITE + '/assets/img/og-image.png',
+  datePublished: published, dateModified: modified, author: ORG(), publisher: ORG() });
+const dated = (d, published, modified) => ({ updated: d.guides.updated.replace('{date}', longDate(modified, d)), dateIso: modified });
+
+// Values for a reference page (methodology): its sections, links to every guide and article data.
+function docSpecials(dicts, lang, page, dateOf) {
+  const d = dicts[lang], G = d.guides, P = d[page], url = SITE + d.paths[page];
+  const modified = [DOCS[page].published, dateOf(page, lang)].sort().at(-1);
+  const crumbs = [[G.home, SITE + d.paths.index], [P.short, url]];
+  const links = [...GUIDES.map(g => `<li><a href="${esc(d.paths[guidePage(g.id)])}">${esc(G.items[g.id].h1)}</a></li>`),
+    `<li><a href="${esc(d.paths.guides)}">${esc(G.all)}</a></li>`];
+  return {
+    title: P.title, description: P.description, h1: P.h1, ogTitle: P.h1, ogDescription: P.description,
+    crumbs: crumbsHtml(d, crumbs), ...dated(d, DOCS[page].published, modified),
+    lead: `<div class="answer">${fillModel(P.lead, d)}</div>`, sections: sectionsOf(P.sections, d).join('\n'),
+    related: `<nav class="related" aria-labelledby="related-title"><h2 id="related-title">${esc(P.related)}</h2><ul>${links.join('')}</ul></nav>`,
+    jsonLd: ldScripts([articleLd(d, { headline: P.h1, description: P.description, url, published: DOCS[page].published, modified }), crumbsLd(crumbs)]),
+  };
+}
 
 // Values for the guides index and the guide pages.
 function guideSpecials(dicts, lang, page, dateOf) {
@@ -185,9 +267,9 @@ function guideSpecials(dicts, lang, page, dateOf) {
       ]),
     };
   }
-  const g = guideOf(page), it = G.items[g.id];
+  const g = guideOf(page), it = { ...G.items[g.id], ...pageMeta(d, page) };
   const modified = [g.published, dateOf(page, lang)].sort().at(-1);
-  const sections = it.sections.map(s => `<section aria-labelledby="${esc(s.id)}"><h2 id="${esc(s.id)}">${esc(s.q)}</h2>\n${fillModel(s.html, d)}</section>`);
+  const sections = sectionsOf(it.sections, d);
   const half = Math.ceil(sections.length / 2);
   const faq = it.faq || [];
   const related = g.related.filter(id => GUIDES.some(x => x.id === id));
@@ -195,8 +277,7 @@ function guideSpecials(dicts, lang, page, dateOf) {
     ...(d.paths.methodology ? [`<li><a href="${esc(d.paths.methodology)}">${esc(G.methodology)}</a></li>`] : []),
     `<li><a href="${esc(d.paths.guides)}">${esc(G.all)}</a></li>`];
   const ld = [
-    { '@context': 'https://schema.org', '@type': 'Article', headline: it.h1, description: it.description, inLanguage: d.lang, url, mainEntityOfPage: url,
-      image: SITE + '/assets/img/og-image.png', datePublished: g.published, dateModified: modified, author: ORG(), publisher: ORG() },
+    articleLd(d, { headline: it.h1, description: it.description, url, published: g.published, modified }),
     crumbsLd([home, index, [it.short, url]]),
   ];
   if (faq.length) ld.push({ '@context': 'https://schema.org', '@type': 'FAQPage', inLanguage: d.lang,
@@ -204,7 +285,7 @@ function guideSpecials(dicts, lang, page, dateOf) {
   return {
     title: it.title, description: it.description, h1: it.h1, ...og(it.h1, it.description),
     crumbs: crumbsHtml(d, [home, index, [it.short, url]]),
-    updated: G.updated.replace('{date}', longDate(modified, d)), dateIso: modified,
+    ...dated(d, g.published, modified),
     answer: `<div class="answer">${fillModel(it.answer, d)}</div>`,
     sectionsA: sections.slice(0, half).join('\n'), sectionsB: sections.slice(half).join('\n'),
     note: fillModel(G.note, d),
@@ -247,6 +328,7 @@ function specials(dicts, lang, page, dateOf) {
     i18nJson: `<script type="application/json" id="i18n">${ldJson({ lang: d.lang, locale: d.locale, paths: d.paths, ui: d.ui, defaults: defaultNames(dicts) })}</script>`,
     langRedirect: LANG_REDIRECT,
     ...(page === 'guides' || guideOf(page) ? guideSpecials(dicts, lang, page, dateOf) : {}),
+    ...(DOCS[page] ? docSpecials(dicts, lang, page, dateOf) : {}),
   };
 }
 
@@ -317,7 +399,7 @@ function pageMeta(d, page) {
   if (page === 'index') return { title: d.meta.title, description: d.meta.description };
   if (page === 'guides') return d.guides.index;
   const g = guideOf(page);
-  if (g) return d.guides.items[g.id];
+  if (g) { const it = d.guides.items[g.id]; return { title: fillModel(it.title, d), description: fillModel(it.description, d) }; }
   return { title: d[page].title, description: d[page].description };
 }
 

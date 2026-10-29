@@ -4,6 +4,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { build, applyBlocks, SLOTS } from '../scripts/build.mjs';
+import { coverage, TARGET } from '../scripts/scenarios.mjs';
 
 async function run(opts = {}) {
   const out = mkdtempSync(join(tmpdir(), 'planejador-build-'));
@@ -106,4 +107,16 @@ test('guide pages get the guide slots, the generated numbers and article data', 
     assert.deepEqual(types, ['Article', 'BreadcrumbList', 'FAQPage']);
     assert.ok(!b.read('privacy.html'.replace(/^/, 'en/')).includes('demo-guide'), 'guide slots stay out of other pages');
   } finally { b.done(); }
+});
+
+// The guides state these in words around the generated numbers; if the model changes enough to
+// break one, rewrite the sentence (i18n guides.items.nodes) along with this test.
+test('the example homes still support what the nodes guide says', () => {
+  const c = id => coverage(id), first = id => c(id).steps[1];
+  assert.equal(c('h120').need, 1, 'one node is enough up to the 120 m² house');
+  assert.ok(c('h150').need >= 2 && c('h200').need > 1, 'a second node comes in after that');
+  assert.ok(c('long').need > c('h150').need && first('long')[0] < first('h150')[0], 'a long house needs more than a square one of similar size');
+  assert.equal(c('twoStory').need, 2, 'one node per floor in a two-story house');
+  assert.ok(first('twoStory')[1] < TARGET, 'one node downstairs leaves the upper floor short');
+  assert.ok(c('apartment').need >= 2, 'a small apartment with concrete walls may need two');
 });
