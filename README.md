@@ -17,9 +17,11 @@
 - See a heat map per band, check the backhaul quality between mesh nodes, and get a suggestion for where an extra node helps most.
 - Pick a built-in router model (TP-Link Deco, eero, Orbi, Mercusys, ISP router) or add your own.
 - Keep several projects in the browser, and export or import them as JSON.
+- Copy a link that opens a copy of the project on another device: the project travels inside the link, never through a server.
 - Use a photo of your floor plan as the background, with scale calibration.
 - Get a short guided tour on the first visit, which you can replay from the menu.
 - Use it in Portuguese, English or Spanish. The language is detected from the browser and can be switched at any time.
+- Read guides on router placement, how many mesh nodes to buy, mesh vs. extender vs. cable, wall attenuation, dBm and bands, each with an example that opens in the planner.
 - Everything runs in the browser. Projects never leave the visitor's device.
 
 ## Quick start
@@ -39,17 +41,21 @@ npm run check      # secret scan + tests + build, same as CI
 This is a fully static site: HTML, CSS and vanilla JavaScript ES modules. It has no backend and no framework. `scripts/build.mjs` renders the page templates once per language and writes everything to `dist/`, using only the Node standard library.
 
 ```
-src/index.html                simulator page and guide template
+src/index.html                simulator page
+src/guides.html, src/guide.html guides index and guide template
+src/doc.html                  reference pages (methodology, about)
 src/privacy.html, src/404.html other page templates
 src/partials/                 shared head, header and footer
 i18n/pt-BR.json, en.json, es.json  every visible text, one file per language
 assets/js/i18n.js             runtime translations (t(), raw())
 assets/js/tour.js             first-visit guided tour
-assets/js/site.js             language switcher
+assets/js/site.js             language switcher, site menu, project link fragment
 assets/js/engine.js           propagation model, pure functions
-assets/js/store.js            projects and custom models in localStorage
+assets/js/store.js            projects and custom models in localStorage, project links
 assets/js/app.js              user interface
-scripts/build.mjs             production build (pages, hreflang, sitemap)
+scripts/build.mjs             production build (pages, hreflang, sitemap, robots.txt, llms.txt)
+scripts/scenarios.mjs         example homes the guides quote, covered with the engine
+scripts/lastmod.mjs           per-page modified dates from git history
 scripts/dev.mjs               build + serve + rebuild on change
 scripts/check-secrets.mjs     fails CI if credentials or real IDs are committed
 tests/                        node:test suites
@@ -68,7 +74,7 @@ The repository contains no analytics, ads or other third-party code. A deploymen
 
 ### The propagation model
 
-Each point gets a log-distance path loss (exponent 2.5), plus the attenuation of every wall crossed and of each slab between floors. The per-material values live in `assets/js/engine.js`, and the build generates the guide table from them. Typical error is ±8 dB, so the tool compares placements and does not replace a site survey. Better models and calibration data are very welcome contributions.
+Each point gets a log-distance path loss (exponent 2.5), plus the attenuation of every wall crossed and of each slab between floors. The per-material values live in `assets/js/engine.js`, and the build fills every number the guides, the methodology page and `llms.txt` quote from them, so texts never drift from the model. Typical error is ±8 dB, so the tool compares placements and does not replace a site survey. Better models and calibration data are very welcome contributions.
 
 ## Contributing
 
@@ -99,7 +105,7 @@ This project is written with AI coding assistants and encourages contributors to
 
 ## Privacy
 
-The app stores projects only in the visitor's `localStorage` and sends them nowhere. The code in this repository sets no cookies and loads no tracking or advertising scripts.
+The app stores projects only in the visitor's `localStorage` and sends them nowhere. A shared project link carries the project in its fragment (`#p=…`), which browsers never send to the server. The code in this repository sets no cookies and loads no tracking or advertising scripts.
 
 ## Support the project
 
