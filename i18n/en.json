@@ -11,7 +11,8 @@
     "guide-router": "/en/guides/where-to-put-wifi-router",
     "guide-nodes": "/en/guides/how-many-mesh-nodes-do-i-need",
     "guide-mesh": "/en/guides/mesh-vs-extender-vs-ethernet",
-    "guide-walls": "/en/guides/how-much-walls-block-wifi"
+    "guide-walls": "/en/guides/how-much-walls-block-wifi",
+    "guide-dbm": "/en/guides/wifi-signal-strength-dbm"
   },
   "meta": {
     "title": "Wi-Fi Mesh Planner on Your Floor Plan | Planejador WiFi",
@@ -624,7 +625,7 @@
           {
             "id": "check",
             "q": "How do you know the spot works?",
-            "html": "<p>Measure the signal strength, in dBm, in the rooms you use most. Aim for {level.1} dBm or better; {level.0} dBm or better is excellent. Below {level.2} dBm the connection gets slow and unstable.</p><ul><li><b>Android:</b> a Wi-Fi analyzer app shows the value in dBm.</li><li><b>iPhone:</b> install Apple’s AirPort Utility app and turn on “Wi-Fi Scanner” under Settings › AirPort Utility.</li><li><b>Mac:</b> hold Option and click the Wi-Fi icon; the value shows as RSSI.</li></ul><p>Before you drill a hole or buy cable, try the spots in the planner: draw your floor plan, move the router around and compare the signal map for each option.</p>"
+            "html": "<p>Measure the signal strength, in dBm, in the rooms you use most. Aim for {level.1} dBm or better; {level.0} dBm or better is excellent. Below {level.2} dBm the connection gets slow and unstable.</p><p>The <a href=\"{href.dbm}\">Wi-Fi signal strength in dBm</a> guide shows how to measure it on Android, iPhone, Mac and Windows.</p><p>Before you drill a hole or buy cable, try the spots in the planner: draw your floor plan, move the router around and compare the signal map for each option.</p>"
           }
         ],
         "faq": [
@@ -815,6 +816,63 @@
         "cta": {
           "title": "Draw each wall with the right material",
           "text": "In the planner, every wall has a material. Switch brick to concrete or glass and see right away how much the signal map changes."
+        }
+      },
+      "dbm": {
+        "title": "Wi-Fi Signal Strength in dBm: What Is Good? | Planejador WiFi",
+        "description": "What Wi-Fi signal strength in dBm means, why the number is negative, which value is good for video and gaming, and how to measure it on a phone or computer.",
+        "h1": "What does Wi-Fi signal strength in dBm mean?",
+        "short": "Signal strength in dBm",
+        "answer": "<p>dBm is the power of the signal that reaches your device, compared with 1 milliwatt. For Wi-Fi the value is always negative, and the closer to zero, the better: {level.0} dBm or better is excellent, {level.0} to {level.1} dBm is good, and below {level.3} dBm the connection drops often.</p><p>Aim for {level.1} dBm or better in the rooms you use. That is the level where HD video and video calls run without freezing.</p><p>Small differences in the number are big in power: {level.1} dBm carries {ratio.1.3} times more power than {level.3} dBm.</p>",
+        "sections": [
+          {
+            "id": "table",
+            "q": "What is a good Wi-Fi signal in dBm?",
+            "html": "{table.signal}<p>These are the ranges the planner uses to color the map. They apply to the signal a device receives; for the link between two mesh nodes the target is different: {link.1} dBm or better.</p>"
+          },
+          {
+            "id": "negative",
+            "q": "Why is the number negative?",
+            "html": "<p>Because 0 dBm is 1 milliwatt, and the signal that reaches your phone is a tiny fraction of that. A mesh node transmits at around {tx.b5} dBm, about {mw.b5} mW. After a few meters and walls, something like −60 dBm reaches your device: one millionth of a milliwatt.</p><p>The scale moves in steps of 10: −30 dBm is one thousandth of a milliwatt, −40 dBm is ten times less than that, and so on. Every 3 dB lower is half the power.</p>"
+          },
+          {
+            "id": "bars",
+            "q": "dBm, bars or percentage: which one counts?",
+            "html": "<p>dBm does. Your phone’s bars and the percentage in Windows are conversions each maker does its own way: three bars on one device can be two on another, with the same signal. dBm is the real measure, and it is what Wi-Fi analyzer apps show as RSSI.</p>"
+          },
+          {
+            "id": "measure",
+            "q": "How do I measure signal strength in dBm?",
+            "html": "<ul><li><b>Android:</b> install a Wi-Fi analyzer app; it shows the dBm of your network and the neighbors’.</li><li><b>iPhone:</b> iOS does not show dBm in Settings. Install Apple’s AirPort Utility, turn on “Wi-Fi Scanner” under Settings › AirPort Utility and run a scan.</li><li><b>Mac:</b> hold the Option key and click the Wi-Fi icon; the value shows as RSSI.</li><li><b>Windows:</b> the system shows a percentage, not dBm. A Wi-Fi analyzer app shows the value in dBm.</li></ul><p>Measure standing still, with the device in your hand, where you usually use it, and repeat a few times: the value moves a few dB from one second to the next.</p>"
+          },
+          {
+            "id": "speed",
+            "q": "Does a strong signal guarantee fast internet?",
+            "html": "<p>No. dBm tells you how much signal arrives, not how much noise comes with it. In a building with dozens of networks on the same channel, a {level.1} dBm signal can deliver less than a {level.2} dBm signal in a detached house. Speed also depends on your plan, your device and the channel width. Good signal is a requirement for fast internet, but not enough on its own.</p>"
+          },
+          {
+            "id": "two-way",
+            "q": "Why does my phone show signal but the connection fails?",
+            "html": "<p>Because Wi-Fi is a two-way street. Your phone transmits with much less power than the router, so at the edge of coverage it still hears the router, but the router no longer hears it well. The signal looks fine and pages do not load. That is why it pays to aim for {level.1} dBm or better, not for the last spot where the phone still shows the network.</p>"
+          }
+        ],
+        "faq": [
+          {
+            "q": "Is −50 dBm better than −70 dBm?",
+            "a": "Yes. The closer to zero, the stronger: −50 dBm carries a hundred times more power than −70 dBm."
+          },
+          {
+            "q": "What signal do I need for online gaming?",
+            "a": "Aim for {level.0} dBm or better. Games depend more on stability and latency than on speed, and a strong signal reduces the retransmissions that cause lag spikes. For a console or desktop computer, a network cable is better still."
+          },
+          {
+            "q": "What is RSSI?",
+            "a": "It stands for received signal strength indicator. In analyzer apps and on the Mac, RSSI is shown in dBm and is the same number as on this page."
+          }
+        ],
+        "cta": {
+          "title": "See the estimated signal in every room",
+          "text": "Draw your home and the planner colors every spot with the same dBm ranges as this page, on 2.4, 5 and 6 GHz."
         }
       }
     },
