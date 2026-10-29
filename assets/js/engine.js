@@ -5,11 +5,14 @@ export const GRID = 0.25;      // drawing snap, meters
 export const FLOOR_H = 3;      // floor-to-floor height, meters
 export const N_EXP = 2.5;      // log-distance path loss exponent (residential, walls counted separately)
 export const GOOD = -67;       // dBm threshold counted as "good coverage"
+export const COVER_CELL = 0.25; // grid used for the coverage percentage, meters
 
+// pl0 = free-space loss at 1 m for the band's reference frequency `mhz` (20·log10(MHz) − 27.55),
+// tx = typical transmit power of a mesh node, in dBm.
 export const BANDS = {
-  '2.4': { i: 0, pl0: 40.2, tx: 20 },
-  '5':   { i: 1, pl0: 47.3, tx: 23 },
-  '6':   { i: 2, pl0: 48.7, tx: 21 },
+  '2.4': { i: 0, mhz: 2437, pl0: 40.2, tx: 20 },
+  '5':   { i: 1, mhz: 5500, pl0: 47.3, tx: 23 },
+  '6':   { i: 2, mhz: 6500, pl0: 48.7, tx: 21 },
 };
 // '5' and '6' are integer-like keys, so Object.keys(BANDS) would list them before '2.4'.
 export const BAND_KEYS = ['2.4', '5', '6'];
@@ -42,9 +45,10 @@ export const BUILTIN_MODELS = [
 // SIGNAL_LEVELS holds the lower bound of categories 0..3 in dBm; the build quotes them in the pages.
 export const SIGNAL_LEVELS = [-60, -67, -72, -80];
 export const catOf = v => { const i = SIGNAL_LEVELS.findIndex(l => v >= l); return i < 0 ? 4 : i; };
-// Backhaul link quality: 0 great, 2 ok, 4 weak (color index and i18n key). Rounded like the
-// label, so a link shown as -70 dBm is never called weak.
-export const linkCat = v => { const r = Math.round(v); return r >= -60 ? 0 : r >= -70 ? 2 : 4; };
+// Backhaul link quality: 0 great, 2 ok, 4 weak (color index and i18n key). LINK_LEVELS holds the
+// lower bounds of great and ok in dBm. Rounded like the label, so a link shown as -70 dBm is never called weak.
+export const LINK_LEVELS = [-60, -70];
+export const linkCat = v => { const r = Math.round(v); return r >= LINK_LEVELS[0] ? 0 : r >= LINK_LEVELS[1] ? 2 : 4; };
 
 // Segment AB crosses segment CD. u < 1 avoids counting a shared corner twice.
 export function hit(ax, ay, bx, by, cx, cy, dx, dy) {
@@ -182,7 +186,7 @@ export function outlineClosed(p, fi) {
   return along >= 0.5 * 2 * (w + h);
 }
 
-export function stats(p, models, fi, bk, g = computeGrid(p, models, fi, bk, 0.25)) {
+export function stats(p, models, fi, bk, g = computeGrid(p, models, fi, bk, COVER_CELL)) {
   const bb = bbox(p, fi), counts = [0, 0, 0, 0, 0];
   let n = 0;
   for (let r = 0; r < g.rows; r++) for (let c = 0; c < g.cols; c++) {
@@ -195,15 +199,19 @@ export function stats(p, models, fi, bk, g = computeGrid(p, models, fi, bk, 0.25
   return { counts, n, good: n ? (counts[0] + counts[1]) / n : 0, hasBand, area: (bb.x1 - bb.x0) * (bb.y1 - bb.y0) };
 }
 
-// Tries every free point of the floor (0.5 m grid) and keeps the one that adds the most
-// area at or above GOOD, requiring a wireless link of at least -70 dBm when possible.
+// Search grid of suggest() in meters, closest a suggested node may be to a wall, and the weakest
+// signal in dBm that still counts toward breaking ties between spots with the same coverage.
+export const SUGGEST = { cell: 0.5, wallGap: 0.3, floor: -90 };
+
+// Tries every free point of the floor (SUGGEST.cell grid) and keeps the one that adds the most
+// area at or above GOOD, requiring a wireless link of at least LINK_LEVELS[1] when possible.
 // Failures return { none: code } with code noWalls | noSpot | alreadyGood | noGain, or
 // { none: 'weakLink', child, parent } when no spot helps but a backhaul link is too weak.
 // Same search as suggest(), as a generator: it yields the share of work done (0 to 1) after each
 // candidate spot, so a caller can run it in slices, show progress and stop early. The return value
 // is the same result object suggest() returns.
 export function* suggestSteps(p, models, fi, bk, modelId) {
-  const nodes = nodesAll(p), bb = bbox(p, fi), cs = 0.5;
+  const nodes = nodesAll(p), bb = bbox(p, fi), cs = SUGGEST.cell;
   let mk = modelId;
   if (!modelOf(models, mk).bands.includes(bk)) mk = Object.keys(models).find(id => models[id].bands.includes(bk)) || mk;
   const cells = [];
@@ -218,18 +226,18 @@ export function* suggestSteps(p, models, fi, bk, modelId) {
     for (let ci = 0; ci < cells.length; ci++) {
       const c = cells[ci];
       yield from + span * ci / cells.length;
-      if (walls.some(w => distSeg(c.x, c.y, w) < 0.3)) continue;
+      if (walls.some(w => distSeg(c.x, c.y, w) < SUGGEST.wallGap)) continue;
       const cand = { n: { x: c.x, y: c.y, model: mk }, fi };
       let lv = null;
       if (nodes.length) {
         lv = Math.max(...nodes.map(o => link(p, models, cand, o).v));
-        if (requireLink && lv < -70) continue;
+        if (requireLink && lv < LINK_LEVELS[1]) continue;
       }
       let cov = 0, sum = 0;
       for (const q of cells) {
         const v = Math.max(q.v, sig(p, models, cand, q.x, q.y, fi, bk));
         if (v >= GOOD) cov++;
-        sum += Math.max(v, -90);
+        sum += Math.max(v, SUGGEST.floor);
       }
       const score = cov * 1000 + sum;
       if (!best || score > best.score) best = { score, x: c.x, y: c.y, cov, lv };

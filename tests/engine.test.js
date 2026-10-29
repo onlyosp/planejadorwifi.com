@@ -14,6 +14,10 @@ test('hit detects crossing and ignores parallel segments', () => {
   assert.equal(E.hit(0, 0, 4, 0, 5, -1, 5, 1), false);
 });
 
+test('the 1 m reference loss of each band is the free-space loss at its frequency', () => {
+  for (const b of Object.values(E.BANDS)) assert.ok(Math.abs(20 * Math.log10(b.mhz) - 27.55 - b.pl0) < 0.06, `${b.mhz} MHz`);
+});
+
 test('signal drops with distance', () => {
   const p = room([], [node(1, 5)]);
   const an = E.nodesAll(p)[0];

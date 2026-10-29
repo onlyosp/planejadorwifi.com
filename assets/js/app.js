@@ -143,7 +143,7 @@ function grid(fi, bk, cs) {
   if (!cache.has(key)) cache.set(key, E.computeGrid(P, MODELS, fi, bk, cs));
   return cache.get(key);
 }
-const stats = (fi, bk) => E.stats(P, MODELS, fi, bk, grid(fi, bk, 0.25));
+const stats = (fi, bk) => E.stats(P, MODELS, fi, bk, grid(fi, bk, E.COVER_CELL));
 // Coverage of the whole house on one band: every floor, weighted by its area.
 function houseStats(bk) {
   let good = 0, n = 0, hasBand = false;
