@@ -180,3 +180,56 @@ export function exampleProject(names = PT_EXAMPLE) {
     }],
   };
 }
+
+/* ---------- share links ---------- */
+
+// A shared project travels in the fragment of a link (#p=…), which browsers never send to the
+// server: compact JSON, deflate-compressed, in base64url. Floor-plan images stay out.
+// Positions are rounded to the centimeter. Decoding returns a plain project for normalizeProject().
+export const SHARE_PREFIX = '#p=';
+export const SHARE_MAX = 8000; // characters of the encoded project; longer links break in some apps
+const SHARE_VERSION = 1, SHARE_MAX_JSON = 1 << 20;
+const cm = v => Math.round(v * 100) / 100;
+
+async function pipe(bytes, stream) {
+  const reader = new Blob([bytes]).stream().pipeThrough(stream).getReader(), parts = [];
+  for (let size = 0; ;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.length;
+    if (size > SHARE_MAX_JSON) { reader.cancel(); throw new Error('share: too large'); }
+    parts.push(value);
+  }
+  return new Uint8Array(await new Blob(parts).arrayBuffer());
+}
+const toB64url = bytes => btoa(Array.from(bytes, b => String.fromCharCode(b)).join('')).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const fromB64url = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+
+export async function encodeShare(p, models = {}) {
+  const data = withModels(p, models);
+  const compact = {
+    v: SHARE_VERSION, n: p.name, w: cm(p.w), h: cm(p.h), b: p.band,
+    f: p.floors.map(f => [f.name,
+      f.walls.map(w => [cm(w.x1), cm(w.y1), cm(w.x2), cm(w.y2), w.m]),
+      f.nodes.map(n => [cm(n.x), cm(n.y), n.model, (n.main ? 1 : 0) | (n.wired ? 2 : 0)]),
+      f.labels.map(l => [cm(l.x), cm(l.y), l.t])]),
+  };
+  if (data.models.length) compact.m = data.models;
+  return toB64url(await pipe(new TextEncoder().encode(JSON.stringify(compact)), new CompressionStream('deflate-raw')));
+}
+
+// Throws on anything that is not a project link made by encodeShare().
+export async function decodeShare(s) {
+  const o = JSON.parse(new TextDecoder().decode(await pipe(fromB64url(s), new DecompressionStream('deflate-raw'))));
+  if (!o || o.v !== SHARE_VERSION || !Array.isArray(o.f)) throw new Error('share: format');
+  const rows = a => (Array.isArray(a) ? a.filter(Array.isArray) : []);
+  return {
+    name: o.n, w: o.w, h: o.h, band: o.b, models: Array.isArray(o.m) ? o.m : [],
+    floors: o.f.filter(Array.isArray).map(([name, walls, nodes, labels]) => ({
+      name,
+      walls: rows(walls).map(([x1, y1, x2, y2, m]) => ({ x1, y1, x2, y2, m })),
+      nodes: rows(nodes).map(([x, y, model, flags]) => ({ x, y, model, main: !!(flags & 1), wired: !!(flags & 2) })),
+      labels: rows(labels).map(([x, y, t]) => ({ x, y, t })),
+    })),
+  };
+}

@@ -1,3 +1,7 @@
+// A project link (#p=…, see encodeShare() in store.js) leaves the address bar before anything
+// else on the page can read it; the planner (app.js) takes it from history.state.
+if (location.hash.startsWith('#p=')) history.replaceState({ sharedProject: location.hash.slice(3) }, '', location.pathname + location.search);
+
 // Shared by every page: the language switcher. The choice is remembered so the Portuguese
 // home page stops redirecting by browser language (see LANG_REDIRECT in scripts/build.mjs).
 // Phones fold the site menu behind one button so the planner gets the screen.

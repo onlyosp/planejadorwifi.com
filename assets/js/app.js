@@ -1559,6 +1559,14 @@ function exportFile() {
   setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
   track('project_export');
 }
+// A file or a link always opens as a new project: it never replaces a saved one.
+function importProject(data, fallbackName) {
+  data.id = St.uid();
+  delete data.example;
+  data.name = (defaults.exampleName || []).includes(data.name) ? t('project.exampleName') : data.name || fallbackName;
+  if (St.listProjects().some(x => x.name === data.name)) data.name = (data.name + ' ' + t('project.importedSuffix')).slice(0, 60);
+  persistNow(); openProject(data);
+}
 $('#importFile').addEventListener('change', e => {
   const file = e.target.files[0]; if (!file) return;
   e.target.value = '';
@@ -1568,11 +1576,8 @@ $('#importFile').addEventListener('change', e => {
       const obj = JSON.parse(rd.result);
       const data = obj && obj.project ? obj.project : obj;
       if (!data || !Array.isArray(data.floors)) throw new Error('format');
-      data.id = St.uid();
-      delete data.example;
-      data.name = data.name || file.name.replace(/\.json$/i, '');
-      if (St.listProjects().some(x => x.name === data.name)) data.name = (data.name + ' ' + t('project.importedSuffix')).slice(0, 60);
-      persistNow(); openProject(data); toast(t('toast.imported', { name: P.name }));
+      importProject(data, file.name.replace(/\.json$/i, ''));
+      toast(t('toast.imported', { name: P.name }));
       track('project_import');
     } catch {
       toast(t('toast.importError'));
@@ -1629,8 +1634,39 @@ $('#modelList').addEventListener('click', e => {
   }
 });
 
-/* ---------- text summary ---------- */
-function summary() {
+/* ---------- project links and text summary ---------- */
+// The link that opens a copy of this project, or null when the project is too large for one.
+async function shareLink() {
+  const code = await St.encodeShare(P, MODELS);
+  return code.length > St.SHARE_MAX ? null : location.origin + location.pathname + St.SHARE_PREFIX + code;
+}
+async function openShared(code) {
+  try {
+    importProject(await St.decodeShare(code), t('project.defaultName'));
+    setTool('select');
+    toast(t('toast.linkOpened', { name: P.name }));
+    track('project_link_open');
+  } catch { toast(t('toast.linkError')); }
+}
+// The text may still be computing: the clipboard call starts inside the click, as Safari requires.
+async function copy(text, done) {
+  const fb = $('#copyFallback');
+  try {
+    if (window.ClipboardItem && navigator.clipboard?.write) await navigator.clipboard.write([new ClipboardItem({ 'text/plain': text.then(s => new Blob([s], { type: 'text/plain' })) })]);
+    else await navigator.clipboard.writeText(await text);
+    fb.hidden = true; toast(done);
+  } catch {
+    fb.hidden = false; fb.value = await text; fb.focus(); fb.select(); toast(t('toast.copyFail'));
+  }
+}
+$('#copyLink').addEventListener('click', async () => {
+  track('copy_link');
+  const tooLong = new Error('too long');
+  try { await copy(shareLink().then(url => url || Promise.reject(tooLong)), t(P.floors.some(f => f.bg) ? 'toast.linkNoImage' : 'toast.linkCopied')); }
+  catch (e) { toast(t(e === tooLong ? 'toast.linkTooLong' : 'toast.copyFail')); }
+});
+
+function summary(link) {
   const L = [], all = nodesAll(), S = k => t('summary.' + k);
   L.push(`Planejador WiFi: ${P.name}`);
   L.push(t('summary.area', { w: fmt(P.w, 1), h: fmt(P.h, 1), floors: P.floors.length }));
@@ -1647,13 +1683,12 @@ function summary() {
   const topo = E.topology(P, MODELS);
   if (topo.length) L.push(`\n${S('backhaul')}: ` + topo.map(l => `${nodeName(l.child)} → ${nodeName(l.parent)}: ${l.wired ? S('cable') : `${dbm(l.v)} dBm ${S('on')} ${bandLabel(l.band)}`}`).join('; '));
   L.push('\n' + S('model'));
+  if (link) L.push(t('summary.link', { url: link }));
   return L.join('\n');
 }
-$('#copySummary').addEventListener('click', async () => {
-  const text = summary(), fb = $('#copyFallback');
+$('#copySummary').addEventListener('click', () => {
   track('copy_summary');
-  try { await navigator.clipboard.writeText(text); fb.hidden = true; toast(t('toast.copied')); }
-  catch { fb.hidden = false; fb.value = text; fb.focus(); fb.select(); toast(t('toast.copyFail')); }
+  copy(shareLink().catch(() => null).then(summary), t('toast.copied'));
 });
 
 /* ---------- dialogs and toast ---------- */
@@ -1691,6 +1726,17 @@ setDrawer(sheetMode.matches ? false : drawerPref());
   const saved = (St.currentId() && St.loadProject(St.currentId())) || (list[0] && St.loadProject(list[0].id));
   openProject(saved || St.exampleProject({ name: t('project.exampleName'), ground: NAMES.ground, rooms: raw('project.exampleRooms') }));
 }
+// A project link opened here (site.js moved it from the address to history.state), or pasted into this tab.
+{
+  const code = history.state?.sharedProject;
+  if (code) { history.replaceState(null, '', location.pathname + location.search); openShared(code); }
+}
+window.addEventListener('hashchange', () => {
+  if (!location.hash.startsWith(St.SHARE_PREFIX)) return;
+  const code = location.hash.slice(St.SHARE_PREFIX.length);
+  history.replaceState(null, '', location.pathname + location.search);
+  openShared(code);
+});
 new ResizeObserver(resize).observe(area);
 new ResizeObserver(() => { layoutVars(); }).observe(el('stageBar'));
 window.addEventListener('resize', resize);

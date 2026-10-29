@@ -112,9 +112,10 @@
   },
   "share": {
     "title": "Share",
-    "text": "Copy a text summary of the project to ask for advice on a forum, from a technician or an AI assistant.",
+    "text": "Copy a link that opens a copy of this project on another device, or a text summary to ask for advice on a forum, from a technician or an AI assistant.",
     "copy": "Copy summary",
-    "fallback": "Summary to copy"
+    "fallback": "Text to copy",
+    "copyLink": "Copy link"
   },
   "bands": {
     "2_4": "2.4 GHz",
@@ -203,13 +204,15 @@
     "title": "Privacy Policy | Planejador WiFi",
     "description": "How Planejador WiFi handles your data: projects are stored only in your browser.",
     "h1": "Privacy policy",
-    "updated": "Last updated: October 25, 2026.",
+    "updated": "Last updated: October 29, 2026.",
     "projectsTitle": "Your projects",
     "projectsText": "The floor plans, routers and models you create are stored only in your browser's local storage (localStorage). They are not sent to any server. If you clear your browser data, they are gone; to keep a copy, use <b>File › Export JSON</b>.",
     "cookiesTitle": "Cookies",
     "noCookies": "This site uses no cookies and no third-party tracking tools.",
     "rightsTitle": "Your rights",
-    "rightsText": "You can ask for information about how your data is processed, or for its deletion, at <b>contato@planejadorwifi.com</b>."
+    "rightsText": "You can ask for information about how your data is processed, or for its deletion, at <b>contato@planejadorwifi.com</b>.",
+    "linksTitle": "Project links",
+    "linksText": "The <b>Copy link</b> button puts the whole project inside the link itself, in the part after the <b>#</b> sign. That part is never sent to the server: whoever opens the link gets the regular page, and the browser reads the project right there, saves it as a new project and removes that part from the address bar. The floor-plan image is not included in the link. Anyone with the link can see the project, so share it only with people you choose."
   },
   "notFound": {
     "title": "Page not found | Planejador WiFi",
@@ -427,7 +430,12 @@
       "importError": "This file is not a Planejador WiFi project. Choose a JSON exported from here.",
       "copied": "Summary copied.",
       "copyFail": "Could not copy automatically. The text is selected: press Ctrl+C.",
-      "planMin": "The plan can't be smaller than the drawing: at least {w} × {h} m."
+      "planMin": "The plan can't be smaller than the drawing: at least {w} × {h} m.",
+      "linkCopied": "Link copied. Whoever opens it gets a copy of this project.",
+      "linkNoImage": "Link copied, without the floor-plan image, which does not fit in a link.",
+      "linkTooLong": "This project is too large to fit in a link. Use File › Export JSON and send the file.",
+      "linkOpened": "Project “{name}” opened from the link and saved as a new one.",
+      "linkError": "This project link is incomplete or damaged. Ask the sender for a new one."
     },
     "summary": {
       "area": "Area: {w} × {h} m, {floors} floor(s). Coordinates in meters from the top-left corner.",
@@ -442,7 +450,8 @@
       "noDeviceBand": "no device on this band",
       "backhaul": "Backhaul",
       "on": "on",
-      "model": "Planejador WiFi estimate (log-distance path loss + per-wall attenuation, typical error ±8 dB)."
+      "model": "Planejador WiFi estimate (log-distance path loss + per-wall attenuation, typical error ±8 dB).",
+      "link": "Open in the planner: {url}"
     },
     "tour": {
       "next": "Next",

@@ -112,9 +112,10 @@
   },
   "share": {
     "title": "Compartir",
-    "text": "Copia un resumen en texto del proyecto para pedir opinión en un foro, a un técnico o a un asistente de IA.",
+    "text": "Copia un enlace que abre una copia de este proyecto en otro dispositivo, o un resumen en texto para pedir opinión en un foro, a un técnico o a un asistente de IA.",
     "copy": "Copiar resumen",
-    "fallback": "Resumen para copiar"
+    "fallback": "Texto para copiar",
+    "copyLink": "Copiar enlace"
   },
   "bands": {
     "2_4": "2,4 GHz",
@@ -203,13 +204,15 @@
     "title": "Política de Privacidad | Planejador WiFi",
     "description": "Cómo trata tus datos Planejador WiFi: los proyectos se guardan solo en tu navegador.",
     "h1": "Política de privacidad",
-    "updated": "Última actualización: 25 de octubre de 2026.",
+    "updated": "Última actualización: 29 de octubre de 2026.",
     "projectsTitle": "Tus proyectos",
     "projectsText": "Los planos, routers y modelos que creas se guardan solo en el almacenamiento local (localStorage) de tu navegador. No se envían a ningún servidor. Si borras los datos del navegador, desaparecen; para guardar una copia, usa <b>Archivo › Exportar JSON</b>.",
     "cookiesTitle": "Cookies",
     "noCookies": "Este sitio no usa cookies ni herramientas de rastreo de terceros.",
     "rightsTitle": "Tus derechos",
-    "rightsText": "Puedes pedir información sobre el tratamiento de tus datos, o su eliminación, en <b>contato@planejadorwifi.com</b>."
+    "rightsText": "Puedes pedir información sobre el tratamiento de tus datos, o su eliminación, en <b>contato@planejadorwifi.com</b>.",
+    "linksTitle": "Enlaces de proyecto",
+    "linksText": "El botón <b>Copiar enlace</b> pone el proyecto completo dentro del propio enlace, en la parte que va después del signo <b>#</b>. Esa parte nunca se envía al servidor: quien abre el enlace recibe la página normal, y el navegador lee el proyecto ahí mismo, lo guarda como un proyecto nuevo y borra esa parte de la barra de direcciones. La imagen de fondo del plano no va en el enlace. Cualquier persona con el enlace puede ver el proyecto, así que compártelo solo con quien quieras."
   },
   "notFound": {
     "title": "Página no encontrada | Planejador WiFi",
@@ -427,7 +430,12 @@
       "importError": "Este archivo no es un proyecto de Planejador WiFi. Elige un JSON exportado desde aquí.",
       "copied": "Resumen copiado.",
       "copyFail": "No pude copiar automáticamente. El texto está seleccionado: usa Ctrl+C.",
-      "planMin": "El plano no puede ser menor que el dibujo: mínimo {w} × {h} m."
+      "planMin": "El plano no puede ser menor que el dibujo: mínimo {w} × {h} m.",
+      "linkCopied": "Enlace copiado. Quien lo abra recibe una copia de este proyecto.",
+      "linkNoImage": "Enlace copiado, sin la imagen de fondo del plano, que no cabe en un enlace.",
+      "linkTooLong": "Este proyecto es demasiado grande para caber en un enlace. Usa Archivo › Exportar JSON y envía el archivo.",
+      "linkOpened": "Proyecto “{name}” abierto desde el enlace y guardado como nuevo.",
+      "linkError": "Este enlace de proyecto está incompleto o dañado. Pide uno nuevo a quien lo envió."
     },
     "summary": {
       "area": "Área: {w} × {h} m, {floors} piso(s). Coordenadas en metros desde la esquina superior izquierda.",
@@ -442,7 +450,8 @@
       "noDeviceBand": "sin dispositivo en esta banda",
       "backhaul": "Backhaul",
       "on": "en",
-      "model": "Estimación de Planejador WiFi (pérdida log-distancia + atenuación por pared, error típico de ±8 dB)."
+      "model": "Estimación de Planejador WiFi (pérdida log-distancia + atenuación por pared, error típico de ±8 dB).",
+      "link": "Abrir en el simulador: {url}"
     },
     "tour": {
       "next": "Siguiente",
