@@ -24,7 +24,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
 import { MATERIALS, SLAB, SIGNAL_LEVELS, LINK_LEVELS, N_EXP, GOOD, BANDS, BAND_KEYS, BUILTIN_MODELS, FLOOR_H, COVER_CELL, SUGGEST } from '../assets/js/engine.js';
 import { createDates } from './lastmod.mjs';
-import { HOMES, TARGET, ROOM, DOOR, coverage } from './scenarios.mjs';
+import { HOMES, TARGET, ROOM, DOOR, coverage, exampleHome } from './scenarios.mjs';
+import { encodeShare, SHARE_PREFIX } from '../assets/js/store.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const SITE = (process.env.SITE_URL || 'https://planejadorwifi.com').replace(/\/$/, '');
@@ -32,14 +33,15 @@ export const LANGS = ['pt-BR', 'en', 'es'];
 const DEFAULT_LANG = 'pt-BR';
 // Guides share one template (src/guide.html). Each one's texts live in every language file under
 // guides.items.<id> and its public path under paths["guide-<id>"]. `published` is the date it first
-// went online; the modified date comes from git. `related` lists other guide ids, in order.
+// went online; the modified date comes from git. `example` is the example home (scripts/scenarios.mjs)
+// its call to action opens in the planner. `related` lists other guide ids, in order.
 const GUIDES = [
-  { id: 'router', published: '2026-10-29', related: ['nodes', 'walls', 'mesh'] },
-  { id: 'nodes', published: '2026-10-29', related: ['router', 'mesh', 'walls'] },
-  { id: 'mesh', published: '2026-10-29', related: ['nodes', 'bands', 'router'] },
-  { id: 'walls', published: '2026-10-29', related: ['dbm', 'router', 'bands'] },
-  { id: 'dbm', published: '2026-10-29', related: ['walls', 'bands', 'nodes'] },
-  { id: 'bands', published: '2026-10-29', related: ['mesh', 'dbm', 'walls'] },
+  { id: 'router', published: '2026-10-29', example: 'h120', related: ['nodes', 'walls', 'mesh'] },
+  { id: 'nodes', published: '2026-10-29', example: 'h200', related: ['router', 'mesh', 'walls'] },
+  { id: 'mesh', published: '2026-10-29', example: 'twoStory', related: ['nodes', 'bands', 'router'] },
+  { id: 'walls', published: '2026-10-29', example: 'apartment', related: ['dbm', 'router', 'bands'] },
+  { id: 'dbm', published: '2026-10-29', example: 'h150', related: ['walls', 'bands', 'nodes'] },
+  { id: 'bands', published: '2026-10-29', example: 'long', related: ['mesh', 'dbm', 'walls'] },
 ];
 const guidePage = id => `guide-${id}`;
 const guideOf = page => GUIDES.find(g => guidePage(g.id) === page);
@@ -261,8 +263,20 @@ function docSpecials(dicts, lang, page, dateOf) {
   };
 }
 
+// Each guide's example home as a project link (#p=…, see encodeShare() in store.js), named in
+// the page language: "Open this example in the planner".
+const exampleName = (d, g) => stripTags(fillModel(d.guides.items[g.id].example, d));
+async function exampleLinks(dicts) {
+  const out = {};
+  for (const lang of LANGS) for (const g of GUIDES) {
+    const d = dicts[lang], name = exampleName(d, g);
+    out[`${lang}|${g.id}`] = d.paths.index + SHARE_PREFIX + await encodeShare({ ...exampleHome(g.example), name: name[0].toLocaleUpperCase(lang) + name.slice(1) });
+  }
+  return out;
+}
+
 // Values for the guides index and the guide pages.
-function guideSpecials(dicts, lang, page, dateOf) {
+function guideSpecials(dicts, lang, page, dateOf, examples) {
   const d = dicts[lang], G = d.guides, url = SITE + d.paths[page];
   const home = [G.home, SITE + d.paths.index], index = [G.index.h1, SITE + d.paths.guides];
   const og = (title, description) => ({ ogTitle: title, ogDescription: description });
@@ -304,14 +318,16 @@ function guideSpecials(dicts, lang, page, dateOf) {
     answer: `<div class="answer">${fillModel(it.answer, d)}</div>`,
     sectionsA: sections.slice(0, half).join('\n'), sectionsB: sections.slice(half).join('\n'),
     note: fillModel(G.note, d),
-    cta: `<aside class="cta" aria-labelledby="cta-title"><h2 id="cta-title">${esc(it.cta.title)}</h2><p>${esc(it.cta.text)}</p><p><a class="btn primary" href="${esc(d.paths.index)}#simulator">${esc(G.ctaButton)}</a></p></aside>`,
+    cta: `<aside class="cta" aria-labelledby="cta-title"><h2 id="cta-title">${esc(it.cta.title)}</h2><p>${esc(it.cta.text)}</p>`
+      + `<p class="cta-actions"><a class="btn primary" href="${esc(d.paths.index)}#simulator">${esc(G.ctaButton)}</a><a class="btn" href="${esc(examples[`${lang}|${g.id}`])}">${esc(G.exampleButton)}</a></p>`
+      + `<p class="cta-note">${esc(G.exampleLabel.replace('{name}', exampleName(d, g)))}</p></aside>`,
     faq: faq.length ? `<h2 id="faq">${esc(G.faqTitle)}</h2><div class="faq">${faq.map(f => `<details><summary>${fillModel(f.q, d)}</summary><p>${fillModel(f.a, d)}</p></details>`).join('')}</div>` : '',
     related: `<nav class="related" aria-labelledby="related-title"><h2 id="related-title">${esc(G.related)}</h2><ul>${links.join('')}</ul></nav>`,
     jsonLd: ldScripts(ld),
   };
 }
 
-function specials(dicts, lang, page, dateOf) {
+function specials(dicts, lang, page, dateOf, examples) {
   const d = dicts[lang];
   const linkPage = INDEXED.includes(page) ? page : 'index';
   const hreflang = INDEXED.includes(page)
@@ -342,7 +358,7 @@ function specials(dicts, lang, page, dateOf) {
     jsonLd: ldScripts(ld),
     i18nJson: `<script type="application/json" id="i18n">${ldJson({ lang: d.lang, locale: d.locale, paths: d.paths, ui: d.ui, defaults: defaultNames(dicts) })}</script>`,
     langRedirect: LANG_REDIRECT,
-    ...(page === 'guides' || guideOf(page) ? guideSpecials(dicts, lang, page, dateOf) : {}),
+    ...(page === 'guides' || guideOf(page) ? guideSpecials(dicts, lang, page, dateOf, examples) : {}),
     ...(DOCS[page] ? docSpecials(dicts, lang, page, dateOf) : {}),
   };
 }
@@ -387,14 +403,14 @@ function deepMerge(base, extra) {
   return out;
 }
 
-function renderPage(page, lang, dicts, flags, slots, dateOf) {
+function renderPage(page, lang, dicts, flags, slots, dateOf, examples) {
   let html = readFileSync(join(ROOT, PAGES[page]), 'utf8');
   for (const [slot, file] of Object.entries(PARTIALS)) {
     html = html.replaceAll(`{{{@${slot}}}}`, readFileSync(join(ROOT, 'src/partials', file + '.html'), 'utf8'));
   }
   for (const name of SLOTS) html = html.replaceAll(`{{{@slot.${name}}}}`, slots[name] || '');
   html = applyBlocks(html, { ...flags, home: page === 'index', ptHome: page === 'index' && lang === DEFAULT_LANG });
-  return render(html, dicts[lang], specials(dicts, lang, page, dateOf));
+  return render(html, dicts[lang], specials(dicts, lang, page, dateOf, examples));
 }
 
 function sitemap(dicts, dateOf) {
@@ -476,6 +492,8 @@ export async function build({ outDir = join(ROOT, 'dist'), env = process.env, ex
     return dateCache.get(id);
   };
 
+  const examples = await exampleLinks(dicts);
+
   rmSync(outDir, { recursive: true, force: true });
   mkdirSync(outDir, { recursive: true });
   for (const item of STATIC) {
@@ -484,7 +502,7 @@ export async function build({ outDir = join(ROOT, 'dist'), env = process.env, ex
 
   for (const lang of LANGS) {
     for (const page of Object.keys(PAGES)) {
-      const html = renderPage(page, lang, dicts, flags, slots, dateOf);
+      const html = renderPage(page, lang, dicts, flags, slots, dateOf, examples);
       const left = html.match(/\{\{/);
       if (left) throw new Error(`Unreplaced placeholder in ${page} (${lang}).`);
       const file = join(outDir, outPath(dicts[lang].paths[page]));

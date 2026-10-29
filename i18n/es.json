@@ -657,7 +657,8 @@
         "cta": {
           "title": "Prueba el lugar en tu plano",
           "text": "Dibuja las paredes de tu casa, pon el router y mira la señal estimada en cada habitación. Arrastra el router a otro lugar y compara en segundos."
-        }
+        },
+        "example": "casa de una planta de {area.h120} m² con {need.h120} nodo"
       },
       "nodes": {
         "title": "¿Cuántos nodos mesh necesito? Cálculo por m² | Planejador WiFi",
@@ -714,7 +715,8 @@
         "cta": {
           "title": "Cuenta los nodos en tu plano",
           "text": "Dibuja tu casa, pon el primer nodo donde está el módem y usa Sugerir posición para ver dónde rinde más el siguiente y cuánto de la casa cubre."
-        }
+        },
+        "example": "casa de una planta de {area.h200} m² con {need.h200} nodos"
       },
       "mesh": {
         "title": "Mesh, repetidor o cable: ¿qué es mejor para el Wi-Fi? | Planejador WiFi",
@@ -771,7 +773,8 @@
         "cta": {
           "title": "Mira el enlace entre los nodos",
           "text": "Pon el router y un nodo en tu plano y revisa el enlace en dBm. Marca el nodo como conectado por cable para comparar las dos opciones."
-        }
+        },
+        "example": "casa de dos pisos de {area.twoStory} m² con {need.twoStory} nodos"
       },
       "walls": {
         "title": "¿Cuánto bloquean las paredes y losas el Wi-Fi? Tabla en dB | Planejador WiFi",
@@ -828,7 +831,8 @@
         "cta": {
           "title": "Dibuja cada pared con el material correcto",
           "text": "En el simulador, cada pared tiene un material. Cambia ladrillo por concreto o vidrio y mira al instante cuánto cambia el mapa de señal."
-        }
+        },
+        "example": "departamento de {area.apartment} m² con paredes de concreto y {need.apartment} nodos"
       },
       "dbm": {
         "title": "Señal Wi-Fi en dBm: ¿qué es una buena señal? | Planejador WiFi",
@@ -885,7 +889,8 @@
         "cta": {
           "title": "Mira la señal estimada en cada habitación",
           "text": "Dibuja tu casa y el simulador pinta cada punto con los mismos rangos de dBm de esta página, en 2,4, 5 y 6 GHz."
-        }
+        },
+        "example": "casa de una planta de {area.h150} m² con {need.h150} nodos"
       },
       "bands": {
         "title": "2,4, 5 o 6 GHz: ¿qué banda de Wi-Fi usar? | Planejador WiFi",
@@ -942,7 +947,8 @@
         "cta": {
           "title": "Compara las bandas en tu plano",
           "text": "Dibuja tu casa una vez y cambia entre 2,4, 5 y 6 GHz para ver hasta dónde llega cada banda con buena señal."
-        }
+        },
+        "example": "casa alargada de {area.long} m² con {need.long} nodos"
       }
     },
     "tables": {
@@ -957,7 +963,9 @@
       "mhz": "Frecuencia",
       "pl0": "Pérdida a 1 m",
       "tx": "Potencia"
-    }
+    },
+    "exampleButton": "Abrir este ejemplo en el simulador",
+    "exampleLabel": "El ejemplo: {name}. El simulador eligió dónde va cada nodo."
   },
   "methodology": {
     "title": "Metodología: cómo calcula la señal el Planejador WiFi | Planejador WiFi",

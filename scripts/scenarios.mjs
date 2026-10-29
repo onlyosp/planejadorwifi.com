@@ -60,7 +60,7 @@ export function coverage(id) {
   if (cache.has(id)) return cache.get(id);
   const p = homeProject(id), home = HOMES[id];
   const cover = () => p.floors.map((_, fi) => stats(p, MODELS, fi, BAND).good);
-  const steps = [cover()];
+  const steps = [cover()], placed = [];
   let need = null;
   while (nodesAll(p).length < MAX_NODES) {
     const c = steps.at(-1);
@@ -69,12 +69,20 @@ export function coverage(id) {
     const fi = c.indexOf(Math.min(...c));
     const s = suggest(p, MODELS, fi, BAND, MODEL);
     if (s.none) break;
-    p.floors[fi].nodes.push({ x: s.x, y: s.y, model: MODEL, main: !nodesAll(p).length, wired: false });
+    const node = { x: s.x, y: s.y, model: MODEL, main: !nodesAll(p).length, wired: false };
+    p.floors[fi].nodes.push(node); placed.push(node);
     steps.push(cover());
   }
   while (steps.length <= MAX_NODES) steps.push(steps.at(-1));
   if (need === null) need = steps.findIndex(c => Math.min(...c) >= TARGET);
-  const r = { steps, need: need < 0 ? null : need, area: home.w * home.h * (home.floors || 1), project: p };
+  const r = { steps, need: need < 0 ? null : need, area: home.w * home.h * (home.floors || 1), project: p, placed };
   cache.set(id, r);
   return r;
+}
+
+// The home with the nodes it needs, in the order they were placed: the project a guide's
+// "Open this example in the planner" link opens.
+export function exampleHome(id) {
+  const c = coverage(id), keep = new Set(c.placed.slice(0, c.need ?? c.placed.length));
+  return { ...c.project, floors: c.project.floors.map(f => ({ ...f, nodes: f.nodes.filter(n => keep.has(n)) })) };
 }

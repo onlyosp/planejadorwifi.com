@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { build, applyBlocks, SLOTS } from '../scripts/build.mjs';
 import { coverage, TARGET } from '../scripts/scenarios.mjs';
+import { decodeShare } from '../assets/js/store.js';
 
 async function run(opts = {}) {
   const out = mkdtempSync(join(tmpdir(), 'planejador-build-'));
@@ -117,6 +118,25 @@ test('the methodology page is an article with its sections and links to every gu
     assert.deepEqual(types, ['Article', 'BreadcrumbList']);
     assert.ok(page.includes('href="/en/guides/wifi-signal-strength-dbm"'), 'page links are filled from paths');
     for (const guide of [...b.read('en/guides/index.html').matchAll(/<h2><a href="([^"]+)"/g)].map(m => m[1])) assert.ok(page.includes(`href="${guide}"`), guide);
+  } finally { b.done(); }
+});
+
+test('every guide opens its example home in the planner of its language', async () => {
+  const b = await run();
+  try {
+    const guides = [...b.read('es/guias/index.html').matchAll(/<h2><a href="\/es\/guias\/([^"]+)"/g)].map(m => m[1]);
+    assert.equal(guides.length, 6);
+    for (const slug of guides) {
+      const page = b.read(`es/guias/${slug}.html`);
+      const href = page.match(/<a class="btn" href="\/es\/#p=([\w-]+)">/);
+      assert.ok(href, slug);
+      const p = await decodeShare(href[1]);
+      const nodes = p.floors.flatMap(f => f.nodes);
+      assert.ok(page.includes(`El ejemplo: ${p.name[0].toLowerCase() + p.name.slice(1)}.`), `${slug}: the caption names the project`);
+      assert.match(p.name, /^\p{Lu}/u, `${slug}: the project name starts with a capital`);
+      assert.match(p.name, new RegExp(` ${nodes.length} nodos?$`), `${slug}: the name counts the nodes it opens with`);
+      assert.equal(nodes.filter(n => n.main).length, 1, slug);
+    }
   } finally { b.done(); }
 });
 

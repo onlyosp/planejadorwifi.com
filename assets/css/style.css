@@ -299,6 +299,8 @@ td:has(> .sw) { white-space: nowrap }
 .cta { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; margin-top: 6px }
 .guide .cta h2 { font-size: 20px; margin: 0 }
 .cta p { font-size: 15.5px }
+.cta .cta-actions { display: flex; flex-wrap: wrap; gap: 8px }
+.cta .cta-note { font-size: 14px; color: var(--muted) }
 a.btn { display: inline-flex; align-items: center; min-height: 40px; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); font-weight: 500; text-decoration: none }
 a.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent) }
 a.btn:hover { border-color: var(--muted) }

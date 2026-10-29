@@ -657,7 +657,8 @@
         "cta": {
           "title": "Try the spot on your floor plan",
           "text": "Draw your home’s walls, place the router and see the estimated signal in every room. Drag the router somewhere else and compare in seconds."
-        }
+        },
+        "example": "{area.h120} m² single-story house with {need.h120} node"
       },
       "nodes": {
         "title": "How Many Mesh Wi-Fi Nodes Do I Need? By Square Meter | Planejador WiFi",
@@ -714,7 +715,8 @@
         "cta": {
           "title": "Count the nodes on your floor plan",
           "text": "Draw your home, place the first node where the modem is and use Suggest a spot to see where the next one helps most and how much of the house it covers."
-        }
+        },
+        "example": "{area.h200} m² single-story house with {need.h200} nodes"
       },
       "mesh": {
         "title": "Mesh vs Extender vs Ethernet: Which Is Best for Wi-Fi? | Planejador WiFi",
@@ -771,7 +773,8 @@
         "cta": {
           "title": "Check the link between nodes",
           "text": "Place the router and a node on your floor plan and check the link in dBm. Mark the node as wired to compare both options."
-        }
+        },
+        "example": "{area.twoStory} m² two-story house with {need.twoStory} nodes"
       },
       "walls": {
         "title": "How Much Do Walls and Floors Block Wi-Fi? Table in dB | Planejador WiFi",
@@ -828,7 +831,8 @@
         "cta": {
           "title": "Draw each wall with the right material",
           "text": "In the planner, every wall has a material. Switch brick to concrete or glass and see right away how much the signal map changes."
-        }
+        },
+        "example": "{area.apartment} m² apartment with concrete walls and {need.apartment} nodes"
       },
       "dbm": {
         "title": "Wi-Fi Signal Strength in dBm: What Is Good? | Planejador WiFi",
@@ -885,7 +889,8 @@
         "cta": {
           "title": "See the estimated signal in every room",
           "text": "Draw your home and the planner colors every spot with the same dBm ranges as this page, on 2.4, 5 and 6 GHz."
-        }
+        },
+        "example": "{area.h150} m² single-story house with {need.h150} nodes"
       },
       "bands": {
         "title": "2.4 vs 5 vs 6 GHz: Which Wi-Fi Band Should You Use? | Planejador WiFi",
@@ -942,7 +947,8 @@
         "cta": {
           "title": "Compare the bands on your floor plan",
           "text": "Draw your home once and switch between 2.4, 5 and 6 GHz to see where each band reaches with good signal."
-        }
+        },
+        "example": "long {area.long} m² house with {need.long} nodes"
       }
     },
     "tables": {
@@ -957,7 +963,9 @@
       "mhz": "Frequency",
       "pl0": "Loss at 1 m",
       "tx": "Power"
-    }
+    },
+    "exampleButton": "Open this example in the planner",
+    "exampleLabel": "The example: {name}. The planner chose where each node goes."
   },
   "methodology": {
     "title": "Methodology: How Planejador WiFi Estimates Signal | Planejador WiFi",
