@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { build, applyBlocks, SLOTS } from '../scripts/build.mjs';
+import { build, applyBlocks, loadDicts, SLOTS, INDEXED, LANGS, SITE } from '../scripts/build.mjs';
 import { coverage, TARGET } from '../scripts/scenarios.mjs';
 import { decodeShare } from '../assets/js/store.js';
 
@@ -95,6 +95,34 @@ test('robots.txt lets every crawler in and llms.txt lists every page of the site
     for (const url of locs) assert.ok(llms.includes(`](${url})`), `llms.txt links ${url}`);
     assert.match(llms, /^# Planejador WiFi\n\n> /);
     for (const lastmod of sitemap.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)) assert.match(lastmod[1], /^\d{4}-\d{2}-\d{2}$/);
+  } finally { b.done(); }
+});
+
+test('every indexable page has its own title and description, full hreflang, valid JSON-LD and is listed for crawlers', async () => {
+  const b = await run(), dicts = loadDicts();
+  const file = path => (path.endsWith('/') ? path + 'index.html' : path + '.html').slice(1);
+  const attr = (html, re) => html.match(re)?.[1];
+  try {
+    const sitemap = b.read('sitemap.xml'), llms = b.read('llms.txt'), titles = new Map(), descriptions = new Map();
+    for (const lang of LANGS) for (const page of INDEXED) {
+      const path = dicts[lang].paths[page], url = SITE + path, where = `${page} (${lang})`, html = b.read(file(path));
+      const title = attr(html, /<title>([^<]+)<\/title>/), description = attr(html, /<meta name="description" content="([^"]+)">/);
+      assert.ok(title && description, `${where}: title and description`);
+      assert.ok(!titles.has(title), `${where}: title also used by ${titles.get(title)}`);
+      assert.ok(!descriptions.has(description), `${where}: description also used by ${descriptions.get(description)}`);
+      titles.set(title, where); descriptions.set(description, where);
+      assert.equal(attr(html, /<link rel="canonical" href="([^"]+)">/), url, `${where}: canonical`);
+      const alternates = [...html.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)">/g)].map(m => [m[1], m[2]]);
+      assert.deepEqual(alternates, [...LANGS.map(l => [l, SITE + dicts[l].paths[page]]), ['x-default', SITE + dicts['pt-BR'].paths[page]]], `${where}: hreflang`);
+      assert.equal((html.match(/<h1[\s>]/g) || []).length, 1, `${where}: one h1`);
+      assert.ok(!/<meta name="robots"[^>]*noindex/.test(html), `${where}: indexable`);
+      assert.ok(sitemap.includes(`<loc>${url}</loc>`), `${where}: in the sitemap`);
+      assert.ok(llms.includes(`](${url}):`), `${where}: in llms.txt`);
+      const ld = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map(m => JSON.parse(m[1]));
+      assert.ok(ld.length, `${where}: has JSON-LD`);
+      for (const o of ld) assert.ok(o['@context'] === 'https://schema.org' && o['@type'], `${where}: JSON-LD ${o['@type']}`);
+    }
+    assert.ok(!sitemap.includes('404'), 'the 404 page stays out of the sitemap');
   } finally { b.done(); }
 });
 
