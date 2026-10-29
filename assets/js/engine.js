@@ -39,7 +39,9 @@ export const BUILTIN_MODELS = [
 ];
 
 // Signal categories 0..4: excellent, good, fair, weak, unusable (names in i18n ui.cats).
-export const catOf = v => (v >= -60 ? 0 : v >= -67 ? 1 : v >= -72 ? 2 : v >= -80 ? 3 : 4);
+// SIGNAL_LEVELS holds the lower bound of categories 0..3 in dBm; the build quotes them in the pages.
+export const SIGNAL_LEVELS = [-60, -67, -72, -80];
+export const catOf = v => { const i = SIGNAL_LEVELS.findIndex(l => v >= l); return i < 0 ? 4 : i; };
 // Backhaul link quality: 0 great, 2 ok, 4 weak (color index and i18n key). Rounded like the
 // label, so a link shown as -70 dBm is never called weak.
 export const linkCat = v => { const r = Math.round(v); return r >= -60 ? 0 : r >= -70 ? 2 : 4; };

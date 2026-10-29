@@ -21,9 +21,9 @@
 import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { execSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { MATERIALS, SLAB } from '../assets/js/engine.js';
+import { MATERIALS, SLAB, SIGNAL_LEVELS, N_EXP, BUILTIN_MODELS } from '../assets/js/engine.js';
+import { createDates } from './lastmod.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const SITE = (process.env.SITE_URL || 'https://planejadorwifi.com').replace(/\/$/, '');
@@ -31,6 +31,12 @@ export const LANGS = ['pt-BR', 'en', 'es'];
 const DEFAULT_LANG = 'pt-BR';
 const PAGES = { index: 'src/index.html', privacy: 'src/privacy.html', notFound: 'src/404.html' };
 const INDEXED = ['index', 'privacy'];
+// What each page's content is made of, for its last-modified date: its template plus its own
+// part of the language file (see scripts/lastmod.mjs).
+const SOURCES = {
+  index: { files: ['src/index.html'], keys: ['meta', 'intro', 'guide', 'faq'] },
+  privacy: { files: ['src/privacy.html'], keys: ['privacy'] },
+};
 const STATIC = ['assets', 'site.webmanifest'];
 const MATERIAL_ORDER = ['tijolo', 'concreto', 'slab', 'gesso', 'madeira', 'vidro', 'metal'];
 
@@ -72,7 +78,7 @@ const outPath = p => (p.endsWith('/') ? p + 'index.html' : /\.\w+$/.test(p) ? p 
 // choice or browser language is English or Spanish (or anything other than Portuguese) go to
 // /en/ or /es/. Crawlers are left alone so every version stays indexable.
 const LANG_REDIRECT = `<script>(function(){try{
-if(/bot|crawl|spider|slurp|mediapartners|lighthouse|headless|preview/i.test(navigator.userAgent))return;
+if(/bot|crawl|spider|slurp|mediapartners|lighthouse|headless|preview|inspectiontool|google-|bing|claude|anthropic|openai|chatgpt|perplexity/i.test(navigator.userAgent))return;
 var p=localStorage.getItem('planejador:lang');
 if(!p){var ls=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||''];
 for(var i=0;i<ls.length&&!p;i++){var l=String(ls[i]).toLowerCase();p=l.indexOf('pt')===0?'pt-BR':l.indexOf('es')===0?'es':l.indexOf('en')===0?'en':null;}
@@ -168,20 +174,48 @@ function renderPage(page, lang, dicts, flags, slots) {
   return render(html, dicts[lang], specials(dicts, lang, page));
 }
 
-function sitemap(dicts, date) {
+function sitemap(dicts, dateOf) {
   const urls = INDEXED.flatMap(page => LANGS.map(lang => {
     const alts = [...LANGS.map(l => `    <xhtml:link rel="alternate" hreflang="${l}" href="${SITE}${dicts[l].paths[page]}"/>`),
       `    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE}${dicts[DEFAULT_LANG].paths[page]}"/>`].join('\n');
-    return `  <url>\n    <loc>${SITE}${dicts[lang].paths[page]}</loc>\n    <lastmod>${date}</lastmod>\n${alts}\n  </url>`;
+    return `  <url>\n    <loc>${SITE}${dicts[lang].paths[page]}</loc>\n    <lastmod>${dateOf(page, lang)}</lastmod>\n${alts}\n  </url>`;
   }));
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls.join('\n')}\n</urlset>\n`;
 }
 
-function sourceDate() {
-  try { return execSync('git log -1 --format=%cs', { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim() || today(); }
-  catch { return today(); }
+// Every crawler, search engines and AI assistants alike, may read every page.
+const robots = () => `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`;
+
+// Title and description of an indexable page, as shown in search results.
+function pageMeta(d, page) {
+  if (page === 'index') return { title: d.meta.title, description: d.meta.description };
+  return { title: d[page].title, description: d[page].description };
 }
-const today = () => new Date().toISOString().slice(0, 10);
+
+// llms.txt (llmstxt.org): what the site is and where its pages are, in every language, plus the
+// model's key numbers, taken from engine.js so they never drift from what the planner computes.
+function llms(dicts) {
+  const en = dicts.en, names = en.guide.materialNames, cats = en.ui.cats;
+  const lines = ['# Planejador WiFi', '', `> ${en.meta.appDescription} ${en.llms.summary}`, ''];
+  for (const lang of LANGS) {
+    const d = dicts[lang];
+    lines.push(`## ${d.langName}`, '', d.llms.when, '');
+    for (const page of INDEXED) {
+      const m = pageMeta(d, page);
+      lines.push(`- [${m.title}](${SITE}${d.paths[page]}): ${m.description}`);
+    }
+    lines.push('');
+  }
+  const db = v => v.join('/');
+  const levels = SIGNAL_LEVELS;
+  lines.push('## Key facts', '',
+    `- Model: log-distance path loss with exponent ${N_EXP}, plus the attenuation of every wall crossed and of each slab between floors. Typical error ±8 dB: it compares placements and does not replace a site survey.`,
+    `- Attenuation in dB at 2.4/5/6 GHz: ${MATERIAL_ORDER.map(k => `${names[k].toLowerCase()} ${db(k === 'slab' ? SLAB : MATERIALS[k].db)}`).join('; ')}.`,
+    `- Signal levels: ${cats[0].name.toLowerCase()} at ${levels[0]} dBm or better; ${levels.slice(1).map((l, i) => `${cats[i + 1].name.toLowerCase()} from ${levels[i]} to ${l}`).join('; ')}; ${cats[4].name.toLowerCase()} below ${levels.at(-1)} dBm.`,
+    `- Built-in router models: ${BUILTIN_MODELS.filter(m => m.id !== 'isp').map(m => m.name).join(', ')}, plus a generic ISP router and the visitor's own models.`,
+    '- Free, no sign-up, open source (MIT). Projects stay in the visitor\'s browser.', '');
+  return lines.join('\n');
+}
 
 function htmlFiles(dir) {
   return readdirSync(dir).flatMap(name => {
@@ -204,6 +238,18 @@ export async function build({ outDir = join(ROOT, 'dist'), env = process.env, ex
     if (p.i18n) dicts = Object.fromEntries(LANGS.map(l => [l, deepMerge(dicts[l], p.i18n[l])]));
   }
 
+  const raw = loadDicts(); // without extension texts: the dates follow this repository's own files
+  const pageDate = createDates(ROOT);
+  const dateCache = new Map();
+  const dateOf = (page, lang) => {
+    const id = page + '|' + lang;
+    if (!dateCache.has(id)) {
+      const src = SOURCES[page] || { files: [PAGES[page]], keys: [] };
+      dateCache.set(id, pageDate({ files: src.files, sections: src.keys.map(key => ({ file: `i18n/${lang}.json`, key, current: raw[lang] })) }));
+    }
+    return dateCache.get(id);
+  };
+
   rmSync(outDir, { recursive: true, force: true });
   mkdirSync(outDir, { recursive: true });
   for (const item of STATIC) {
@@ -220,7 +266,9 @@ export async function build({ outDir = join(ROOT, 'dist'), env = process.env, ex
       writeFileSync(file, html);
     }
   }
-  writeFileSync(join(outDir, 'sitemap.xml'), sitemap(dicts, sourceDate()));
+  writeFileSync(join(outDir, 'sitemap.xml'), sitemap(dicts, dateOf));
+  writeFileSync(join(outDir, 'robots.txt'), robots());
+  writeFileSync(join(outDir, 'llms.txt'), llms(dicts));
   for (const p of parts) if (p.writeFiles) p.writeFiles(outDir);
 
   const version = fingerprint(outDir);

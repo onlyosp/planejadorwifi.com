@@ -19,7 +19,7 @@ index.html, politica-de-privacidade.html, 404.html   Portuguese (default)
 en/index.html, en/privacy.html, en/404.html            English
 es/index.html, es/privacidad.html, es/404.html         Spanish
 assets/                                                CSS, JavaScript, images
-sitemap.xml, site.webmanifest
+sitemap.xml, robots.txt, llms.txt, site.webmanifest
 ```
 
 ## Settings
@@ -57,7 +57,13 @@ error_page 404 /404.html;
 
 ## Crawler files
 
-The build does not create `robots.txt` or other crawler instructions: they depend on how and where you host the site. Add them on your server or write them from a build extension (`writeFiles`). The generated `sitemap.xml` is at the site root.
+The build writes three files at the site root, all from `SITE_URL` and the language files:
+
+- `sitemap.xml`: every indexable page in every language, with `hreflang` alternates. Each page's `lastmod` is the date of the last commit that changed its template or its own part of the language files (see `scripts/lastmod.mjs`), so build from a full clone (`git fetch --unshallow`, or `fetch-depth: 0` in CI). Without history every page gets the date of the newest commit.
+- `robots.txt`: allows every crawler, search engines and AI assistants alike, and points to the sitemap.
+- `llms.txt` ([llmstxt.org](https://llmstxt.org)): a short description of the product and links to every indexable page in each language, plus the model's key numbers taken from `assets/js/engine.js`.
+
+A build extension that needs different rules can overwrite these files in `writeFiles`, which runs after them. Keep in mind that a host or CDN can block crawlers before they reach these files: check its bot settings.
 
 ## Caching
 

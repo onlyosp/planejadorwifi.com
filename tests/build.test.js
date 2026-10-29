@@ -80,3 +80,18 @@ test('CSS and JS URLs carry the content hash', async () => {
     }
   } finally { b.done(); }
 });
+
+test('robots.txt lets every crawler in and llms.txt lists every page of the sitemap', async () => {
+  const b = await run();
+  try {
+    const robots = b.read('robots.txt'), llms = b.read('llms.txt'), sitemap = b.read('sitemap.xml');
+    assert.match(robots, /^User-agent: \*\nAllow: \/\n/);
+    assert.ok(!/Disallow/i.test(robots), 'nothing is blocked');
+    assert.match(robots, /\nSitemap: https?:\/\/[^\s]+\/sitemap\.xml\n$/);
+    const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
+    assert.ok(locs.length >= 6);
+    for (const url of locs) assert.ok(llms.includes(`](${url})`), `llms.txt links ${url}`);
+    assert.match(llms, /^# Planejador WiFi\n\n> /);
+    for (const lastmod of sitemap.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)) assert.match(lastmod[1], /^\d{4}-\d{2}-\d{2}$/);
+  } finally { b.done(); }
+});
