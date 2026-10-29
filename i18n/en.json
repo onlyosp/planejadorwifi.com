@@ -12,7 +12,8 @@
     "guide-nodes": "/en/guides/how-many-mesh-nodes-do-i-need",
     "guide-mesh": "/en/guides/mesh-vs-extender-vs-ethernet",
     "guide-walls": "/en/guides/how-much-walls-block-wifi",
-    "guide-dbm": "/en/guides/wifi-signal-strength-dbm"
+    "guide-dbm": "/en/guides/wifi-signal-strength-dbm",
+    "guide-bands": "/en/guides/2-4-vs-5-vs-6-ghz"
   },
   "meta": {
     "title": "Wi-Fi Mesh Planner on Your Floor Plan | Planejador WiFi",
@@ -873,6 +874,63 @@
         "cta": {
           "title": "See the estimated signal in every room",
           "text": "Draw your home and the planner colors every spot with the same dBm ranges as this page, on 2.4, 5 and 6 GHz."
+        }
+      },
+      "bands": {
+        "title": "2.4 vs 5 vs 6 GHz: Which Wi-Fi Band Should You Use? | Planejador WiFi",
+        "description": "The difference between 2.4 GHz, 5 GHz and 6 GHz Wi-Fi in range, speed and walls, when a 6 GHz router (Wi-Fi 6E and Wi-Fi 7) is worth it and which device to put on each band.",
+        "h1": "2.4, 5 or 6 GHz: which Wi-Fi band should you use?",
+        "short": "2.4, 5 or 6 GHz",
+        "answer": "<p>Use 5 GHz day to day: it is much faster than 2.4 GHz and reaches most of the house with one or two nodes. 2.4 GHz goes farther and gets through walls better, but it is slow and crowded. 6 GHz is the fastest and least crowded, with the shortest range.</p><p>In the model, with no walls in the way, good signal reaches about {range.b24} m on 2.4 GHz, {range.b5} m on 5 GHz and {range.b6} m on 6 GHz. Through one brick wall: {range.b24.tijolo}, {range.b5.tijolo} and {range.b6.tijolo} m.</p><p>You do not have to pick one. With the same network name on every band, the router or mesh moves each device to the best one at the time.</p>",
+        "sections": [
+          {
+            "id": "range",
+            "q": "Which band reaches farthest?",
+            "html": "<p>2.4 GHz, by a wide margin. Distance at which signal stays good ({level.1} dBm or better), in the model:</p><ul><li><b>Two brick walls:</b> {range.b24.tijolo.2} m on 2.4 GHz, {range.b5.tijolo.2} m on 5 GHz and {range.b6.tijolo.2} m on 6 GHz.</li><li><b>One concrete wall:</b> {range.b24.concreto} m, {range.b5.concreto} m and {range.b6.concreto} m.</li><li><b>Floor slab, straight up to the next floor:</b> {range.b24.slab} m, {range.b5.slab} m and {range.b6.slab} m.</li></ul><p>That is why, in a far room, your phone sometimes prefers 2.4 GHz: it is slower, but it gets there.</p>"
+          },
+          {
+            "id": "speed",
+            "q": "Which band is fastest?",
+            "html": "<p>Speed depends on the channel width and on how many networks compete for the same space.</p><ul><li><b>2.4 GHz:</b> only three non-overlapping channels and, in practice, narrow 20 MHz channels. It shares the air with neighbors, Bluetooth and microwave ovens.</li><li><b>5 GHz:</b> many more channels and widths up to 160 MHz. It is the main band on most routers.</li><li><b>6 GHz:</b> the newest band, still lightly used, with 160 MHz channels and, on Wi-Fi 7, 320 MHz.</li></ul><p>With good signal, 5 and 6 GHz deliver several times the speed of 2.4 GHz. With weak signal, that edge disappears.</p>"
+          },
+          {
+            "id": "six-ghz",
+            "q": "Is a 6 GHz router worth it?",
+            "html": "<p>It is if you have compatible devices (Wi-Fi 6E or Wi-Fi 7) and use them near the nodes, or if the mesh kit will use 6 GHz to link one node to the next. In that role the band shines: it is free of device traffic and has plenty of width. When both ends of a link have 6 GHz, the planner compares both bands and uses whichever gives the stronger link.</p><p>If there are many walls between the nodes, the 6 GHz link can get too weak and the kit falls back to 5 GHz. For internet up to 1 Gbps and older devices, a dual-band mesh is usually enough. In the United States, the FCC opened the 6 GHz band to Wi-Fi in 2020.</p>"
+          },
+          {
+            "id": "devices",
+            "q": "Which device goes on which band?",
+            "html": "<ul><li><b>2.4 GHz:</b> smart bulbs, plugs, cameras and other smart-home devices; many only work on this band. It also suits devices at the far end of the yard.</li><li><b>5 GHz:</b> phones, laptops, TVs and game consoles. It is the default band for almost everything.</li><li><b>6 GHz:</b> new devices that sit near the router or a node, like a work laptop or a VR headset.</li></ul>"
+          },
+          {
+            "id": "split",
+            "q": "Should I split the 2.4 and 5 GHz networks?",
+            "html": "<p>Usually not. With a single name, the router handles the band switching itself (band steering) and your phone does not get stuck on 2.4 GHz when it is close by. Split them only if a smart-home device fails to set up on the combined network; in that case, create an extra 2.4 GHz network just for it.</p>"
+          },
+          {
+            "id": "on-the-map",
+            "q": "How do I see each band on my floor plan?",
+            "html": "<p>In the planner, switch between 2.4, 5 and 6 GHz at the top of the map. The same plan, with the same nodes, shows the reach of each band and the share of the house with good signal. Start with 5 GHz: if it covers the rooms you use, the house is well served.</p>"
+          }
+        ],
+        "faq": [
+          {
+            "q": "Why doesn’t my phone show the 6 GHz network?",
+            "a": "The 6 GHz band only shows up on devices with Wi-Fi 6E or Wi-Fi 7, with an up-to-date system, in a country that has opened the band. Phones with plain Wi-Fi 6 see only 2.4 and 5 GHz."
+          },
+          {
+            "q": "Does 5 GHz go through floors?",
+            "a": "It does, but it loses {db.slab.b5} dB, against {db.slab.b24} dB on 2.4 GHz. In the model, good 5 GHz signal reaches about {range.b5.slab} m on the floor above, before the walls up there."
+          },
+          {
+            "q": "Wi-Fi 6, 6E and 7: what is the difference in bands?",
+            "a": "Wi-Fi 6 uses 2.4 and 5 GHz. Wi-Fi 6E adds 6 GHz. Wi-Fi 7 uses all three, with wider channels at 6 GHz and the option to use more than one band at the same time."
+          }
+        ],
+        "cta": {
+          "title": "Compare the bands on your floor plan",
+          "text": "Draw your home once and switch between 2.4, 5 and 6 GHz to see where each band reaches with good signal."
         }
       }
     },

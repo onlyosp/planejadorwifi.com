@@ -39,6 +39,7 @@ const GUIDES = [
   { id: 'mesh', published: '2026-10-29', related: ['nodes', 'bands', 'router'] },
   { id: 'walls', published: '2026-10-29', related: ['dbm', 'router', 'bands'] },
   { id: 'dbm', published: '2026-10-29', related: ['walls', 'bands', 'nodes'] },
+  { id: 'bands', published: '2026-10-29', related: ['mesh', 'dbm', 'walls'] },
 ];
 const guidePage = id => `guide-${id}`;
 const guideOf = page => GUIDES.find(g => guidePage(g.id) === page);

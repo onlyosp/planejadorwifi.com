@@ -12,7 +12,8 @@
     "guide-nodes": "/es/guias/cuantos-nodos-mesh-necesito",
     "guide-mesh": "/es/guias/mesh-repetidor-o-cable",
     "guide-walls": "/es/guias/cuanto-bloquean-las-paredes-el-wifi",
-    "guide-dbm": "/es/guias/senal-wifi-dbm"
+    "guide-dbm": "/es/guias/senal-wifi-dbm",
+    "guide-bands": "/es/guias/2-4-5-o-6-ghz"
   },
   "meta": {
     "title": "Simulador de Wi-Fi Mesh en el Plano de tu Casa | Planejador WiFi",
@@ -873,6 +874,63 @@
         "cta": {
           "title": "Mira la señal estimada en cada habitación",
           "text": "Dibuja tu casa y el simulador pinta cada punto con los mismos rangos de dBm de esta página, en 2,4, 5 y 6 GHz."
+        }
+      },
+      "bands": {
+        "title": "2,4, 5 o 6 GHz: ¿qué banda de Wi-Fi usar? | Planejador WiFi",
+        "description": "Diferencia entre Wi-Fi de 2,4 GHz, 5 GHz y 6 GHz en alcance, velocidad y paredes, cuándo conviene un router con 6 GHz (Wi-Fi 6E y Wi-Fi 7) y qué dispositivo conectar en cada banda.",
+        "h1": "2,4, 5 o 6 GHz: ¿qué banda de Wi-Fi usar?",
+        "short": "2,4, 5 o 6 GHz",
+        "answer": "<p>Usa 5 GHz en el día a día: es mucho más rápida que 2,4 GHz y alcanza la mayor parte de la casa con uno o dos nodos. La de 2,4 GHz llega más lejos y atraviesa mejor las paredes, pero es lenta y está saturada. La de 6 GHz es la más rápida y la más libre, con el menor alcance.</p><p>Según el modelo, sin paredes en el camino, la buena señal llega a unos {range.b24} m en 2,4 GHz, {range.b5} m en 5 GHz y {range.b6} m en 6 GHz. A través de una pared de ladrillo: {range.b24.tijolo}, {range.b5.tijolo} y {range.b6.tijolo} m.</p><p>No hace falta elegir una sola. Con el mismo nombre de red en todas las bandas, el router o el mesh lleva cada dispositivo a la mejor en cada momento.</p>",
+        "sections": [
+          {
+            "id": "alcance",
+            "q": "¿Qué banda llega más lejos?",
+            "html": "<p>La de 2,4 GHz, con holgura. Distancia a la que la señal sigue siendo buena ({level.1} dBm o mejor), según el modelo:</p><ul><li><b>Dos paredes de ladrillo:</b> {range.b24.tijolo.2} m en 2,4 GHz, {range.b5.tijolo.2} m en 5 GHz y {range.b6.tijolo.2} m en 6 GHz.</li><li><b>Una pared de concreto:</b> {range.b24.concreto} m, {range.b5.concreto} m y {range.b6.concreto} m.</li><li><b>Losa, en línea recta al piso de arriba:</b> {range.b24.slab} m, {range.b5.slab} m y {range.b6.slab} m.</li></ul><p>Por eso, en una habitación lejana, el celular a veces prefiere 2,4 GHz: es más lenta, pero llega.</p>"
+          },
+          {
+            "id": "velocidad",
+            "q": "¿Qué banda es más rápida?",
+            "html": "<p>La velocidad depende del ancho del canal y de cuántas redes compiten por el mismo espacio.</p><ul><li><b>2,4 GHz:</b> solo tres canales que no se superponen y, en la práctica, canales angostos de 20 MHz. Comparte el aire con vecinos, Bluetooth y microondas.</li><li><b>5 GHz:</b> muchos más canales y anchos de hasta 160 MHz. Es la banda principal de la mayoría de los routers.</li><li><b>6 GHz:</b> la banda más nueva, todavía poco ocupada, con canales de 160 MHz y, en Wi-Fi 7, de 320 MHz.</li></ul><p>Con buena señal, 5 y 6 GHz entregan varias veces la velocidad de 2,4 GHz. Con señal débil, esa ventaja desaparece.</p>"
+          },
+          {
+            "id": "seis-ghz",
+            "q": "¿Vale la pena un router con 6 GHz?",
+            "html": "<p>Vale si tienes dispositivos compatibles (Wi-Fi 6E o Wi-Fi 7) y los usas cerca de los nodos, o si el kit mesh va a usar 6 GHz para enlazar un nodo con otro. En ese papel la banda rinde mucho: queda libre del tráfico de los dispositivos y tiene ancho de sobra. Cuando los dos extremos del enlace tienen 6 GHz, el simulador compara las dos bandas y usa la que dé el enlace más fuerte.</p><p>Si hay muchas paredes entre los nodos, el enlace en 6 GHz puede quedar demasiado débil y el kit vuelve a 5 GHz. Para internet de hasta 1 Gbps y dispositivos más antiguos, un mesh de doble banda suele alcanzar. La banda de 6 GHz no está habilitada para Wi-Fi en todos los países, ni siempre completa: revisa la norma del tuyo.</p>"
+          },
+          {
+            "id": "dispositivos",
+            "q": "¿Qué dispositivo conectar en cada banda?",
+            "html": "<ul><li><b>2,4 GHz:</b> focos, enchufes, cámaras y otros dispositivos de casa inteligente; muchos solo funcionan en esta banda. También sirve para equipos al fondo del patio.</li><li><b>5 GHz:</b> celulares, laptops, televisores y consolas. Es la banda por defecto para casi todo.</li><li><b>6 GHz:</b> dispositivos nuevos que quedan cerca del router o de un nodo, como la laptop de trabajo o los lentes de realidad virtual.</li></ul>"
+          },
+          {
+            "id": "separar",
+            "q": "¿Conviene separar las redes de 2,4 y 5 GHz?",
+            "html": "<p>En general, no. Con un solo nombre, el router hace el cambio de banda por su cuenta (band steering) y el celular no se queda pegado a 2,4 GHz cuando está cerca. Sepáralas solo si un dispositivo de casa inteligente no logra configurarse con la red unificada; en ese caso, crea una red extra de 2,4 GHz solo para él.</p>"
+          },
+          {
+            "id": "en-el-mapa",
+            "q": "¿Cómo veo cada banda en mi plano?",
+            "html": "<p>En el simulador, cambia entre 2,4, 5 y 6 GHz arriba del mapa. El mismo plano, con los mismos nodos, muestra el alcance de cada banda y el porcentaje de la casa con buena señal. Empieza por 5 GHz: si cubre las habitaciones que usas, la casa está bien servida.</p>"
+          }
+        ],
+        "faq": [
+          {
+            "q": "¿Por qué mi celular no muestra la red de 6 GHz?",
+            "a": "La banda de 6 GHz solo aparece en dispositivos con Wi-Fi 6E o Wi-Fi 7, con el sistema actualizado, en un país que habilitó la banda. Los celulares con Wi-Fi 6 común solo ven 2,4 y 5 GHz."
+          },
+          {
+            "q": "¿El 5 GHz atraviesa la losa?",
+            "a": "La atraviesa, pero pierde {db.slab.b5} dB, contra {db.slab.b24} dB en 2,4 GHz. Según el modelo, la buena señal en 5 GHz llega a unos {range.b5.slab} m en el piso de arriba, antes de las paredes de allí."
+          },
+          {
+            "q": "Wi-Fi 6, 6E y 7: ¿qué diferencia hay en las bandas?",
+            "a": "Wi-Fi 6 usa 2,4 y 5 GHz. Wi-Fi 6E agrega 6 GHz. Wi-Fi 7 usa las tres, con canales más anchos en 6 GHz y la opción de usar más de una banda al mismo tiempo."
+          }
+        ],
+        "cta": {
+          "title": "Compara las bandas en tu plano",
+          "text": "Dibuja tu casa una vez y cambia entre 2,4, 5 y 6 GHz para ver hasta dónde llega cada banda con buena señal."
         }
       }
     },
