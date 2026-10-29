@@ -35,6 +35,7 @@ const DEFAULT_LANG = 'pt-BR';
 // went online; the modified date comes from git. `related` lists other guide ids, in order.
 const GUIDES = [
   { id: 'router', published: '2026-10-29', related: ['nodes', 'walls', 'mesh'] },
+  { id: 'nodes', published: '2026-10-29', related: ['router', 'mesh', 'walls'] },
 ];
 const guidePage = id => `guide-${id}`;
 const guideOf = page => GUIDES.find(g => guidePage(g.id) === page);

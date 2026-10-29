@@ -8,7 +8,8 @@
     "privacy": "/politica-de-privacidade",
     "notFound": "/404.html",
     "guides": "/guias/",
-    "guide-router": "/guias/onde-colocar-roteador"
+    "guide-router": "/guias/onde-colocar-roteador",
+    "guide-nodes": "/guias/quantos-nos-mesh-preciso"
   },
   "meta": {
     "title": "Simulador de Wi-Fi Mesh na Planta da Casa | Planejador WiFi",
@@ -642,7 +643,77 @@
           "title": "Teste a posição na sua planta",
           "text": "Desenhe as paredes da sua casa, coloque o roteador e veja o sinal estimado em cada cômodo. Arraste o roteador para outro lugar e compare em segundos."
         }
+      },
+      "nodes": {
+        "title": "Quantos nós mesh eu preciso? Cálculo por m² | Planejador WiFi",
+        "description": "Quantos nós mesh comprar para casa térrea, sobrado, apartamento ou casa comprida, com a cobertura de casas de {area.h60} a {area.h250} m² calculada pelo mesmo modelo do simulador.",
+        "h1": "Quantos nós mesh eu preciso?",
+        "short": "Quantos nós mesh",
+        "answer": "<p>Numa casa térrea de alvenaria, um nó mesh bem posicionado costuma bastar até uns {area.h120} m². Pelo modelo do Planejador WiFi, ele deixa {cover.h120.1} dessa casa com sinal bom em 5 GHz; a {area.h150} m² cobre {cover.h150.1}, e a {area.h200} m², {cover.h200.1}. Daí em diante entram o segundo e o terceiro nó.</p><p>A área é só o ponto de partida. Sobrado pede um nó por andar, apartamento com paredes de concreto pode pedir dois mesmo sendo pequeno, e casa comprida pede mais nós do que uma quadrada com a mesma área.</p><p>Comece com o número que a sua planta pede. Se algum canto ficar fraco depois, acrescentar um nó é simples: o sistema mesh o adota sozinho.</p>",
+        "sections": [
+          {
+            "id": "por-metro-quadrado",
+            "q": "Quantos nós por metro quadrado?",
+            "html": "<p>A tabela mostra quanto da casa fica com sinal bom ({level.1} dBm ou melhor) em 5 GHz com um, dois e três nós. As casas são térreas e retangulares, com paredes de alvenaria, cômodos de uns {room} × {room} m e uma porta de madeira em cada parede interna. Cada nó foi posto pelo mesmo cálculo do botão <b>Sugerir posição</b>.</p>{table.nodes}<p>A última coluna é o número de nós para passar de {target} da área com sinal bom. O que fica de fora costuma ser canto encostado em parede externa, onde quase ninguém usa o celular.</p>"
+          },
+          {
+            "id": "casa-comprida",
+            "q": "Por que casa comprida precisa de mais nós?",
+            "html": "<p>Porque o que decide é a distância e o número de paredes até o cômodo mais longe, não a área. Uma casa de {size.long} tem {area.long} m², quase a mesma área da casa de {area.h150} m² da tabela, mas um nó cobre só {cover.long.1} dela, contra {cover.h150.1} na casa mais quadrada. Com dois nós ela chega a {cover.long.2}, e são precisos {need.long} para passar de {target}.</p><p>Em casa comprida, espalhe os nós ao longo do comprimento, em linha, de modo que cada um enxergue o vizinho com uma ou duas paredes no meio.</p>"
+          },
+          {
+            "id": "sobrado",
+            "q": "Quantos nós num sobrado?",
+            "html": "<p>Um por andar. No sobrado de exemplo, com {size.twoStory} por andar ({area.twoStory} m² no total), um nó no térreo cobre {cover.twoStory.1.0} do térreo e só {cover.twoStory.1.1} do andar de cima, porque a laje tira {db.slab.b5} dB em 5 GHz. Com um segundo nó no andar de cima, a casa toda chega a {cover.twoStory.2}.</p><p>Coloque os nós um em cima do outro ou perto da escada: é o caminho mais curto entre os andares. Se a ligação entre eles ficar abaixo de {link.1} dBm, ligue o de cima por cabo.</p>"
+          },
+          {
+            "id": "apartamento",
+            "q": "E num apartamento?",
+            "html": "<p>Apartamentos são menores, mas muitos têm paredes de concreto ou de alvenaria estrutural, que tiram {db.concreto.b5} dB em 5 GHz, contra {db.tijolo.b5} dB do tijolo comum. No apartamento de exemplo, de {area.apartment} m² com paredes internas de concreto, um nó cobre {cover.apartment.1}; com dois, {cover.apartment.2}.</p><p>Em prédio também pesa a vizinhança: dezenas de redes disputam os mesmos canais. O modelo não conta essa interferência, então trate o resultado como o melhor caso e prefira o nó principal no meio do apartamento, não na sala junto à janela.</p>"
+          },
+          {
+            "id": "mais-nos",
+            "q": "Mais nós é sempre melhor?",
+            "html": "<p>Não. Um nó a mais só ajuda se cobrir uma área que estava fraca e se tiver ligação de {link.1} dBm ou melhor até outro nó. Dois nós próximos demais repetem a mesma cobertura e dividem o mesmo canal, e cada nó sem fio a mais é um salto a mais para o tráfego dos que estão depois dele.</p><p>Na tabela, repare onde a cobertura para de subir: a partir daí, um nó extra custa dinheiro e não muda o mapa.</p>"
+          },
+          {
+            "id": "na-sua-casa",
+            "q": "Como calcular para a minha casa?",
+            "html": "<ol><li>Desenhe as paredes da casa no simulador, com o material de cada uma.</li><li>Coloque o roteador principal onde fica o modem da operadora.</li><li>Clique em <b>Sugerir posição</b> e aceite a sugestão. Repita enquanto a área com sinal bom subir de forma clara.</li><li>Confira a lista de ligações entre os nós: ligação fraca pede cabo ou um nó mais perto.</li></ol><p>O número de nós no fim é o tamanho do kit. Se der para passar cabo até algum deles, marque <b>Ligado por cabo de rede</b> e veja se dá para economizar um.</p>"
+          }
+        ],
+        "faq": [
+          {
+            "q": "Kit de dois ou de três nós?",
+            "a": "Escolha pelo resultado na sua planta. Se dois nós já deixam a casa com sinal bom, o terceiro não deixa a rede mais rápida: só vale se cobrir uma área que ficou fraca, como a garagem ou o quintal."
+          },
+          {
+            "q": "Posso misturar nós de marcas diferentes?",
+            "a": "Em geral, não: os nós de um sistema mesh só formam rede com a mesma marca e linha. Alguns modelos seguem o padrão Wi-Fi EasyMesh, que permite misturar, mas o suporte ainda é raro. Confira no manual antes de comprar."
+          },
+          {
+            "q": "O roteador da operadora conta como nó?",
+            "a": "Normalmente não. O comum é ligar o nó principal do mesh por cabo ao roteador da operadora e desligar o Wi-Fi da operadora, para não ter duas redes disputando os mesmos canais."
+          }
+        ],
+        "cta": {
+          "title": "Conte os nós na sua planta",
+          "text": "Desenhe a casa, coloque o primeiro nó onde fica o modem e use Sugerir posição para ver onde o próximo rende mais e quanto da casa ele cobre."
+        }
       }
+    },
+    "tables": {
+      "area": "Área",
+      "withNodes": [
+        "1 nó",
+        "2 nós",
+        "3 nós"
+      ],
+      "need": "Nós para {target}",
+      "band": "Faixa",
+      "mhz": "Frequência",
+      "pl0": "Perda a 1 m",
+      "tx": "Potência"
     }
   }
 }

@@ -8,7 +8,8 @@
     "privacy": "/en/privacy",
     "notFound": "/en/404.html",
     "guides": "/en/guides/",
-    "guide-router": "/en/guides/where-to-put-wifi-router"
+    "guide-router": "/en/guides/where-to-put-wifi-router",
+    "guide-nodes": "/en/guides/how-many-mesh-nodes-do-i-need"
   },
   "meta": {
     "title": "Wi-Fi Mesh Planner on Your Floor Plan | Planejador WiFi",
@@ -642,7 +643,77 @@
           "title": "Try the spot on your floor plan",
           "text": "Draw your home’s walls, place the router and see the estimated signal in every room. Drag the router somewhere else and compare in seconds."
         }
+      },
+      "nodes": {
+        "title": "How Many Mesh Wi-Fi Nodes Do I Need? By Square Meter | Planejador WiFi",
+        "description": "How many mesh nodes to buy for a single-story house, two-story house, apartment or long house, with coverage for homes of {area.h60} to {area.h250} m² worked out by the same model as the planner.",
+        "h1": "How many mesh Wi-Fi nodes do I need?",
+        "short": "How many mesh nodes",
+        "answer": "<p>In a single-story brick house, one well-placed mesh node is usually enough up to about {area.h120} m². In the Planejador WiFi model it gives {cover.h120.1} of that house good 5 GHz signal; at {area.h150} m² it covers {cover.h150.1}, and at {area.h200} m², {cover.h200.1}. From there on you need a second and a third node.</p><p>Floor area is only the starting point. A two-story house needs one node per floor, an apartment with concrete walls may need two even when it is small, and a long, narrow house needs more nodes than a square one of the same size.</p><p>Start with the number your floor plan calls for. If a corner turns out weak later, adding a node is easy: the mesh system picks it up on its own.</p>",
+        "sections": [
+          {
+            "id": "per-square-meter",
+            "q": "How many nodes per square meter?",
+            "html": "<p>The table shows how much of the house gets good signal ({level.1} dBm or better) on 5 GHz with one, two and three nodes. The houses are single-story rectangles with brick walls, rooms of about {room} × {room} m and a wooden door in every inner wall. Each node was placed by the same search as the <b>Suggest a spot</b> button.</p>{table.nodes}<p>The last column is the number of nodes needed to get more than {target} of the area to good signal. What is left out is usually a corner against an outer wall, where hardly anyone uses a phone.</p>"
+          },
+          {
+            "id": "long-house",
+            "q": "Why does a long house need more nodes?",
+            "html": "<p>Because what counts is the distance and the number of walls to the farthest room, not the area. A {size.long} house has {area.long} m², almost the same as the {area.h150} m² house in the table, but one node covers only {cover.long.1} of it, against {cover.h150.1} in the squarer house. Two nodes bring it to {cover.long.2}, and it takes {need.long} to pass {target}.</p><p>In a long house, spread the nodes along its length, in a line, so each one reaches the next through one or two walls.</p>"
+          },
+          {
+            "id": "two-story",
+            "q": "How many nodes for a two-story house?",
+            "html": "<p>One per floor. In the example two-story house, {size.twoStory} per floor ({area.twoStory} m² in all), one node downstairs covers {cover.twoStory.1.0} of the ground floor and only {cover.twoStory.1.1} of the upper floor, because the slab takes {db.slab.b5} dB off the 5 GHz signal. With a second node upstairs, the whole house reaches {cover.twoStory.2}.</p><p>Put the nodes one above the other or near the stairs: that is the shortest path between floors. If the link between them drops below {link.1} dBm, connect the upstairs node with a cable.</p>"
+          },
+          {
+            "id": "apartment",
+            "q": "What about an apartment?",
+            "html": "<p>Apartments are smaller, but many have concrete or load-bearing masonry walls, which take {db.concreto.b5} dB off the 5 GHz signal, against {db.tijolo.b5} dB for ordinary brick. In the example apartment, {area.apartment} m² with concrete inner walls, one node covers {cover.apartment.1}; two cover {cover.apartment.2}.</p><p>In a building the neighbors matter too: dozens of networks compete for the same channels. The model does not count that interference, so treat the result as the best case and keep the main node in the middle of the apartment, not in the living room by the window.</p>"
+          },
+          {
+            "id": "more-nodes",
+            "q": "Are more nodes always better?",
+            "html": "<p>No. An extra node only helps if it covers an area that was weak and has a link of {link.1} dBm or better to another node. Two nodes too close together repeat the same coverage and share the same channel, and every extra wireless node is one more hop for the traffic of the nodes behind it.</p><p>In the table, look for where coverage stops rising: past that point, another node costs money and does not change the map.</p>"
+          },
+          {
+            "id": "your-home",
+            "q": "How do I work it out for my home?",
+            "html": "<ol><li>Draw the walls of your home in the planner, with the material of each one.</li><li>Place the main router where your ISP’s modem is.</li><li>Click <b>Suggest a spot</b> and accept the suggestion. Repeat while the area with good signal keeps clearly rising.</li><li>Check the list of links between nodes: a weak link calls for a cable or a closer node.</li></ol><p>The number of nodes at the end is the size of the kit. If you can run a cable to one of them, mark it <b>Connected by network cable</b> and see whether you can do with one fewer.</p>"
+          }
+        ],
+        "faq": [
+          {
+            "q": "Should I buy a two-pack or a three-pack?",
+            "a": "Go by the result on your floor plan. If two nodes already give the house good signal, a third one will not make the network faster: it is only worth it if it covers an area left weak, such as the garage or the backyard."
+          },
+          {
+            "q": "Can I mix nodes from different brands?",
+            "a": "Usually not: the nodes of a mesh system only network with the same brand and product line. Some models follow the Wi-Fi EasyMesh standard, which allows mixing, but support is still rare. Check the manual before you buy."
+          },
+          {
+            "q": "Does my ISP’s router count as a node?",
+            "a": "Usually not. The common setup is to connect the main mesh node to the ISP’s router with a cable and turn off the ISP router’s Wi-Fi, so two networks do not compete for the same channels."
+          }
+        ],
+        "cta": {
+          "title": "Count the nodes on your floor plan",
+          "text": "Draw your home, place the first node where the modem is and use Suggest a spot to see where the next one helps most and how much of the house it covers."
+        }
       }
+    },
+    "tables": {
+      "area": "Size",
+      "withNodes": [
+        "1 node",
+        "2 nodes",
+        "3 nodes"
+      ],
+      "need": "Nodes for {target}",
+      "band": "Band",
+      "mhz": "Frequency",
+      "pl0": "Loss at 1 m",
+      "tx": "Power"
     }
   }
 }

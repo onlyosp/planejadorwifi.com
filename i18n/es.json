@@ -8,7 +8,8 @@
     "privacy": "/es/privacidad",
     "notFound": "/es/404.html",
     "guides": "/es/guias/",
-    "guide-router": "/es/guias/donde-poner-el-router-wifi"
+    "guide-router": "/es/guias/donde-poner-el-router-wifi",
+    "guide-nodes": "/es/guias/cuantos-nodos-mesh-necesito"
   },
   "meta": {
     "title": "Simulador de Wi-Fi Mesh en el Plano de tu Casa | Planejador WiFi",
@@ -642,7 +643,77 @@
           "title": "Prueba el lugar en tu plano",
           "text": "Dibuja las paredes de tu casa, pon el router y mira la señal estimada en cada habitación. Arrastra el router a otro lugar y compara en segundos."
         }
+      },
+      "nodes": {
+        "title": "¿Cuántos nodos mesh necesito? Cálculo por m² | Planejador WiFi",
+        "description": "Cuántos nodos mesh comprar para una casa de un piso, de dos pisos, un departamento o una casa alargada, con la cobertura de casas de {area.h60} a {area.h250} m² calculada con el mismo modelo del simulador.",
+        "h1": "¿Cuántos nodos mesh necesito?",
+        "short": "Cuántos nodos mesh",
+        "answer": "<p>En una casa de un piso con paredes de ladrillo, un nodo mesh bien ubicado suele alcanzar hasta unos {area.h120} m². Según el modelo del Planejador WiFi, deja {cover.h120.1} de esa casa con buena señal en 5 GHz; con {area.h150} m² cubre {cover.h150.1}, y con {area.h200} m², {cover.h200.1}. A partir de ahí hacen falta un segundo y un tercer nodo.</p><p>La superficie es solo el punto de partida. Una casa de dos pisos pide un nodo por piso, un departamento con paredes de concreto puede pedir dos aunque sea pequeño, y una casa alargada pide más nodos que una cuadrada de la misma superficie.</p><p>Empieza con el número que pide tu plano. Si después algún rincón queda débil, agregar un nodo es sencillo: el sistema mesh lo incorpora solo.</p>",
+        "sections": [
+          {
+            "id": "por-metro-cuadrado",
+            "q": "¿Cuántos nodos por metro cuadrado?",
+            "html": "<p>La tabla muestra qué parte de la casa queda con buena señal ({level.1} dBm o mejor) en 5 GHz con uno, dos y tres nodos. Las casas son de un piso y rectangulares, con paredes de ladrillo, habitaciones de unos {room} × {room} m y una puerta de madera en cada pared interior. Cada nodo se ubicó con el mismo cálculo del botón <b>Sugerir posición</b>.</p>{table.nodes}<p>La última columna es la cantidad de nodos para superar {target} de la superficie con buena señal. Lo que queda afuera suele ser un rincón pegado a una pared exterior, donde casi nadie usa el celular.</p>"
+          },
+          {
+            "id": "casa-alargada",
+            "q": "¿Por qué una casa alargada necesita más nodos?",
+            "html": "<p>Porque lo que decide es la distancia y la cantidad de paredes hasta la habitación más lejana, no la superficie. Una casa de {size.long} tiene {area.long} m², casi lo mismo que la casa de {area.h150} m² de la tabla, pero un nodo cubre solo {cover.long.1} de ella, contra {cover.h150.1} en la casa más cuadrada. Con dos nodos llega a {cover.long.2}, y hacen falta {need.long} para superar {target}.</p><p>En una casa alargada, reparte los nodos a lo largo, en línea, de modo que cada uno alcance al siguiente con una o dos paredes en el medio.</p>"
+          },
+          {
+            "id": "dos-pisos",
+            "q": "¿Cuántos nodos en una casa de dos pisos?",
+            "html": "<p>Uno por piso. En la casa de ejemplo, de {size.twoStory} por piso ({area.twoStory} m² en total), un nodo en la planta baja cubre {cover.twoStory.1.0} de ese piso y solo {cover.twoStory.1.1} del de arriba, porque la losa quita {db.slab.b5} dB en 5 GHz. Con un segundo nodo arriba, toda la casa llega a {cover.twoStory.2}.</p><p>Pon los nodos uno encima del otro o cerca de la escalera: es el camino más corto entre pisos. Si el enlace entre ellos queda por debajo de {link.1} dBm, conecta el de arriba por cable.</p>"
+          },
+          {
+            "id": "departamento",
+            "q": "¿Y en un departamento?",
+            "html": "<p>Los departamentos son más chicos, pero muchos tienen paredes de concreto o de mampostería estructural, que quitan {db.concreto.b5} dB en 5 GHz, contra {db.tijolo.b5} dB del ladrillo común. En el departamento de ejemplo, de {area.apartment} m² con paredes interiores de concreto, un nodo cubre {cover.apartment.1}; con dos, {cover.apartment.2}.</p><p>En un edificio también pesan los vecinos: decenas de redes compiten por los mismos canales. El modelo no cuenta esa interferencia, así que toma el resultado como el mejor caso y deja el nodo principal en el centro del departamento, no en la sala junto a la ventana.</p>"
+          },
+          {
+            "id": "mas-nodos",
+            "q": "¿Más nodos siempre es mejor?",
+            "html": "<p>No. Un nodo extra solo ayuda si cubre una zona que estaba débil y tiene un enlace de {link.1} dBm o mejor con otro nodo. Dos nodos demasiado cerca repiten la misma cobertura y comparten el mismo canal, y cada nodo inalámbrico extra es un salto más para el tráfico de los que vienen después.</p><p>En la tabla, fíjate dónde la cobertura deja de subir: desde ahí, otro nodo cuesta dinero y no cambia el mapa.</p>"
+          },
+          {
+            "id": "en-tu-casa",
+            "q": "¿Cómo lo calculo para mi casa?",
+            "html": "<ol><li>Dibuja las paredes de tu casa en el simulador, con el material de cada una.</li><li>Pon el router principal donde está el módem del proveedor.</li><li>Haz clic en <b>Sugerir posición</b> y acepta la sugerencia. Repite mientras la superficie con buena señal siga subiendo de forma clara.</li><li>Revisa la lista de enlaces entre nodos: un enlace débil pide cable o un nodo más cerca.</li></ol><p>La cantidad de nodos al final es el tamaño del kit. Si puedes llevar un cable hasta alguno, márcalo como <b>Conectado por cable de red</b> y mira si te alcanza con uno menos.</p>"
+          }
+        ],
+        "faq": [
+          {
+            "q": "¿Kit de dos o de tres nodos?",
+            "a": "Decide según el resultado en tu plano. Si dos nodos ya dejan la casa con buena señal, el tercero no hace la red más rápida: solo vale la pena si cubre una zona que quedó débil, como el garaje o el patio."
+          },
+          {
+            "q": "¿Puedo mezclar nodos de marcas distintas?",
+            "a": "En general, no: los nodos de un sistema mesh solo forman red con la misma marca y línea. Algunos modelos siguen el estándar Wi-Fi EasyMesh, que permite mezclar, pero el soporte todavía es raro. Revisa el manual antes de comprar."
+          },
+          {
+            "q": "¿El router del proveedor cuenta como nodo?",
+            "a": "Normalmente no. Lo habitual es conectar el nodo principal del mesh por cable al router del proveedor y apagar el Wi-Fi de ese router, para que no haya dos redes compitiendo por los mismos canales."
+          }
+        ],
+        "cta": {
+          "title": "Cuenta los nodos en tu plano",
+          "text": "Dibuja tu casa, pon el primer nodo donde está el módem y usa Sugerir posición para ver dónde rinde más el siguiente y cuánto de la casa cubre."
+        }
       }
+    },
+    "tables": {
+      "area": "Superficie",
+      "withNodes": [
+        "1 nodo",
+        "2 nodos",
+        "3 nodos"
+      ],
+      "need": "Nodos para {target}",
+      "band": "Banda",
+      "mhz": "Frecuencia",
+      "pl0": "Pérdida a 1 m",
+      "tx": "Potencia"
     }
   }
 }
