@@ -1009,7 +1009,7 @@ function renderLegend() {
 
 /* ---------- results drawer ---------- */
 let drawerOpen = true;
-const DRAWER_KEY = 'planejador:drawer';
+const DRAWER_KEY = 'wifi:drawer';
 function drawerPref() { try { return localStorage.getItem(DRAWER_KEY) !== 'closed'; } catch { return true; } }
 function setDrawer(open, remember = false) {
   drawerOpen = open;
@@ -1721,7 +1721,6 @@ function toast(msg) {
 function afterFloor() { suggestion = null; suggestRun = null; renderFloors(); renderPanel(); resize(); }
 function renderAll() { renderProjects(); bandsSig = ''; renderBands(); fillMatSel(); fillModelSel(); afterFloor(); }
 
-St.migrateLegacy();
 setDrawer(sheetMode.matches ? false : drawerPref());
 {
   const list = St.listProjects();

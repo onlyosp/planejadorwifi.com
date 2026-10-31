@@ -3,13 +3,12 @@
 
 import { BANDS, BAND_KEYS, MATERIALS, BUILTIN_MODELS } from './engine.js';
 
-// Keys keep the original 'planta-wifi' prefix so visitors' saved projects survive the rename.
+// The site may share its origin with other tools, so every key starts with 'wifi:'.
 const KEYS = {
-  index: 'planta-wifi:projects',
-  project: id => 'planta-wifi:project:' + id,
-  models: 'planta-wifi:models',
-  current: 'planta-wifi:current',
-  legacy: 'planta-wifi-v1',
+  index: 'wifi:projects',
+  project: id => 'wifi:project:' + id,
+  models: 'wifi:models',
+  current: 'wifi:current',
 };
 export const FORMAT_VERSION = 2;
 const BUILTIN_IDS = new Set(BUILTIN_MODELS.map(m => m.id));
@@ -130,20 +129,6 @@ export function saveProject(p, models) {
 export function deleteProject(id) {
   remove(KEYS.project(id));
   set(KEYS.index, listProjects().filter(x => x.id !== id));
-}
-
-// Version 1 kept a single plan under one key. Turn it into the first project.
-export function migrateLegacy() {
-  const old = get(KEYS.legacy);
-  if (!old || listProjects().length) return null;
-  const p = { ...old, id: uid(), name: old.example ? 'Casa de exemplo' : 'Minha casa', created: Date.now() };
-  if (set(KEYS.project(p.id), p)) {
-    set(KEYS.index, [{ id: p.id, name: p.name, created: p.created, updated: Date.now() }]);
-    set(KEYS.current, p.id);
-    remove(KEYS.legacy);
-    return p.id;
-  }
-  return null;
 }
 
 /* ---------- example ---------- */

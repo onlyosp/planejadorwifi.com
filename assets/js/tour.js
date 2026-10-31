@@ -3,7 +3,7 @@
 // from opening again on its own, and the header button replays it.
 import { raw, t } from './i18n.js';
 
-const SEEN_KEY = 'planejador:tour-done';
+const SEEN_KEY = 'wifi:tour-done';
 let state = null;
 
 export function tourSeen() {
