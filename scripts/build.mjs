@@ -5,14 +5,19 @@
 //   {{key.path}}    escaped text from the language file
 //   {{{key.path}}}  raw HTML from the language file
 //   {{@name}}       value computed here (canonical URL, hreflang links, FAQ, tables...)
-// Portuguese is served at /, English at /en/ and Spanish at /es/.
+// Portuguese is served at /, English at /en/ and Spanish at /es/, all below the path of SITE_URL.
 //
 // Optional HTML is wrapped in <!-- build:KEY --> ... <!-- /build:KEY -->. KEY is `home`
 // (simulator page), `ptHome`, `thirdParty` (an extension loads third-party code) or a flag an
 // extension declares; a leading `!` inverts it.
 //
 // Environment:
-//   SITE_URL         public origin used in canonical links and the sitemap (default below)
+//   SITE_URL         public address used in canonical links and the sitemap (default below). It may
+//                    end in a path (https://example.com/wifi): every page and file then lives below
+//                    it, dist/ mirrors it (dist/wifi/...) and no robots.txt is written, since only
+//                    the host root can serve one.
+//   PRIVACY_URL      address of a privacy policy published elsewhere. The site then builds no
+//                    privacy page of its own and links there instead.
 //   SITE_EXTENSIONS  comma-separated paths to build extensions, see "Extensions" further down
 //
 // CSS and JS URLs get a ?v=<content hash> suffix (HTML references and module imports), so a
@@ -28,7 +33,12 @@ import { HOMES, TARGET, ROOM, DOOR, coverage, exampleHome } from './scenarios.mj
 import { encodeShare, SHARE_PREFIX } from '../assets/js/store.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-export const SITE = (process.env.SITE_URL || 'https://planejadorwifi.com').replace(/\/$/, '');
+const PUBLIC = new URL(process.env.SITE_URL || 'https://planejadorwifi.com');
+// ORIGIN + BASE is the site's public root; every path in the language files is relative to it.
+export const ORIGIN = PUBLIC.origin;
+export const BASE = PUBLIC.pathname.replace(/\/+$/, '');
+export const SITE = ORIGIN + BASE;
+const PRIVACY_URL = process.env.PRIVACY_URL || '';
 export const LANGS = ['pt-BR', 'en', 'es'];
 const DEFAULT_LANG = 'pt-BR';
 // Guides share one template (src/guide.html). Each one's texts live in every language file under
@@ -58,9 +68,9 @@ const PAGES = {
   index: 'src/index.html', guides: 'src/guides.html',
   ...Object.fromEntries(GUIDES.map(g => [guidePage(g.id), 'src/guide.html'])),
   ...Object.fromEntries(Object.keys(DOCS).map(id => [id, 'src/doc.html'])),
-  privacy: 'src/privacy.html', notFound: 'src/404.html',
+  ...(PRIVACY_URL ? {} : { privacy: 'src/privacy.html' }), notFound: 'src/404.html',
 };
-export const INDEXED = ['index', 'guides', ...GUIDES.map(g => guidePage(g.id)), ...Object.keys(DOCS), 'privacy'];
+export const INDEXED = ['index', 'guides', ...GUIDES.map(g => guidePage(g.id)), ...Object.keys(DOCS), ...(PRIVACY_URL ? [] : ['privacy'])];
 // What each page's content is made of, for its last-modified date: its template plus its own
 // part of the language file (see scripts/lastmod.mjs).
 function sources(page) {
@@ -94,8 +104,14 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;'
 const stripTags = s => String(s).replace(/<[^>]+>/g, '');
 const lookup = (obj, key) => key.split('.').reduce((o, k) => (o == null ? undefined : o[k]), obj);
 
+// Language files with their public paths below BASE, and the privacy page replaced by PRIVACY_URL.
 export function loadDicts(dir = join(ROOT, 'i18n')) {
-  return Object.fromEntries(LANGS.map(l => [l, JSON.parse(readFileSync(join(dir, l + '.json'), 'utf8'))]));
+  return Object.fromEntries(LANGS.map(l => {
+    const d = JSON.parse(readFileSync(join(dir, l + '.json'), 'utf8'));
+    d.paths = Object.fromEntries(Object.entries(d.paths).map(([k, p]) => [k, BASE + p]));
+    if (PRIVACY_URL) d.paths.privacy = PRIVACY_URL;
+    return [l, d];
+  }));
 }
 
 export function render(tpl, dict, special) {
@@ -108,18 +124,20 @@ export function render(tpl, dict, special) {
 }
 
 // Public paths have no .html extension (the host serves /x from x.html); files on disk do.
+// They include BASE, so dist/ mirrors the public addresses.
 const outPath = p => (p.endsWith('/') ? p + 'index.html' : /\.\w+$/.test(p) ? p : p + '.html').replace(/^\//, '');
 
 // Runs before any style or module loads, on the Portuguese home page only. Visitors whose saved
 // choice or browser language is English or Spanish (or anything other than Portuguese) go to
-// /en/ or /es/. Crawlers are left alone so every version stays indexable.
-const LANG_REDIRECT = `<script>(function(){try{
+// /en/ or /es/. Crawlers are left alone so every version stays indexable. The saved choice
+// (hub:lang, written by site.js) is shared with other sites on the same origin.
+const langRedirect = dicts => `<script>(function(){try{
 if(/bot|crawl|spider|slurp|mediapartners|lighthouse|headless|preview|inspectiontool|google-|bing|claude|anthropic|openai|chatgpt|perplexity/i.test(navigator.userAgent))return;
-var p=localStorage.getItem('planejador:lang');
+var p=localStorage.getItem('hub:lang');
 if(!p){var ls=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||''];
 for(var i=0;i<ls.length&&!p;i++){var l=String(ls[i]).toLowerCase();p=l.indexOf('pt')===0?'pt-BR':l.indexOf('es')===0?'es':l.indexOf('en')===0?'en':null;}
 p=p||'en';}
-var to={en:'/en/',es:'/es/'}[p];if(to)location.replace(to+location.search+location.hash);
+var to=${ldJson({ en: dicts.en.paths.index, es: dicts.es.paths.index })}[p];if(to)location.replace(to+location.search+location.hash);
 }catch(e){}})();</script>`;
 
 /* ---------- numbers from the model ----------
@@ -235,7 +253,7 @@ const ORG = () => ({ '@type': 'Organization', name: 'Planejador WiFi', url: SITE
 const crumbsLd = items => ({ '@context': 'https://schema.org', '@type': 'BreadcrumbList',
   itemListElement: items.map(([name, url], i) => ({ '@type': 'ListItem', position: i + 1, name, item: url })) });
 const crumbsHtml = (d, items) => `<nav class="crumbs" aria-label="${esc(d.guides.crumbLabel)}"><ol>${items.map(([name, url], i) =>
-  i === items.length - 1 ? `<li aria-current="page">${esc(name)}</li>` : `<li><a href="${esc(url.slice(SITE.length) || '/')}">${esc(name)}</a></li>`).join('')}</ol></nav>`;
+  i === items.length - 1 ? `<li aria-current="page">${esc(name)}</li>` : `<li><a href="${esc(url.slice(ORIGIN.length))}">${esc(name)}</a></li>`).join('')}</ol></nav>`;
 
 const sectionsOf = (list, d) => list.map(s => `<section aria-labelledby="${esc(s.id)}"><h2 id="${esc(s.id)}">${esc(s.q || s.h)}</h2>\n${fillModel(s.html, d)}</section>`);
 const articleLd = (d, { headline, description, url, published, modified }) => ({ '@context': 'https://schema.org', '@type': 'Article',
@@ -245,9 +263,9 @@ const dated = (d, published, modified) => ({ updated: d.guides.updated.replace('
 
 // Values for a reference page (methodology, about): its sections, its links and its structured data.
 function docSpecials(dicts, lang, page, dateOf) {
-  const d = dicts[lang], G = d.guides, P = d[page], doc = DOCS[page], url = SITE + d.paths[page];
+  const d = dicts[lang], G = d.guides, P = d[page], doc = DOCS[page], url = ORIGIN + d.paths[page];
   const modified = [doc.published, dateOf(page, lang)].sort().at(-1);
-  const crumbs = [[G.home, SITE + d.paths.index], [P.short, url]];
+  const crumbs = [[G.home, ORIGIN + d.paths.index], [P.short, url]];
   const links = doc.links(d).map(([text, path]) => `<li><a href="${esc(path)}">${esc(text)}</a></li>`);
   const main = doc.type === 'Article'
     ? articleLd(d, { headline: P.h1, description: P.description, url, published: doc.published, modified })
@@ -277,8 +295,8 @@ async function exampleLinks(dicts) {
 
 // Values for the guides index and the guide pages.
 function guideSpecials(dicts, lang, page, dateOf, examples) {
-  const d = dicts[lang], G = d.guides, url = SITE + d.paths[page];
-  const home = [G.home, SITE + d.paths.index], index = [G.index.h1, SITE + d.paths.guides];
+  const d = dicts[lang], G = d.guides, url = ORIGIN + d.paths[page];
+  const home = [G.home, ORIGIN + d.paths.index], index = [G.index.h1, ORIGIN + d.paths.guides];
   const og = (title, description) => ({ ogTitle: title, ogDescription: description });
   if (page === 'guides') {
     const list = GUIDES.map(g => {
@@ -291,7 +309,7 @@ function guideSpecials(dicts, lang, page, dateOf, examples) {
       jsonLd: ldScripts([
         { '@context': 'https://schema.org', '@type': 'CollectionPage', name: G.index.h1, description: G.index.description, url, inLanguage: d.lang,
           isPartOf: { '@type': 'WebSite', name: 'Planejador WiFi', url: SITE + '/' },
-          mainEntity: { '@type': 'ItemList', itemListElement: GUIDES.map((g, i) => ({ '@type': 'ListItem', position: i + 1, url: SITE + d.paths[guidePage(g.id)], name: G.items[g.id].h1 })) } },
+          mainEntity: { '@type': 'ItemList', itemListElement: GUIDES.map((g, i) => ({ '@type': 'ListItem', position: i + 1, url: ORIGIN + d.paths[guidePage(g.id)], name: G.items[g.id].h1 })) } },
         crumbsLd([home, index]),
       ]),
     };
@@ -331,14 +349,14 @@ function specials(dicts, lang, page, dateOf, examples) {
   const d = dicts[lang];
   const linkPage = INDEXED.includes(page) ? page : 'index';
   const hreflang = INDEXED.includes(page)
-    ? [...LANGS.map(l => `<link rel="alternate" hreflang="${l}" href="${SITE}${dicts[l].paths[page]}">`),
-      `<link rel="alternate" hreflang="x-default" href="${SITE}${dicts[DEFAULT_LANG].paths[page]}">`].join('\n')
+    ? [...LANGS.map(l => `<link rel="alternate" hreflang="${l}" href="${ORIGIN}${dicts[l].paths[page]}">`),
+      `<link rel="alternate" hreflang="x-default" href="${ORIGIN}${dicts[DEFAULT_LANG].paths[page]}">`].join('\n')
     : '';
   const langOptions = LANGS.map(l => `<option value="${dicts[l].paths[linkPage]}" data-lang="${l}"${l === lang ? ' selected' : ''}>${esc(dicts[l].langName)}</option>`).join('');
   const faqHtml = d.faq.map(f => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('');
   const ld = [
     { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Planejador WiFi', alternateName: ['Planejador Wi-Fi', 'planejadorwifi.com'], url: SITE + '/', inLanguage: d.lang },
-    { '@context': 'https://schema.org', '@type': 'WebApplication', name: 'Planejador WiFi', url: SITE + d.paths.index, description: d.meta.appDescription,
+    { '@context': 'https://schema.org', '@type': 'WebApplication', name: 'Planejador WiFi', url: ORIGIN + d.paths.index, description: d.meta.appDescription,
       applicationCategory: 'UtilitiesApplication', operatingSystem: d.meta.os, inLanguage: d.lang, isAccessibleForFree: true,
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } },
     { '@context': 'https://schema.org', '@type': 'FAQPage', inLanguage: d.lang,
@@ -346,6 +364,7 @@ function specials(dicts, lang, page, dateOf, examples) {
   ];
   return {
     site: SITE,
+    base: BASE,
     home: d.paths.index,
     guides: d.paths.guides,
     privacy: d.paths.privacy,
@@ -353,7 +372,7 @@ function specials(dicts, lang, page, dateOf, examples) {
     about: d.paths.about,
     homeGuides: `<ul class="home-guides">${GUIDES.map(g => `<li><a href="${esc(d.paths[guidePage(g.id)])}">${esc(d.guides.items[g.id].h1)}</a></li>`).join('')}</ul>`
       + `<p><a href="${esc(d.paths.guides)}">${esc(d.guides.all)}</a> · <a href="${esc(d.paths.methodology)}">${esc(d.guides.methodology)}</a></p>`,
-    canonical: SITE + (d.paths[page] || d.paths.index),
+    canonical: ORIGIN + (d.paths[page] || d.paths.index),
     hreflang,
     langOptions,
     materialRows: materialRows(d),
@@ -361,13 +380,13 @@ function specials(dicts, lang, page, dateOf, examples) {
     faqHtml,
     jsonLd: ldScripts(ld),
     i18nJson: `<script type="application/json" id="i18n">${ldJson({ lang: d.lang, locale: d.locale, paths: d.paths, ui: d.ui, defaults: defaultNames(dicts) })}</script>`,
-    langRedirect: LANG_REDIRECT,
+    langRedirect: langRedirect(dicts),
     ...(page === 'guides' || guideOf(page) ? guideSpecials(dicts, lang, page, dateOf, examples) : {}),
     ...(DOCS[page] ? docSpecials(dicts, lang, page, dateOf) : {}),
     ...(page === 'privacy' ? { jsonLd: ldScripts([
-      { '@context': 'https://schema.org', '@type': 'WebPage', name: d.privacy.h1, description: d.privacy.description, url: SITE + d.paths.privacy, inLanguage: d.lang,
+      { '@context': 'https://schema.org', '@type': 'WebPage', name: d.privacy.h1, description: d.privacy.description, url: ORIGIN + d.paths.privacy, inLanguage: d.lang,
         isPartOf: { '@type': 'WebSite', name: 'Planejador WiFi', url: SITE + '/' } },
-      crumbsLd([[d.guides.home, SITE + d.paths.index], [d.privacy.h1, SITE + d.paths.privacy]]),
+      crumbsLd([[d.guides.home, ORIGIN + d.paths.index], [d.privacy.h1, ORIGIN + d.paths.privacy]]),
     ]) } : {}),
   };
 }
@@ -395,8 +414,10 @@ const PARTIALS = { head: 'head', header: 'header', footer: 'footer' };
  *   i18n      { 'pt-BR': {...}, ... }  deep-merged into each language file
  *   slots     { head, bodyEnd, afterTool, inResults, inGuide, afterGuide, footer, privacy }  HTML templates with the
  *                                      same {{key}} syntax, inserted at those points
- *   writeFiles(outDir)                 writes extra files (scripts, styles, headers...) before
- *                                      CSS/JS fingerprinting
+ *   writeFiles(outDir, siteDir)        writes extra files before CSS/JS fingerprinting: host
+ *                                      files (headers...) in outDir, the site's own files
+ *                                      (scripts, styles...) in siteDir, which is outDir + BASE
+ * Slot templates write asset addresses as {{@base}}/assets/... so they work below a path.
  * List extensions in SITE_EXTENSIONS. Without any, the site ships no third-party code. */
 export const SLOTS = ['head', 'bodyEnd', 'afterTool', 'inResults', 'inGuide', 'afterGuide', 'footer', 'privacy'];
 
@@ -424,9 +445,9 @@ function renderPage(page, lang, dicts, flags, slots, dateOf, examples) {
 
 function sitemap(dicts, dateOf) {
   const urls = INDEXED.flatMap(page => LANGS.map(lang => {
-    const alts = [...LANGS.map(l => `    <xhtml:link rel="alternate" hreflang="${l}" href="${SITE}${dicts[l].paths[page]}"/>`),
-      `    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE}${dicts[DEFAULT_LANG].paths[page]}"/>`].join('\n');
-    return `  <url>\n    <loc>${SITE}${dicts[lang].paths[page]}</loc>\n    <lastmod>${dateOf(page, lang)}</lastmod>\n${alts}\n  </url>`;
+    const alts = [...LANGS.map(l => `    <xhtml:link rel="alternate" hreflang="${l}" href="${ORIGIN}${dicts[l].paths[page]}"/>`),
+      `    <xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}${dicts[DEFAULT_LANG].paths[page]}"/>`].join('\n');
+    return `  <url>\n    <loc>${ORIGIN}${dicts[lang].paths[page]}</loc>\n    <lastmod>${dateOf(page, lang)}</lastmod>\n${alts}\n  </url>`;
   }));
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls.join('\n')}\n</urlset>\n`;
 }
@@ -453,7 +474,7 @@ function llms(dicts) {
     lines.push(`## ${d.langName}`, '', d.llms.when, '');
     for (const page of INDEXED) {
       const m = pageMeta(d, page);
-      lines.push(`- [${m.title}](${SITE}${d.paths[page]}): ${m.description}`);
+      lines.push(`- [${m.title}](${ORIGIN}${d.paths[page]}): ${m.description}`);
     }
     lines.push('');
   }
@@ -478,7 +499,7 @@ function htmlFiles(dir) {
 
 export async function build({ outDir = join(ROOT, 'dist'), env = process.env, extensions } = {}) {
   const exts = extensions ?? await loadExtensions(env.SITE_EXTENSIONS);
-  const parts = exts.map(e => (typeof e === 'function' ? e : e.setup)({ env, langs: LANGS }) || {});
+  const parts = exts.map(e => (typeof e === 'function' ? e : e.setup)({ env, langs: LANGS, base: BASE }) || {});
   const flags = { thirdParty: false };
   const slots = {};
   let dicts = loadDicts();
@@ -503,10 +524,11 @@ export async function build({ outDir = join(ROOT, 'dist'), env = process.env, ex
 
   const examples = await exampleLinks(dicts);
 
+  const siteDir = join(outDir, BASE);
   rmSync(outDir, { recursive: true, force: true });
-  mkdirSync(outDir, { recursive: true });
+  mkdirSync(siteDir, { recursive: true });
   for (const item of STATIC) {
-    cpSync(join(ROOT, item), join(outDir, item), { recursive: true, filter: src => basename(src) !== '.DS_Store' });
+    cpSync(join(ROOT, item), join(siteDir, item), { recursive: true, filter: src => basename(src) !== '.DS_Store' });
   }
 
   for (const lang of LANGS) {
@@ -519,12 +541,12 @@ export async function build({ outDir = join(ROOT, 'dist'), env = process.env, ex
       writeFileSync(file, html);
     }
   }
-  writeFileSync(join(outDir, 'sitemap.xml'), sitemap(dicts, dateOf));
-  writeFileSync(join(outDir, 'robots.txt'), robots());
-  writeFileSync(join(outDir, 'llms.txt'), llms(dicts));
-  for (const p of parts) if (p.writeFiles) p.writeFiles(outDir);
+  writeFileSync(join(siteDir, 'sitemap.xml'), sitemap(dicts, dateOf));
+  if (!BASE) writeFileSync(join(outDir, 'robots.txt'), robots());
+  writeFileSync(join(siteDir, 'llms.txt'), llms(dicts));
+  for (const p of parts) if (p.writeFiles) p.writeFiles(outDir, siteDir);
 
-  const version = fingerprint(outDir);
+  const version = fingerprint(siteDir);
   return { flags, extensions: exts.length, version };
 }
 
@@ -541,7 +563,7 @@ export function fingerprint(outDir) {
     writeFileSync(f, js);
   }
   for (const path of htmlFiles(outDir)) {
-    const html = readFileSync(path, 'utf8').replace(/((?:href|src)=")(\/?assets\/(?:css|js)\/[\w.-]+\.(?:css|js))(")/g, `$1$2?v=${v}$3`);
+    const html = readFileSync(path, 'utf8').replace(/((?:href|src)=")((?:\/[\w-]+)*\/?assets\/(?:css|js)\/[\w.-]+\.(?:css|js))(")/g, `$1$2?v=${v}$3`);
     writeFileSync(path, html);
   }
   return v;
@@ -550,7 +572,7 @@ export function fingerprint(outDir) {
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const r = await build();
-    console.log(`Built dist/ (languages: ${LANGS.join(', ')}, extensions: ${r.extensions}, version: ${r.version})`);
+    console.log(`Built dist${BASE}/ (languages: ${LANGS.join(', ')}, extensions: ${r.extensions}, version: ${r.version})`);
   } catch (e) {
     console.error('Build failed: ' + e.message);
     process.exit(1);

@@ -28,7 +28,7 @@ const demo = () => ({
     footer: '<a id="demo-footer" href="{{@privacy}}">x</a>',
     privacy: '<h2 id="demo-privacy">{{demo.hello}}</h2>',
   },
-  writeFiles(outDir) { writeFileSync(join(outDir, 'assets/js/demo.js'), "import './i18n.js';\n"); },
+  writeFiles(outDir, siteDir) { writeFileSync(join(siteDir, 'assets/js/demo.js'), "import './i18n.js';\n"); },
 });
 
 test('the default build has no third-party code and only public files', async () => {

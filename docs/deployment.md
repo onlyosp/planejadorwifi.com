@@ -29,7 +29,8 @@ sitemap.xml, robots.txt, llms.txt, site.webmanifest
 
 | Environment variable | Default | Purpose |
 |---|---|---|
-| `SITE_URL` | `https://planejadorwifi.com` | Public origin used in canonical links, `hreflang` links and the sitemap. Set it when you host your own copy. |
+| `SITE_URL` | `https://planejadorwifi.com` | Public address used in canonical links, `hreflang` links and the sitemap. Set it when you host your own copy. It may end in a path, see [Serving below a path](#serving-below-a-path). |
+| `PRIVACY_URL` | empty | Address of a privacy policy published elsewhere, for example by a larger site this one is part of. The build then makes no privacy page of its own, and every link to it (footer, about page, guides) points there. That policy must cover what this site's own page says: projects stay in the browser, and project links carry the project in the fragment. |
 | `SITE_EXTENSIONS` | empty | Build extensions to include (see below). |
 
 Example:
@@ -66,7 +67,15 @@ The build writes three files at the site root, all from `SITE_URL` and the langu
 - `robots.txt`: allows every crawler, search engines and AI assistants alike, and points to the sitemap.
 - `llms.txt` ([llmstxt.org](https://llmstxt.org)): a short description of the product and links to every indexable page in each language, plus the model's key numbers taken from `assets/js/engine.js`.
 
+Below a path (see the next section) the build writes no `robots.txt`, since only the host root can serve one: add the sitemap address to the root `robots.txt` of that host.
+
 A build extension that needs different rules can overwrite these files in `writeFiles`, which runs after them. Keep in mind that a host or CDN can block crawlers before they reach these files: check its bot settings.
+
+## Serving below a path
+
+When `SITE_URL` ends in a path, such as `https://example.com/wifi`, the site lives entirely below it: pages, assets, `site.webmanifest`, `sitemap.xml` and `llms.txt`. `dist/` mirrors the public addresses (`dist/wifi/index.html`, `dist/wifi/en/`, `dist/wifi/assets/`), and the language redirect of the Portuguese home page stays below the path. The server rules above apply below the path too: `/wifi/404.html` and `/wifi/en/404.html` answer unknown URLs.
+
+The browser storage keys start with `wifi:` (projects, models and interface preferences) so the site can share an origin with other tools. The language choice is the one exception: `hub:lang` is meant to be shared by every site on the origin.
 
 ## Caching
 
@@ -82,14 +91,14 @@ The repository has no analytics, ads or other third-party code. A deployment can
 SITE_EXTENSIONS=../my-extensions/stats.mjs npm run build
 ```
 
-An extension's default export receives `{ env, langs }` and returns any of:
+An extension's default export receives `{ env, langs, base }` (`base` is the path of `SITE_URL`, empty at the host root) and returns any of:
 
 | Field | Meaning |
 |---|---|
 | `flags` | `{ name: true }`, usable as `<!-- build:name -->…<!-- /build:name -->` in templates. Set `thirdParty: true` when the extension loads anything from a third party: the privacy page then drops its "no third-party cookies" statement. |
 | `i18n` | Texts per language, `{ 'pt-BR': {...}, en: {...}, es: {...} }`, merged into `i18n/*.json`. Provide all three languages. |
-| `slots` | HTML inserted at fixed points: `head`, `bodyEnd`, `afterTool` (below the planner workspace), `inResults` (at the end of the planner's results drawer), `inGuide`, `afterGuide`, `footer`, `privacy`. Slots use the same `{{key}}` syntax as the templates. |
-| `writeFiles(outDir)` | Writes extra files (scripts, styles, server configuration) before CSS and JavaScript are fingerprinted. |
+| `slots` | HTML inserted at fixed points: `head`, `bodyEnd`, `afterTool` (below the planner workspace), `inResults` (at the end of the planner's results drawer), `inGuide`, `afterGuide`, `footer`, `privacy`. Slots use the same `{{key}}` syntax as the templates. Write asset addresses as `{{@base}}/assets/...` so they work below a path. |
+| `writeFiles(outDir, siteDir)` | Writes extra files before CSS and JavaScript are fingerprinted: server configuration in `outDir`, the host root, and the site's own scripts and styles in `siteDir`, which is `outDir` plus the path of `SITE_URL`. |
 
 The app announces usage events (`project_create`, `project_export`, `project_import`, `project_link_open`, `suggest_node`, `model_create`, `copy_summary`, `copy_link`) as a `planejador:track` DOM event, which an extension can listen to. Events never carry the project itself. A project link keeps the project in the URL fragment (`#p=…`), and `assets/js/site.js` removes it from the address as the page loads, before other module scripts run; an extension must not read or send it. If your extension collects anything about visitors, describe it in the `privacy` slot, in every language, and ask for consent where the law requires it.
 
