@@ -39,6 +39,9 @@ export const ORIGIN = PUBLIC.origin;
 export const BASE = PUBLIC.pathname.replace(/\/+$/, '');
 export const SITE = ORIGIN + BASE;
 const PRIVACY_URL = process.env.PRIVACY_URL || '';
+// Who publishes the planner, for structured data: the site it belongs to. A copy hosted elsewhere
+// changes this.
+const PUBLISHER = { name: 'Antes de Comprar', url: 'https://antesdecomprar.net/' };
 export const LANGS = ['pt-BR', 'en', 'es'];
 const DEFAULT_LANG = 'pt-BR';
 // Guides share one template (src/guide.html). Each one's texts live in every language file under
@@ -249,7 +252,8 @@ function bandsTable(d) {
 const ldJson = v => JSON.stringify(v).replace(/</g, '\\u003c');
 const ldScripts = list => list.map(o => `<script type="application/ld+json">${ldJson(o)}</script>`).join('\n');
 const longDate = (iso, d) => new Intl.DateTimeFormat(d.locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(iso + 'T00:00:00Z'));
-const ORG = () => ({ '@type': 'Organization', name: 'Planejador WiFi', url: SITE + '/', logo: { '@type': 'ImageObject', url: SITE + '/assets/img/icon-512.png' } });
+const ORG = () => ({ '@type': 'Organization', ...PUBLISHER });
+const WEBSITE = () => ({ '@type': 'WebSite', ...PUBLISHER });
 const crumbsLd = items => ({ '@context': 'https://schema.org', '@type': 'BreadcrumbList',
   itemListElement: items.map(([name, url], i) => ({ '@type': 'ListItem', position: i + 1, name, item: url })) });
 const crumbsHtml = (d, items) => `<nav class="crumbs" aria-label="${esc(d.guides.crumbLabel)}"><ol>${items.map(([name, url], i) =>
@@ -270,7 +274,7 @@ function docSpecials(dicts, lang, page, dateOf) {
   const main = doc.type === 'Article'
     ? articleLd(d, { headline: P.h1, description: P.description, url, published: doc.published, modified })
     : { '@context': 'https://schema.org', '@type': doc.type, name: P.h1, description: P.description, url, inLanguage: d.lang,
-      dateModified: modified, isPartOf: { '@type': 'WebSite', name: 'Planejador WiFi', url: SITE + '/' }, about: ORG() };
+      dateModified: modified, isPartOf: WEBSITE(), about: ORG() };
   return {
     title: P.title, description: P.description, h1: P.h1, ogTitle: P.h1, ogDescription: P.description,
     ogType: doc.type === 'Article' ? 'article' : 'website',
@@ -308,7 +312,7 @@ function guideSpecials(dicts, lang, page, dateOf, examples) {
       crumbs: crumbsHtml(d, [home, index]), guideList: `<ul class="guide-list">${list}</ul>`,
       jsonLd: ldScripts([
         { '@context': 'https://schema.org', '@type': 'CollectionPage', name: G.index.h1, description: G.index.description, url, inLanguage: d.lang,
-          isPartOf: { '@type': 'WebSite', name: 'Planejador WiFi', url: SITE + '/' },
+          isPartOf: WEBSITE(),
           mainEntity: { '@type': 'ItemList', itemListElement: GUIDES.map((g, i) => ({ '@type': 'ListItem', position: i + 1, url: ORIGIN + d.paths[guidePage(g.id)], name: G.items[g.id].h1 })) } },
         crumbsLd([home, index]),
       ]),
@@ -355,9 +359,9 @@ function specials(dicts, lang, page, dateOf, examples) {
   const langOptions = LANGS.map(l => `<option value="${dicts[l].paths[linkPage]}" data-lang="${l}"${l === lang ? ' selected' : ''}>${esc(dicts[l].langName)}</option>`).join('');
   const faqHtml = d.faq.map(f => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('');
   const ld = [
-    { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Planejador WiFi', alternateName: ['Planejador Wi-Fi', 'planejadorwifi.com'], url: SITE + '/', inLanguage: d.lang },
-    { '@context': 'https://schema.org', '@type': 'WebApplication', name: 'Planejador WiFi', url: ORIGIN + d.paths.index, description: d.meta.appDescription,
+    { '@context': 'https://schema.org', '@type': 'WebApplication', name: 'Planejador WiFi', alternateName: ['Planejador Wi-Fi', 'planejadorwifi.com'], url: ORIGIN + d.paths.index, description: d.meta.appDescription,
       applicationCategory: 'UtilitiesApplication', operatingSystem: d.meta.os, inLanguage: d.lang, isAccessibleForFree: true,
+      isPartOf: WEBSITE(), publisher: ORG(),
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } },
     { '@context': 'https://schema.org', '@type': 'FAQPage', inLanguage: d.lang,
       mainEntity: d.faq.map(f => ({ '@type': 'Question', name: stripTags(f.q), acceptedAnswer: { '@type': 'Answer', text: stripTags(f.a) } })) },
@@ -385,7 +389,7 @@ function specials(dicts, lang, page, dateOf, examples) {
     ...(DOCS[page] ? docSpecials(dicts, lang, page, dateOf) : {}),
     ...(page === 'privacy' ? { jsonLd: ldScripts([
       { '@context': 'https://schema.org', '@type': 'WebPage', name: d.privacy.h1, description: d.privacy.description, url: ORIGIN + d.paths.privacy, inLanguage: d.lang,
-        isPartOf: { '@type': 'WebSite', name: 'Planejador WiFi', url: SITE + '/' } },
+        isPartOf: WEBSITE() },
       crumbsLd([[d.guides.home, ORIGIN + d.paths.index], [d.privacy.h1, ORIGIN + d.paths.privacy]]),
     ]) } : {}),
   };
