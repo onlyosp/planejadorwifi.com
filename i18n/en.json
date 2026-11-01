@@ -212,7 +212,7 @@
     "cookiesTitle": "Cookies",
     "noCookies": "This site uses no cookies and no third-party tracking tools.",
     "rightsTitle": "Your rights",
-    "rightsText": "You can ask for information about how your data is processed, or for its deletion, at <b>contato@planejadorwifi.com</b>.",
+    "rightsText": "You can ask for information about how your data is processed, or for its deletion, at <b>contato@antesdecomprar.net</b>.",
     "linksTitle": "Project links",
     "linksText": "The <b>Copy link</b> button puts the whole project inside the link itself, in the part after the <b>#</b> sign. That part is never sent to the server: whoever opens the link gets the regular page, and the browser reads the project right there, saves it as a new project and removes that part from the address bar. The floor-plan image is not included in the link. Anyone with the link can see the project, so share it only with people you choose."
   },
@@ -1026,7 +1026,7 @@
     "description": "What Planejador WiFi is, who it is for, how it works under the hood, and how to report a bug or suggest an improvement.",
     "h1": "About Planejador WiFi",
     "short": "About",
-    "lead": "<p>Planejador WiFi is a Wi-Fi coverage calculator for houses and apartments. The idea is simple: try it on the floor plan before you buy, to see where the router should go and how many mesh nodes your home needs.</p>",
+    "lead": "<p>Planejador WiFi is a Wi-Fi coverage calculator for houses and apartments. The idea is simple: try it on the floor plan before you buy, to see where the router should go and how many mesh nodes your home needs. It is part of <a href=\"https://antesdecomprar.net/\">Antes de Comprar</a>, a set of free tools for planning before you spend.</p>",
     "related": "See also",
     "sections": [
       {
@@ -1052,7 +1052,7 @@
       {
         "id": "contact",
         "h": "Bugs, suggestions and contact",
-        "html": "<p>Seeing an odd result, a bug or a bad translation? Open an <a href=\"https://github.com/onlyosp/planejadorwifi.com/issues\">issue on GitHub</a> or email <a href=\"mailto:contato@planejadorwifi.com\">contato@planejadorwifi.com</a>. Measurements from real homes help calibrate the model, and code contributions are welcome: the <a href=\"https://github.com/onlyosp/planejadorwifi.com/blob/main/CONTRIBUTING.md\">contributing guide</a> explains how.</p><p>Please don't report security issues in a public issue: use GitHub's private vulnerability reporting, on the repository's Security tab.</p>"
+        "html": "<p>Seeing an odd result, a bug or a bad translation? Open an <a href=\"https://github.com/onlyosp/planejadorwifi.com/issues\">issue on GitHub</a> or email <a href=\"mailto:contato@antesdecomprar.net\">contato@antesdecomprar.net</a>. Measurements from real homes help calibrate the model, and code contributions are welcome: the <a href=\"https://github.com/onlyosp/planejadorwifi.com/blob/main/CONTRIBUTING.md\">contributing guide</a> explains how.</p><p>Please don't report security issues in a public issue: use GitHub's private vulnerability reporting, on the repository's Security tab.</p>"
       }
     ]
   }

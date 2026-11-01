@@ -212,7 +212,7 @@
     "cookiesTitle": "Cookies",
     "noCookies": "Este site não usa cookies nem ferramentas de rastreamento de terceiros.",
     "rightsTitle": "Seus direitos (LGPD)",
-    "rightsText": "Você pode pedir informações sobre o tratamento de dados ou a exclusão de dados pelo e-mail <b>contato@planejadorwifi.com</b>.",
+    "rightsText": "Você pode pedir informações sobre o tratamento de dados ou a exclusão de dados pelo e-mail <b>contato@antesdecomprar.net</b>.",
     "linksTitle": "Links de projeto",
     "linksText": "O botão <b>Copiar link</b> coloca o projeto inteiro dentro do próprio link, na parte que vem depois do sinal <b>#</b>. Essa parte nunca é enviada ao servidor: quem abre o link recebe a página normal, e o navegador lê o projeto ali mesmo, salva como um projeto novo e apaga essa parte da barra de endereço. A imagem de fundo da planta não vai no link. Qualquer pessoa com o link consegue ver o projeto, então envie só para quem você quiser."
   },
@@ -1026,7 +1026,7 @@
     "description": "O que é o Planejador WiFi, para quem ele foi feito, como funciona por dentro e como relatar um erro ou sugerir uma melhoria.",
     "h1": "Sobre o Planejador WiFi",
     "short": "Sobre",
-    "lead": "<p>O Planejador WiFi é uma calculadora de cobertura Wi-Fi para casas e apartamentos. A ideia é simples: testar no desenho, antes de comprar, onde colocar o roteador e quantos nós mesh a casa precisa.</p>",
+    "lead": "<p>O Planejador WiFi é uma calculadora de cobertura Wi-Fi para casas e apartamentos. A ideia é simples: testar no desenho, antes de comprar, onde colocar o roteador e quantos nós mesh a casa precisa. Ele faz parte do <a href=\"https://antesdecomprar.net/\">Antes de Comprar</a>, um conjunto de ferramentas gratuitas para planejar antes de gastar.</p>",
     "related": "Veja também",
     "sections": [
       {
@@ -1052,7 +1052,7 @@
       {
         "id": "contato",
         "h": "Erros, sugestões e contato",
-        "html": "<p>Achou um resultado estranho, um erro ou uma tradução ruim? Abra uma <a href=\"https://github.com/onlyosp/planejadorwifi.com/issues\">issue no GitHub</a> ou escreva para <a href=\"mailto:contato@planejadorwifi.com\">contato@planejadorwifi.com</a>. Medições feitas em casas de verdade ajudam a calibrar o modelo, e contribuições de código são bem-vindas: o <a href=\"https://github.com/onlyosp/planejadorwifi.com/blob/main/CONTRIBUTING.md\">guia de contribuição</a> explica como.</p><p>Falhas de segurança não devem ir para uma issue pública: use o relato privado de vulnerabilidade do GitHub, na aba Security do repositório.</p>"
+        "html": "<p>Achou um resultado estranho, um erro ou uma tradução ruim? Abra uma <a href=\"https://github.com/onlyosp/planejadorwifi.com/issues\">issue no GitHub</a> ou escreva para <a href=\"mailto:contato@antesdecomprar.net\">contato@antesdecomprar.net</a>. Medições feitas em casas de verdade ajudam a calibrar o modelo, e contribuições de código são bem-vindas: o <a href=\"https://github.com/onlyosp/planejadorwifi.com/blob/main/CONTRIBUTING.md\">guia de contribuição</a> explica como.</p><p>Falhas de segurança não devem ir para uma issue pública: use o relato privado de vulnerabilidade do GitHub, na aba Security do repositório.</p>"
       }
     ]
   }
