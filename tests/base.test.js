@@ -7,7 +7,7 @@ import { join } from 'node:path';
 // The build reads SITE_URL and PRIVACY_URL when it loads, so this file loads its own copy of it.
 process.env.SITE_URL = 'https://example.com/wifi/';
 process.env.PRIVACY_URL = 'https://example.com/privacidade';
-const { build, loadDicts, INDEXED, LANGS } = await import('../scripts/build.mjs?base');
+const { build, loadDicts, privacyUrls, INDEXED, LANGS } = await import('../scripts/build.mjs?base');
 delete process.env.SITE_URL;
 delete process.env.PRIVACY_URL;
 
@@ -52,4 +52,14 @@ test('a site below a path keeps every page, file and link below it', async () =>
   } finally {
     rmSync(out, { recursive: true, force: true });
   }
+});
+
+test('PRIVACY_URL takes one address or one per language', () => {
+  assert.equal(privacyUrls(''), null);
+  assert.deepEqual(privacyUrls('https://example.com/p?x=1'), { 'pt-BR': 'https://example.com/p?x=1', en: 'https://example.com/p?x=1', es: 'https://example.com/p?x=1' });
+  assert.deepEqual(privacyUrls('pt-BR=https://example.com/privacidade, en=https://example.com/en/privacy'),
+    { 'pt-BR': 'https://example.com/privacidade', en: 'https://example.com/en/privacy', es: 'https://example.com/privacidade' });
+  assert.throws(() => privacyUrls('en=https://example.com/en/privacy'), /pt-BR=/);
+  assert.throws(() => privacyUrls('fr=https://example.com/fr,pt-BR=https://example.com/p'), /only languages/);
+  assert.throws(() => privacyUrls('privacidade'), /must be an address/);
 });

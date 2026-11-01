@@ -30,7 +30,7 @@ sitemap.xml, robots.txt, llms.txt, site.webmanifest
 | Environment variable | Default | Purpose |
 |---|---|---|
 | `SITE_URL` | `https://planejadorwifi.com` | Public address used in canonical links, `hreflang` links and the sitemap. Set it when you host your own copy. It may end in a path, see [Serving below a path](#serving-below-a-path). |
-| `PRIVACY_URL` | empty | Address of a privacy policy published elsewhere, for example by a larger site this one is part of. The build then makes no privacy page of its own, and every link to it (footer, about page, guides) points there. That policy must cover what this site's own page says: projects stay in the browser, and project links carry the project in the fragment. |
+| `PRIVACY_URL` | empty | Address of a privacy policy published elsewhere, for example by a larger site this one is part of. The build then makes no privacy page of its own, and every link to it (footer, about page, guides) points there. Give one address, or one per language as `pt-BR=https://…,en=https://…,es=https://…` (a language left out uses the Portuguese one). That policy must cover what this site's own page says: projects stay in the browser, and project links carry the project in the fragment. |
 | `SITE_EXTENSIONS` | empty | Build extensions to include (see below). |
 
 Example:

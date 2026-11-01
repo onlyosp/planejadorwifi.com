@@ -17,7 +17,9 @@
 //                    it, dist/ mirrors it (dist/wifi/...) and no robots.txt is written, since only
 //                    the host root can serve one.
 //   PRIVACY_URL      address of a privacy policy published elsewhere. The site then builds no
-//                    privacy page of its own and links there instead.
+//                    privacy page of its own and links there instead. One address for every
+//                    language, or one per language: pt-BR=https://…,en=https://…,es=https://…
+//                    (a language left out uses the Portuguese one).
 //   SITE_EXTENSIONS  comma-separated paths to build extensions, see "Extensions" further down
 //
 // CSS and JS URLs get a ?v=<content hash> suffix (HTML references and module imports), so a
@@ -38,7 +40,20 @@ const PUBLIC = new URL(process.env.SITE_URL || 'https://planejadorwifi.com');
 export const ORIGIN = PUBLIC.origin;
 export const BASE = PUBLIC.pathname.replace(/\/+$/, '');
 export const SITE = ORIGIN + BASE;
-const PRIVACY_URL = process.env.PRIVACY_URL || '';
+// PRIVACY_URL as { lang: address } for every language, or null without one.
+export function privacyUrls(value) {
+  const v = String(value || '').trim();
+  if (!v) return null;
+  const pairs = v.split(',').map(p => p.trim().match(/^([\w-]+)=(https?:\/\/\S+)$/));
+  if (pairs.every(Boolean)) {
+    const map = Object.fromEntries(pairs.map(m => [m[1], m[2]]));
+    const unknown = Object.keys(map).filter(l => !LANGS.includes(l));
+    if (unknown.length || !map[DEFAULT_LANG]) throw new Error(`PRIVACY_URL needs ${DEFAULT_LANG}= and only languages of the site (${LANGS.join(', ')}).`);
+    return Object.fromEntries(LANGS.map(l => [l, map[l] || map[DEFAULT_LANG]]));
+  }
+  if (!/^https?:\/\/\S+$/.test(v)) throw new Error('PRIVACY_URL must be an address, or lang=address pairs separated by commas.');
+  return Object.fromEntries(LANGS.map(l => [l, v]));
+}
 // Who publishes the planner, for structured data: the site it belongs to, with the @ids its home
 // page declares, so search engines join them into one organization. A copy hosted elsewhere
 // changes this.
@@ -46,6 +61,7 @@ const PUBLISHER = { name: 'Antes de Comprar', url: 'https://antesdecomprar.net/'
 const PUBLISHER_IDS = { org: 'https://antesdecomprar.net/#organization', site: 'https://antesdecomprar.net/#website' };
 export const LANGS = ['pt-BR', 'en', 'es'];
 const DEFAULT_LANG = 'pt-BR';
+const PRIVACY = privacyUrls(process.env.PRIVACY_URL);
 // Guides share one template (src/guide.html). Each one's texts live in every language file under
 // guides.items.<id> and its public path under paths["guide-<id>"]. `published` is the date it first
 // went online; the modified date comes from git. `example` is the example home (scripts/scenarios.mjs)
@@ -73,9 +89,9 @@ const PAGES = {
   index: 'src/index.html', guides: 'src/guides.html',
   ...Object.fromEntries(GUIDES.map(g => [guidePage(g.id), 'src/guide.html'])),
   ...Object.fromEntries(Object.keys(DOCS).map(id => [id, 'src/doc.html'])),
-  ...(PRIVACY_URL ? {} : { privacy: 'src/privacy.html' }), notFound: 'src/404.html',
+  ...(PRIVACY ? {} : { privacy: 'src/privacy.html' }), notFound: 'src/404.html',
 };
-export const INDEXED = ['index', 'guides', ...GUIDES.map(g => guidePage(g.id)), ...Object.keys(DOCS), ...(PRIVACY_URL ? [] : ['privacy'])];
+export const INDEXED = ['index', 'guides', ...GUIDES.map(g => guidePage(g.id)), ...Object.keys(DOCS), ...(PRIVACY ? [] : ['privacy'])];
 // What each page's content is made of, for its last-modified date: its template plus its own
 // part of the language file (see scripts/lastmod.mjs).
 function sources(page) {
@@ -114,7 +130,7 @@ export function loadDicts(dir = join(ROOT, 'i18n')) {
   return Object.fromEntries(LANGS.map(l => {
     const d = JSON.parse(readFileSync(join(dir, l + '.json'), 'utf8'));
     d.paths = Object.fromEntries(Object.entries(d.paths).map(([k, p]) => [k, BASE + p]));
-    if (PRIVACY_URL) d.paths.privacy = PRIVACY_URL;
+    if (PRIVACY) d.paths.privacy = PRIVACY[l];
     return [l, d];
   }));
 }
