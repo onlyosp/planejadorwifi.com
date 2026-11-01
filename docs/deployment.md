@@ -91,7 +91,7 @@ The repository has no analytics, ads or other third-party code. A deployment can
 SITE_EXTENSIONS=../my-extensions/stats.mjs npm run build
 ```
 
-An extension's default export receives `{ env, langs, base }` (`base` is the path of `SITE_URL`, empty at the host root) and returns any of:
+An extension's default export receives `{ env, langs, base, privacy }` (`base` is the path of `SITE_URL`, empty at the host root; `privacy` is `PRIVACY_URL` as `{ lang: address }`, or `null`) and returns any of:
 
 | Field | Meaning |
 |---|---|

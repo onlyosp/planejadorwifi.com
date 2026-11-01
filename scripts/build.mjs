@@ -430,7 +430,9 @@ const PARTIALS = { head: 'head', header: 'header', footer: 'footer' };
 /* ---------- extensions ----------
  * A build extension adds deployment-specific features (for example a statistics or donation
  * widget) without changing this repository. It is an ES module whose default export is
- * setup({ env, langs }) returning any of:
+ * setup({ env, langs, base, privacy }) returning any of: base is the path of SITE_URL, privacy
+ * is PRIVACY_URL as { lang: address } or null. An extension must not import this file, which loads
+ * it while still running.
  *   flags     { name: boolean }        usable in <!-- build:name --> blocks; set
  *                                      thirdParty: true if it loads third-party code
  *   i18n      { 'pt-BR': {...}, ... }  deep-merged into each language file
@@ -521,7 +523,7 @@ function htmlFiles(dir) {
 
 export async function build({ outDir = join(ROOT, 'dist'), env = process.env, extensions } = {}) {
   const exts = extensions ?? await loadExtensions(env.SITE_EXTENSIONS);
-  const parts = exts.map(e => (typeof e === 'function' ? e : e.setup)({ env, langs: LANGS, base: BASE }) || {});
+  const parts = exts.map(e => (typeof e === 'function' ? e : e.setup)({ env, langs: LANGS, base: BASE, privacy: PRIVACY }) || {});
   const flags = { thirdParty: false };
   const slots = {};
   let dicts = loadDicts();
