@@ -2,14 +2,14 @@
 
 **Plan your home Wi-Fi before you buy.** Draw your floor plan, drop routers and mesh nodes on it, and see the estimated coverage on 2.4, 5 and 6 GHz.
 
-**Live at [planejadorwifi.com](https://planejadorwifi.com)**, free and with no sign-up, in [Portuguese](https://planejadorwifi.com/), [English](https://planejadorwifi.com/en/) and [Spanish](https://planejadorwifi.com/es/).
+**Live at [antesdecomprar.net/wifi](https://antesdecomprar.net/wifi/)**, free and with no sign-up, in [Portuguese](https://antesdecomprar.net/wifi/), [English](https://antesdecomprar.net/wifi/en/) and [Spanish](https://antesdecomprar.net/wifi/es/). It is one of the tools of [Antes de Comprar](https://antesdecomprar.net/), and planejadorwifi.com redirects there.
 
-[![Live site](https://img.shields.io/badge/live-planejadorwifi.com-2F43C4)](https://planejadorwifi.com)
+[![Live site](https://img.shields.io/badge/live-antesdecomprar.net%2Fwifi-2F43C4)](https://antesdecomprar.net/wifi/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![AI-assisted contributions welcome](https://img.shields.io/badge/AI--assisted-welcome-8D9BFF.svg)](#building-with-ai)
 
-[![Donate with Lightning](https://img.shields.io/badge/donate-%E2%9A%A1%20Lightning-F7931A)](https://planejadorwifi.com/#support)
+[![Donate with Lightning](https://img.shields.io/badge/donate-%E2%9A%A1%20Lightning-F7931A)](https://antesdecomprar.net/wifi/#support)
 
 ## Features
 
@@ -109,9 +109,9 @@ The app stores projects only in the visitor's `localStorage` and sends them nowh
 
 ## Support the project
 
-If the planner saved you a bad router purchase, you can send any amount of bitcoin over the Lightning Network. Scan the BOLT 12 offer with a wallet that supports it (Phoenix, Zeus and others), or copy it from [planejadorwifi.com/#support](https://planejadorwifi.com/#support).
+If the planner saved you a bad router purchase, you can send any amount of bitcoin over the Lightning Network. Scan the BOLT 12 offer with a wallet that supports it (Phoenix, Zeus and others), or copy it from [antesdecomprar.net/wifi/#support](https://antesdecomprar.net/wifi/#support).
 
-<p align="center"><a href="https://planejadorwifi.com/#support"><img src="https://planejadorwifi.com/assets/img/lightning-offer.svg" width="200" height="200" alt="QR code of the Lightning BOLT 12 donation offer"></a></p>
+<p align="center"><a href="https://antesdecomprar.net/wifi/#support"><img src="https://antesdecomprar.net/wifi/assets/img/lightning-offer.svg" width="200" height="200" alt="QR code of the Lightning BOLT 12 donation offer"></a></p>
 
 ## License
 

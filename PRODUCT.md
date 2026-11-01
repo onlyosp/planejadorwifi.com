@@ -24,7 +24,7 @@ Success means:
 
 - the visitor leaves knowing how many nodes to buy, which kind (dual-band or tri-band, wired or wireless backhaul) and where to put them;
 - the site is found through search engines and AI assistants, in Portuguese, English and Spanish;
-- the official deployment at planejadorwifi.com covers its costs and earns revenue through optional donations and advertising, without compromising the planner.
+- the official deployment at antesdecomprar.net/wifi covers its costs and earns revenue through optional donations and advertising, without compromising the planner.
 
 ## Positioning
 
@@ -52,7 +52,7 @@ Success means:
 
 ## Brand Commitments
 
-- Name: **Planejador WiFi**, domain planejadorwifi.com, logo is a floor-plan square with a Wi-Fi arc (`assets/img/favicon.svg`).
+- Name: **Planejador WiFi**, one of the tools of Antes de Comprar, served at antesdecomprar.net/wifi (planejadorwifi.com redirects there), logo is a floor-plan square with a Wi-Fi arc (`assets/img/favicon.svg`).
 - Voice: plain, direct and honest about uncertainty. Never overstate accuracy or invent social proof.
 
 ## Evidence on Hand

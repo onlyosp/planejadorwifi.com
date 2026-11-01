@@ -4,7 +4,7 @@ Thanks for helping make home Wi-Fi planning easier. Every kind of contribution c
 
 ## Where to contribute
 
-Issues and pull requests live on GitHub at [onlyosp/planejadorwifi.com](https://github.com/onlyosp/planejadorwifi.com), and pull requests are reviewed and merged there. The maintainer publishes `main` to planejadorwifi.com.
+Issues and pull requests live on GitHub at [onlyosp/planejadorwifi.com](https://github.com/onlyosp/planejadorwifi.com), and pull requests are reviewed and merged there. The maintainer publishes `main` to antesdecomprar.net/wifi.
 
 ## Suggesting a feature
 

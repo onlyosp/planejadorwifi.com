@@ -4,7 +4,7 @@ These rules apply to every AI assistant working in this repository (Claude Code,
 
 ## Project
 
-Planejador WiFi is a static, browser-only Wi-Fi coverage and mesh planner, published at https://planejadorwifi.com in Brazilian Portuguese (`/`), English (`/en/`) and Spanish (`/es/`). Users draw a floor plan, place routers and see estimated signal per band.
+Planejador WiFi is a static, browser-only Wi-Fi coverage and mesh planner, published at https://antesdecomprar.net/wifi (one of the tools of Antes de Comprar; planejadorwifi.com redirects there) in Brazilian Portuguese (`/wifi/`), English (`/wifi/en/`) and Spanish (`/wifi/es/`). Paths in the language files are relative to that address. Users draw a floor plan, place routers and see estimated signal per band.
 
 ## Commands
 
