@@ -39,9 +39,11 @@ export const ORIGIN = PUBLIC.origin;
 export const BASE = PUBLIC.pathname.replace(/\/+$/, '');
 export const SITE = ORIGIN + BASE;
 const PRIVACY_URL = process.env.PRIVACY_URL || '';
-// Who publishes the planner, for structured data: the site it belongs to. A copy hosted elsewhere
+// Who publishes the planner, for structured data: the site it belongs to, with the @ids its home
+// page declares, so search engines join them into one organization. A copy hosted elsewhere
 // changes this.
 const PUBLISHER = { name: 'Antes de Comprar', url: 'https://antesdecomprar.net/' };
+const PUBLISHER_IDS = { org: 'https://antesdecomprar.net/#organization', site: 'https://antesdecomprar.net/#website' };
 export const LANGS = ['pt-BR', 'en', 'es'];
 const DEFAULT_LANG = 'pt-BR';
 // Guides share one template (src/guide.html). Each one's texts live in every language file under
@@ -252,8 +254,8 @@ function bandsTable(d) {
 const ldJson = v => JSON.stringify(v).replace(/</g, '\\u003c');
 const ldScripts = list => list.map(o => `<script type="application/ld+json">${ldJson(o)}</script>`).join('\n');
 const longDate = (iso, d) => new Intl.DateTimeFormat(d.locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(iso + 'T00:00:00Z'));
-const ORG = () => ({ '@type': 'Organization', ...PUBLISHER });
-const WEBSITE = () => ({ '@type': 'WebSite', ...PUBLISHER });
+const ORG = () => ({ '@type': 'Organization', '@id': PUBLISHER_IDS.org, ...PUBLISHER });
+const WEBSITE = () => ({ '@type': 'WebSite', '@id': PUBLISHER_IDS.site, ...PUBLISHER });
 const crumbsLd = items => ({ '@context': 'https://schema.org', '@type': 'BreadcrumbList',
   itemListElement: items.map(([name, url], i) => ({ '@type': 'ListItem', position: i + 1, name, item: url })) });
 const crumbsHtml = (d, items) => `<nav class="crumbs" aria-label="${esc(d.guides.crumbLabel)}"><ol>${items.map(([name, url], i) =>
